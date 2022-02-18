@@ -23,7 +23,7 @@ public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> Dat
     // let host = "adminapi.verification.apollo-project.org"
     let host = useTestServers ? "adminapi.verification.apollo-project.org" : "adminapi.encv.org"
     let url = URL(string: "https://\(host)/api/stats/realm/\(stat)")!
-    //print(url)
+    // print(url)
     var request = URLRequest(url: url)
     request.setValue("application/json", forHTTPHeaderField: "content-type")
     request.setValue("application/json", forHTTPHeaderField: "accept")

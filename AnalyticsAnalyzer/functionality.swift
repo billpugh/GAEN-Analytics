@@ -563,7 +563,7 @@ public func loadMetrics(json: Data, _ configuration: Configuration) -> [String: 
     let rawData = json["rawData"] as! [NSDictionary]
     for m in rawData {
         let clients = m["total_individual_clients"] as! Int
-        let epsilon = m["epsilon"] as! Int
+        let epsilon = m["epsilon"] as! Double
         let id = m["aggregation_id"] as! String
         let fullId = m["id"] as! String
         let aggregationStartTime = m["aggregation_start_time"] as! String
@@ -572,7 +572,7 @@ public func loadMetrics(json: Data, _ configuration: Configuration) -> [String: 
         let aggregationEndTime: String = m["aggregation_end_time"] as! String
         let endTime = isoDateFormatter.date(from: aggregationEndTime)!
         let sum = m["sum"] as! [Int]
-        rawMetrics.addMetric(fullId: fullId, id: id, epsilon: 8, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
+        rawMetrics.addMetric(fullId: fullId, id: id, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
     }
 
     return rawMetrics.metrics
