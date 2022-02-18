@@ -7,7 +7,7 @@
 
 import Foundation
 @_predatesConcurrency import TabularData
-import UIKit
+// import UIKit
 
 @MainActor
 class AnalysisState: NSObject, ObservableObject {
@@ -156,15 +156,15 @@ class AnalysisState: NSObject, ObservableObject {
         if let enpa = combinedENPA, let config = config {
             print("enpa columns: ")
             print("\(enpa.columns.count) enpa Columns: \(enpa.columns.map(\.name))")
-            enpaCharts =
-                Array(
-                    [
-                        notificationsPerUpload(enpa: enpa, config: config),
-                        notificationsPer100K(enpa: enpa, config: config),
-                        arrivingPromptly(enpa: enpa, config: config),
-                        estimatedUsers(enpa: enpa, config: config),
-                        enpaOptIn(enpa: enpa, config: config),
-                    ].compacted())
+            let maybeCharts = [
+                notificationsPerUpload(enpa: enpa, config: config),
+                notificationsPer100K(enpa: enpa, config: config),
+                arrivingPromptly(enpa: enpa, config: config),
+                estimatedUsers(enpa: enpa, config: config),
+                enpaOptIn(enpa: enpa, config: config),
+            ]
+            enpaCharts = Array(maybeCharts.filter { $0 != nil }) as! [ChartOptions]
+
         } else {
             enpaCharts = []
         }
@@ -178,15 +178,16 @@ class AnalysisState: NSObject, ObservableObject {
             let hasUserReports = encv.indexOfColumn("user_report_claim_rate") != nil
 
             let hasSMSerrors = encv.indexOfColumn("sms_error_rate") != nil
-            encvCharts =
-                Array(
-                    [
-                        claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
-                        userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
-                        tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
-                        // publishRequests(encv: encv, config: config),
-                        systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
-                    ].compacted())
+            let maybeCharts: [ChartOptions?] = [
+                claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
+                userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
+                tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
+                // publishRequests(encv: encv, config: config),
+                systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
+            ]
+
+            encvCharts = Array(maybeCharts.filter { $0 != nil }) as! [ChartOptions]
+
             if hasUserReports {}
         } else {
             encvCharts = []
@@ -202,7 +203,7 @@ func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
 }
 
 actor AnalysisTask {
-    func analyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
+    func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
         await result.update(enpa: "fetching enpa")
         do {
             var raw = RawMetrics(config)
@@ -253,7 +254,7 @@ actor AnalysisTask {
         }
     }
 
-    func analyzeENCV(config: Configuration, result: AnalysisState) async -> ENCVAnalysis {
+    func getAndAnalyzeENCV(config: Configuration, result: AnalysisState) async -> ENCVAnalysis {
         if !config.hasENCV {
             return ENCVAnalysis(encv: nil, average: nil, log: ["Skipping ENCV"])
         }
@@ -266,7 +267,7 @@ actor AnalysisTask {
 
         let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
 
-        let analysis = GAEN_Analytics.analyzeENCV(composite: composite, smsData: smsData)
+        let analysis = analyzeENCV(composite: composite, smsData: smsData)
         await result.gotENCV(composite: analysis.encv)
         await result.gotRollingAvg(rollingAvg: analysis.average)
         await result.log(encv: analysis.log)
@@ -279,7 +280,7 @@ actor AnalysisTask {
         let encv: ENCVAnalysis?
         if config.hasENCV {
             print("Starting analyzeENCV")
-            encv = await analyzeENCV(config: config, result: result)
+            encv = await getAndAnalyzeENCV(config: config, result: result)
             print("Finished analyzeENCV")
         } else {
             encv = nil
@@ -287,12 +288,130 @@ actor AnalysisTask {
         }
         if config.hasENPA {
             print("Starting analyzeENPA")
-            await analyzeENPA(config: config, encvAverage: encv?.average, result: result)
+            await getAndAnalyzeENPA(config: config, encvAverage: encv?.average, result: result)
             print("Finished analyzeENPA")
         } else {
             await result.log(enpa: ["Skipping ENPA"])
         }
 
         await result.finish()
+    }
+}
+
+struct ChartOptions: Identifiable {
+    let days = 60
+    let title: String
+    let data: DataFrame.Slice
+    let columns: [String]
+    let maxBound: Double?
+    var id: String {
+        title
+    }
+
+    static func maybe(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) -> ChartOptions? {
+        for c in columns {
+            if data.indexOfColumn(c) == nil {
+                return nil
+            }
+        }
+        return ChartOptions(title: title, data: data, columns: columns, maxBound: maxBound)
+    }
+
+    init(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) {
+        self.title = title
+        // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
+        let rows = max(7, data.rows.count - 6)
+        self.data = data.suffix(rows).selecting(columnNames: ["date"] + columns)
+        self.columns = columns
+        self.maxBound = maxBound
+    }
+}
+
+func notificationsPerUpload(enpa: DataFrame, config: Configuration) -> ChartOptions {
+    let columns: [String]
+    if config.numCategories == 1 {
+        columns = ["nt/ku"]
+
+    } else {
+        columns = ["nt/ku"] + (1 ... config.numCategories).map { "nt\($0)/ku" }
+    }
+    return ChartOptions(title: "Notifications per key upload", data: enpa,
+                        columns: columns,
+                        maxBound: 50)
+}
+
+func notificationsPer100K(enpa: DataFrame, config: Configuration) -> ChartOptions {
+    let columns: [String]
+    if config.numCategories == 1 {
+        columns = ["nt"]
+
+    } else {
+        columns = ["nt"] + (1 ... config.numCategories).map { "nt\($0)" }
+    }
+    return ChartOptions(title: "Notifications per 100K", data: enpa, columns: columns)
+}
+
+func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
+    let columns = Array((1 ... config.numCategories).map { ["nt\($0) 0-3 days %", "nt\($0) 0-6 days %"] }.joined())
+
+    return ChartOptions(title: "Notifications arriving promptly", data: enpa, columns: columns,
+                        maxBound: 1.0)
+}
+
+// est. users
+func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
+    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users"])
+}
+
+// est. users
+func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
+    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %"], maxBound: 1.0)
+}
+
+// codes claimed/consent
+// user report rate
+// avg days onset to upload
+// sms errors, publish rate, android rate
+
+func claimedConsent(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
+    if hasUserReports {
+        return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate,user report claim rate,user report consent rate".components(separatedBy: ","))
+    }
+    return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate".components(separatedBy: ","))
+}
+
+func userReportRate(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions? {
+    if !hasUserReports {
+        return nil
+    }
+    return ChartOptions(title: "User report %", data: encv, columns: "user report percentage,user reports revision rate".components(separatedBy: ","))
+}
+
+func tokensClaimed(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
+    if hasUserReports {
+        return ChartOptions(title: "tokensClaimed", data: encv, columns: "tokens claimed,confirmed test tokens claimed,user report tokens claimed".components(separatedBy: ","))
+    }
+    return ChartOptions(title: "tokens claimed", data: encv, columns: "tokens claimed".components(separatedBy: ","))
+}
+
+func systemHealth(encv: DataFrame, hasSMS: Bool, config _: Configuration) -> ChartOptions {
+    if hasSMS {
+        return ChartOptions(title: "System health", data: encv, columns: "publish failure rate,sms error rate,android publish share".components(separatedBy: ","))
+    }
+    return ChartOptions(title: "System health", data: encv, columns: "publish failure rate,android publish share".components(separatedBy: ","))
+}
+
+func publishRequests(encv: DataFrame, config _: Configuration) -> ChartOptions {
+    ChartOptions(title: "Publish requests", data: encv, columns: "publish requests,publish requests ios,publish requests android".components(separatedBy: ","))
+}
+
+struct CSVFile {
+    // by default our document is empty
+    var data = Data()
+    var name: String
+
+    init(name: String, _ data: Data) {
+        self.data = data
+        self.name = name
     }
 }

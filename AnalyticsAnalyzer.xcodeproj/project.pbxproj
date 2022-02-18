@@ -52,6 +52,15 @@
 		16856E6E27BC62EC00F44960 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E6D27BC62EC00F44960 /* TestView.swift */; };
 		16856E9527BFEE5500F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
 		16856E9927BFEFFA00F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E9827BFEFFA00F44960 /* main.swift */; };
+		16856EA327C04EBE00F44960 /* SmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856EA227C04EBE00F44960 /* SmokeTest.swift */; };
+		16856EA727C04EEE00F44960 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16856EA827C04EEE00F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
+		16856EA927C04EEE00F44960 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+		16856EAA27C04EEE00F44960 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
+		16856EAB27C04EEE00F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
+		16856EAC27C04EEE00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		16856EAD27C04F0400F44960 /* AnalysisState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55727B0A4D70037D340 /* AnalysisState.swift */; };
+		16856EAE27C04F0400F44960 /* SetupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55927B0A4D70037D340 /* SetupState.swift */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
@@ -148,6 +157,8 @@
 		16856E6D27BC62EC00F44960 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
 		16856E8E27BFEE4600F44960 /* AnalyticsPlayground */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsPlayground; sourceTree = BUILT_PRODUCTS_DIR; };
 		16856E9827BFEFFA00F44960 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16856EA027C04EBE00F44960 /* SmokeTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmokeTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,6 +197,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		16856E9D27C04EBE00F44960 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		169FB8532642F0C10082DDD2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -216,6 +234,7 @@
 				164945A627B6AE5600C0F5F0 /* encvTool */,
 				16856E8F27BFEE4600F44960 /* AnalyticsPlayground */,
 				16D7B5E026237CEE00D09126 /* CheckUserRisk */,
+				16856EA127C04EBE00F44960 /* SmokeTest */,
 				1609485825C3632A001705A6 /* Products */,
 				16DC0F03262391EF0023AF49 /* Frameworks */,
 			);
@@ -230,6 +249,7 @@
 				1673F54827B07F710037D340 /* GAEN Analytics.app */,
 				164945A527B6AE5600C0F5F0 /* encvTool */,
 				16856E8E27BFEE4600F44960 /* AnalyticsPlayground */,
+				16856EA027C04EBE00F44960 /* SmokeTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -308,6 +328,14 @@
 				16856E9827BFEFFA00F44960 /* main.swift */,
 			);
 			path = AnalyticsPlayground;
+			sourceTree = "<group>";
+		};
+		16856EA127C04EBE00F44960 /* SmokeTest */ = {
+			isa = PBXGroup;
+			children = (
+				16856EA227C04EBE00F44960 /* SmokeTest.swift */,
+			);
+			path = SmokeTest;
 			sourceTree = "<group>";
 		};
 		169FB8572642F0C10082DDD2 /* AnalyticsTool */ = {
@@ -412,6 +440,23 @@
 			productReference = 16856E8E27BFEE4600F44960 /* AnalyticsPlayground */;
 			productType = "com.apple.product-type.tool";
 		};
+		16856E9F27C04EBE00F44960 /* SmokeTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16856EA427C04EBE00F44960 /* Build configuration list for PBXNativeTarget "SmokeTest" */;
+			buildPhases = (
+				16856E9C27C04EBE00F44960 /* Sources */,
+				16856E9D27C04EBE00F44960 /* Frameworks */,
+				16856E9E27C04EBE00F44960 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SmokeTest;
+			productName = SmokeTest;
+			productReference = 16856EA027C04EBE00F44960 /* SmokeTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		169FB8552642F0C10082DDD2 /* AnalyticsTool */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 169FB85C2642F0C10082DDD2 /* Build configuration list for PBXNativeTarget "AnalyticsTool" */;
@@ -475,6 +520,9 @@
 					16856E8D27BFEE4600F44960 = {
 						CreatedOnToolsVersion = 13.3;
 					};
+					16856E9F27C04EBE00F44960 = {
+						CreatedOnToolsVersion = 13.3;
+					};
 					169FB8552642F0C10082DDD2 = {
 						CreatedOnToolsVersion = 12.5;
 					};
@@ -509,6 +557,7 @@
 				1673F54727B07F710037D340 /* GAEN Analytics */,
 				164945A427B6AE5600C0F5F0 /* encvTool */,
 				16856E8D27BFEE4600F44960 /* AnalyticsPlayground */,
+				16856E9F27C04EBE00F44960 /* SmokeTest */,
 			);
 		};
 /* End PBXProject section */
@@ -529,6 +578,13 @@
 				16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */,
 				16856E5A27BBF40700F44960 /* about.md in Resources */,
 				16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16856E9E27C04EBE00F44960 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,6 +646,22 @@
 			files = (
 				16856E9927BFEFFA00F44960 /* main.swift in Sources */,
 				16856E9527BFEE5500F44960 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16856E9C27C04EBE00F44960 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16856EAC27C04EEE00F44960 /* configuration.swift in Sources */,
+				16856EAA27C04EEE00F44960 /* encvAnalysis.swift in Sources */,
+				16856EA927C04EEE00F44960 /* FetchENPA.swift in Sources */,
+				16856EAE27C04F0400F44960 /* SetupState.swift in Sources */,
+				16856EAD27C04F0400F44960 /* AnalysisState.swift in Sources */,
+				16856EAB27C04EEE00F44960 /* main.swift in Sources */,
+				16856EA327C04EBE00F44960 /* SmokeTest.swift in Sources */,
+				16856EA827C04EEE00F44960 /* TabularData.swift in Sources */,
+				16856EA727C04EEE00F44960 /* functionality.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -888,6 +960,40 @@
 			};
 			name = Release;
 		};
+		16856EA527C04EBE00F44960 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.umd.cs.pugh.SmokeTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		16856EA627C04EBE00F44960 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.umd.cs.pugh.SmokeTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		169FB85A2642F0C10082DDD2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -984,6 +1090,15 @@
 			buildConfigurations = (
 				16856E9227BFEE4600F44960 /* Debug */,
 				16856E9327BFEE4600F44960 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16856EA427C04EBE00F44960 /* Build configuration list for PBXNativeTarget "SmokeTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16856EA527C04EBE00F44960 /* Debug */,
+				16856EA627C04EBE00F44960 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

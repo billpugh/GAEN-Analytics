@@ -6,7 +6,13 @@
 //
 
 import Foundation
-import UIKit
+// import UIKit
+
+let dateFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.dateFormat = "yyyy-MM-dd"
+    return df
+}()
 
 let defaultStart = dateFormatter.date(from: "2021-12-01")!
 
@@ -27,7 +33,7 @@ private func dateFor(key: String) -> Date {
 //    let configStartDate: Date
 // }
 
-class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
+class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDelegate {
     static let shared = SetupState()
 
     static let faceIDKey = "faceIDKey"
@@ -97,8 +103,8 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
         region.isEmpty || encvKey.isEmpty && enpaKey.isEmpty
     }
 
-    let testEncvKey = "x2TtU303DaAGRxUibfMG9rqT-D9l0A942JiP_6o7bamUJV4s0BiJ8bPsTU-B2n3XiBVnO3BKlc9Y7jKoRnHtOQ.1.DM6RDGij9f-wno9I_o6VbcBC3kZ9Y4CF0XvIyN3sBBV6a5rodTKDeEPmWOkPZI3Fy78LZJBopZNUFPJLk-I-2Q"
-    let testEnpaKey = "436b5bda-8336-4a2c-84c9-52cf5558b238.a1fbbeaad15842696fe56fc45522de112ac089f51e8bdebbd4193b17a77d7a1b"
+    static let testEncvKey = "x2TtU303DaAGRxUibfMG9rqT-D9l0A942JiP_6o7bamUJV4s0BiJ8bPsTU-B2n3XiBVnO3BKlc9Y7jKoRnHtOQ.1.DM6RDGij9f-wno9I_o6VbcBC3kZ9Y4CF0XvIyN3sBBV6a5rodTKDeEPmWOkPZI3Fy78LZJBopZNUFPJLk-I-2Q"
+    static let testEnpaKey = "436b5bda-8336-4a2c-84c9-52cf5558b238.a1fbbeaad15842696fe56fc45522de112ac089f51e8bdebbd4193b17a77d7a1b"
 
     var usingTestData: Bool {
         get {
@@ -107,8 +113,8 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
         set(newValue) {
             if newValue {
                 region = "US-EV"
-                encvKey = testEncvKey
-                enpaKey = testEnpaKey
+                encvKey = SetupState.testEncvKey
+                enpaKey = SetupState.testEnpaKey
                 useTestServers = true
                 notifications = 1
                 startDate = defaultStart
@@ -120,7 +126,7 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     }
 
     var isUsingTestData: Bool {
-        useTestServers && encvKey == testEncvKey && enpaKey == testEnpaKey
+        useTestServers && encvKey == SetupState.testEncvKey && enpaKey == SetupState.testEnpaKey
     }
 
     func clear() {
@@ -136,6 +142,17 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
 
     var isClear: Bool {
         region.isEmpty && encvKey.isEmpty && enpaKey.isEmpty
+    }
+
+    init(testConfigWithNotifications: Int) {
+        useFaceID = false
+        notifications = testConfigWithNotifications
+        useTestServers = true
+        region = "US-EV"
+        encvKey = SetupState.testEncvKey
+        enpaKey = SetupState.testEnpaKey
+        startDate = defaultStart
+        configStartDate = nil
     }
 
     override init() {

@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-let dateFormatter: DateFormatter = {
-    let df = DateFormatter()
-    df.dateFormat = "yyyy-MM-dd"
-    return df
-}()
-
 func makeAlert(
     title: String,
     message: String,

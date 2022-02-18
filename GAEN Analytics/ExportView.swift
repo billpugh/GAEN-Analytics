@@ -10,7 +10,7 @@ import SwiftUI
 import TabularData
 import UniformTypeIdentifiers
 
-struct CSVFile: FileDocument {
+extension CSVFile: FileDocument {
     init(configuration: ReadConfiguration) throws {
         name = "unknown.csv"
         data = configuration.file.regularFileContents!
@@ -18,15 +18,6 @@ struct CSVFile: FileDocument {
 
     // tell the system we support only plain text
     static var readableContentTypes = [UTType.commaSeparatedText]
-
-    // by default our document is empty
-    var data = Data()
-    var name: String
-
-    init(name: String, _ data: Data) {
-        self.data = data
-        self.name = name
-    }
 
     // this will be called when the system wants to write our data to disk
     func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper {

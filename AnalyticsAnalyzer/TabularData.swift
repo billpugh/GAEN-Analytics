@@ -97,50 +97,6 @@ extension DataFrame {
         return result
     }
 
-    func rollingSum(days: Int) -> DataFrame {
-        var result = DataFrame()
-        for c in columns {
-            print(c.name)
-            if c.wrappedElementType == Date.self {
-                let c = c.assumingType(Date.self)
-                result.append(column: Column(c[days ..< c.count]))
-            } else if c.wrappedElementType == Int.self {
-                let c = c.assumingType(Int.self)
-                let range = (days ..< c.count)
-                var rSum: [Int?] = []
-                for end in range {
-                    let slice = c[end - days ..< end]
-                    // print(slice)
-                    let sum = slice.reduce(0, sum)
-
-                    rSum.append(sum)
-                }
-                let r = Column(name: c.name, contents: rSum)
-                // print(r.count)
-                // print(r)
-                result.append(column: r)
-            } else if c.wrappedElementType == [Int].self {
-                let c = c.assumingType([Int].self)
-                let range = (days ..< c.count)
-                var rSum: [[Int]?] = []
-                for end in range {
-                    let slice = c[end - days ..< end]
-                    // print(slice)
-                    let sum = slice.reduce(nil, sum)
-
-                    rSum.append(sum)
-                }
-                let r = Column(name: c.name, contents: rSum)
-                // print(r.count)
-                // print(r)
-                result.append(column: r)
-            }
-            // print(result.rows.count)
-            // print(result)
-        }
-        return result
-    }
-
     mutating func removeJoinNames() {
         for c in columns {
             let name = c.name
