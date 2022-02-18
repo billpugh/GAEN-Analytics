@@ -53,6 +53,9 @@ struct ContentView: View {
             if isUnlocked || !state.useFaceID {
                 List {
                     Section(header: Text("GAEN Analytics app").font(.title).textCase(nil)) {
+                        if self.state.isUsingTestData {
+                            Text("Using test data and servers").font(.headline).padding(.horizontal)
+                        }
                         Text("Region: \(state.region)").font(.headline).padding(.horizontal)
                         NavigationLink(destination: DocView(title: "About GAEN Analyzer", file: "about"), tag: "about", selection: $viewShown) {
                             Text("About GAEN Analyzer").padding(.horizontal)

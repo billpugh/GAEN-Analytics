@@ -72,6 +72,9 @@ struct SetupView: View {
 //                )
             } // Sectikon
             Section(header: Text("API keys")) {
+                if self.state.isUsingTestData {
+                    Text("Using test data and servers").font(.headline)
+                }
                 HStack {
                     NavigationLink(destination:
                         ApiKeyView(title: "ENCV API key", apiKey:
@@ -107,6 +110,7 @@ struct SetupView: View {
                         Text("Use test data")
                     }
                 } else {
+                   
                     Button(action: { showingReset = true }) {
                         Text("Clear all")
                     }.alert(isPresented: $showingReset) {
