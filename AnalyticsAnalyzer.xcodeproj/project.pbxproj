@@ -1,0 +1,1088 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		164945A827B6AE5600C0F5F0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164945A727B6AE5600C0F5F0 /* main.swift */; };
+		164945AC27B6B05300C0F5F0 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
+		164945AD27B6B05800C0F5F0 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		164945AE27B6B05C00C0F5F0 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
+		164945B027B6B17700C0F5F0 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 164945AF27B6B17700C0F5F0 /* ArgumentParser */; };
+		164945B127B6B19F00C0F5F0 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		164945B427B6B1E400C0F5F0 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+		16515AA625C9939200C97BB8 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		1673F54127B002B80037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		1673F54227B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		1673F54327B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		1673F54B27B07F710037D340 /* GAEN_AnalyticsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54A27B07F710037D340 /* GAEN_AnalyticsApp.swift */; };
+		1673F54D27B07F710037D340 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54C27B07F710037D340 /* ContentView.swift */; };
+		1673F54F27B07F730037D340 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1673F54E27B07F730037D340 /* Assets.xcassets */; };
+		1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1673F55127B07F730037D340 /* Preview Assets.xcassets */; };
+		1673F55A27B0A4D70037D340 /* AnalysisState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55727B0A4D70037D340 /* AnalysisState.swift */; };
+		1673F55B27B0A4D70037D340 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55827B0A4D70037D340 /* ExportView.swift */; };
+		1673F55C27B0A4D70037D340 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55627B0A4D60037D340 /* SetupView.swift */; };
+		1673F55D27B0A4D70037D340 /* SetupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55927B0A4D70037D340 /* SetupState.swift */; };
+		1673F55F27B0A57D0037D340 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+		1673F56027B0A5800037D340 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		1673F56127B0A5BA0037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		1673F56527B0A7C80037D340 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
+		1673F56627B0A8300037D340 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
+		1673F56727B0A8300037D340 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
+		1673F56927B0C0860037D340 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
+		1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
+		1673F56D27B1820B0037D340 /* ApiKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56C27B1820B0037D340 /* ApiKeyView.swift */; };
+		1673F5B827B428A00037D340 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F5B727B428A00037D340 /* SummaryView.swift */; };
+		16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4127BA9F0F00F44960 /* ENXChartView.swift */; };
+		16856E4427BAA64700F44960 /* ENXLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4327BAA64700F44960 /* ENXLineChart.swift */; };
+		16856E4D27BAA89C00F44960 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 16856E4C27BAA89C00F44960 /* Charts */; };
+		16856E5927BBF34800F44960 /* DocView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E5827BBF34800F44960 /* DocView.swift */; };
+		16856E5A27BBF40700F44960 /* about.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5727BBF31D00F44960 /* about.md */; };
+		16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */; };
+		16856E6627BC021000F44960 /* ENPA opt in.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6527BC01FC00F44960 /* ENPA opt in.md */; };
+		16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5F27BC014400F44960 /* claimed and consent rates.md */; };
+		16856E6827BC021900F44960 /* tokens claimed.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6027BC018C00F44960 /* tokens claimed.md */; };
+		16856E6927BC021C00F44960 /* System health.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6127BC01A300F44960 /* System health.md */; };
+		16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6227BC01BB00F44960 /* Notifications per key upload.md */; };
+		16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6327BC01D100F44960 /* Notifications arriving promptly.md */; };
+		16856E6C27BC022500F44960 /* Estimated users.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6427BC01E700F44960 /* Estimated users.md */; };
+		16856E6E27BC62EC00F44960 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E6D27BC62EC00F44960 /* TestView.swift */; };
+		16856E9527BFEE5500F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
+		16856E9927BFEFFA00F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E9827BFEFFA00F44960 /* main.swift */; };
+		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
+		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
+		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
+		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
+		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
+		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
+		16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+		16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1609485525C3632A001705A6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		164945A327B6AE5600C0F5F0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		16856E8C27BFEE4600F44960 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		169FB8542642F0C10082DDD2 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		16D7B5DD26237CEE00D09126 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1609485725C3632A001705A6 /* AnalyticsAnalyzer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsAnalyzer; sourceTree = BUILT_PRODUCTS_DIR; };
+		1609485A25C3632A001705A6 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		164945A527B6AE5600C0F5F0 /* encvTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = encvTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		164945A727B6AE5600C0F5F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16515AA525C9939200C97BB8 /* functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = functionality.swift; sourceTree = "<group>"; };
+		1673F54027B002B80037D340 /* configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configuration.swift; sourceTree = "<group>"; };
+		1673F54827B07F710037D340 /* GAEN Analytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GAEN Analytics.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1673F54A27B07F710037D340 /* GAEN_AnalyticsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GAEN_AnalyticsApp.swift; sourceTree = "<group>"; };
+		1673F54C27B07F710037D340 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1673F54E27B07F730037D340 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1673F55127B07F730037D340 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1673F55627B0A4D60037D340 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		1673F55727B0A4D70037D340 /* AnalysisState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisState.swift; sourceTree = "<group>"; };
+		1673F55827B0A4D70037D340 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		1673F55927B0A4D70037D340 /* SetupState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupState.swift; sourceTree = "<group>"; };
+		1673F56427B0A7C80037D340 /* TabularData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabularData.swift; sourceTree = "<group>"; };
+		1673F56827B0C0860037D340 /* encvAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = encvAnalysis.swift; sourceTree = "<group>"; };
+		1673F56C27B1820B0037D340 /* ApiKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiKeyView.swift; sourceTree = "<group>"; };
+		1673F5B627B424AC0037D340 /* GAEN Analytics.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "GAEN Analytics.entitlements"; sourceTree = "<group>"; };
+		1673F5B727B428A00037D340 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
+		16856E4127BA9F0F00F44960 /* ENXChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENXChartView.swift; sourceTree = "<group>"; };
+		16856E4327BAA64700F44960 /* ENXLineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENXLineChart.swift; sourceTree = "<group>"; };
+		16856E5727BBF31D00F44960 /* about.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = about.md; sourceTree = "<group>"; };
+		16856E5827BBF34800F44960 /* DocView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocView.swift; sourceTree = "<group>"; };
+		16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notifications per 100K.md"; sourceTree = "<group>"; };
+		16856E5F27BC014400F44960 /* claimed and consent rates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "claimed and consent rates.md"; sourceTree = "<group>"; };
+		16856E6027BC018C00F44960 /* tokens claimed.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "tokens claimed.md"; sourceTree = "<group>"; };
+		16856E6127BC01A300F44960 /* System health.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "System health.md"; sourceTree = "<group>"; };
+		16856E6227BC01BB00F44960 /* Notifications per key upload.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notifications per key upload.md"; sourceTree = "<group>"; };
+		16856E6327BC01D100F44960 /* Notifications arriving promptly.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notifications arriving promptly.md"; sourceTree = "<group>"; };
+		16856E6427BC01E700F44960 /* Estimated users.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Estimated users.md"; sourceTree = "<group>"; };
+		16856E6527BC01FC00F44960 /* ENPA opt in.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENPA opt in.md"; sourceTree = "<group>"; };
+		16856E6D27BC62EC00F44960 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
+		16856E8E27BFEE4600F44960 /* AnalyticsPlayground */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsPlayground; sourceTree = BUILT_PRODUCTS_DIR; };
+		16856E9827BFEFFA00F44960 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
+		16D7B5E126237CEE00D09126 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16F6DAAE27A764A100388B5B /* FetchENPA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchENPA.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1609485425C3632A001705A6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		164945A227B6AE5600C0F5F0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				164945B027B6B17700C0F5F0 /* ArgumentParser in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1673F54527B07F710037D340 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16856E4D27BAA89C00F44960 /* Charts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16856E8B27BFEE4600F44960 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		169FB8532642F0C10082DDD2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */,
+				169FB85E2642F1300082DDD2 /* CSV in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D7B5DC26237CEE00D09126 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */,
+				16DC0F05262391EF0023AF49 /* CSV in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1609484E25C3632A001705A6 = {
+			isa = PBXGroup;
+			children = (
+				1609485925C3632A001705A6 /* AnalyticsAnalyzer */,
+				1673F54927B07F710037D340 /* GAEN Analytics */,
+				169FB8572642F0C10082DDD2 /* AnalyticsTool */,
+				164945A627B6AE5600C0F5F0 /* encvTool */,
+				16856E8F27BFEE4600F44960 /* AnalyticsPlayground */,
+				16D7B5E026237CEE00D09126 /* CheckUserRisk */,
+				1609485825C3632A001705A6 /* Products */,
+				16DC0F03262391EF0023AF49 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		1609485825C3632A001705A6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1609485725C3632A001705A6 /* AnalyticsAnalyzer */,
+				16D7B5DF26237CEE00D09126 /* CheckUserRisk */,
+				169FB8562642F0C10082DDD2 /* AnalyticsTool */,
+				1673F54827B07F710037D340 /* GAEN Analytics.app */,
+				164945A527B6AE5600C0F5F0 /* encvTool */,
+				16856E8E27BFEE4600F44960 /* AnalyticsPlayground */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1609485925C3632A001705A6 /* AnalyticsAnalyzer */ = {
+			isa = PBXGroup;
+			children = (
+				1609485A25C3632A001705A6 /* main.swift */,
+				16515AA525C9939200C97BB8 /* functionality.swift */,
+				1673F56827B0C0860037D340 /* encvAnalysis.swift */,
+				16F6DAAE27A764A100388B5B /* FetchENPA.swift */,
+				1673F54027B002B80037D340 /* configuration.swift */,
+				1673F56427B0A7C80037D340 /* TabularData.swift */,
+			);
+			path = AnalyticsAnalyzer;
+			sourceTree = "<group>";
+		};
+		164945A627B6AE5600C0F5F0 /* encvTool */ = {
+			isa = PBXGroup;
+			children = (
+				164945A727B6AE5600C0F5F0 /* main.swift */,
+			);
+			path = encvTool;
+			sourceTree = "<group>";
+		};
+		1673F54927B07F710037D340 /* GAEN Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				16856E5627BBF30300F44960 /* docs */,
+				1673F5B627B424AC0037D340 /* GAEN Analytics.entitlements */,
+				1673F54A27B07F710037D340 /* GAEN_AnalyticsApp.swift */,
+				1673F54C27B07F710037D340 /* ContentView.swift */,
+				16856E6D27BC62EC00F44960 /* TestView.swift */,
+				1673F56C27B1820B0037D340 /* ApiKeyView.swift */,
+				1673F55727B0A4D70037D340 /* AnalysisState.swift */,
+				1673F55827B0A4D70037D340 /* ExportView.swift */,
+				1673F55927B0A4D70037D340 /* SetupState.swift */,
+				1673F55627B0A4D60037D340 /* SetupView.swift */,
+				1673F5B727B428A00037D340 /* SummaryView.swift */,
+				16856E4127BA9F0F00F44960 /* ENXChartView.swift */,
+				16856E4327BAA64700F44960 /* ENXLineChart.swift */,
+				16856E5827BBF34800F44960 /* DocView.swift */,
+				1673F54E27B07F730037D340 /* Assets.xcassets */,
+				1673F55027B07F730037D340 /* Preview Content */,
+			);
+			path = "GAEN Analytics";
+			sourceTree = "<group>";
+		};
+		1673F55027B07F730037D340 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1673F55127B07F730037D340 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		16856E5627BBF30300F44960 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				16856E5727BBF31D00F44960 /* about.md */,
+				16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */,
+				16856E5F27BC014400F44960 /* claimed and consent rates.md */,
+				16856E6027BC018C00F44960 /* tokens claimed.md */,
+				16856E6127BC01A300F44960 /* System health.md */,
+				16856E6227BC01BB00F44960 /* Notifications per key upload.md */,
+				16856E6327BC01D100F44960 /* Notifications arriving promptly.md */,
+				16856E6427BC01E700F44960 /* Estimated users.md */,
+				16856E6527BC01FC00F44960 /* ENPA opt in.md */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		16856E8F27BFEE4600F44960 /* AnalyticsPlayground */ = {
+			isa = PBXGroup;
+			children = (
+				16856E9827BFEFFA00F44960 /* main.swift */,
+			);
+			path = AnalyticsPlayground;
+			sourceTree = "<group>";
+		};
+		169FB8572642F0C10082DDD2 /* AnalyticsTool */ = {
+			isa = PBXGroup;
+			children = (
+				169FB8582642F0C10082DDD2 /* main.swift */,
+			);
+			path = AnalyticsTool;
+			sourceTree = "<group>";
+		};
+		16D7B5E026237CEE00D09126 /* CheckUserRisk */ = {
+			isa = PBXGroup;
+			children = (
+				16D7B5E126237CEE00D09126 /* main.swift */,
+			);
+			path = CheckUserRisk;
+			sourceTree = "<group>";
+		};
+		16DC0F03262391EF0023AF49 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1609485625C3632A001705A6 /* AnalyticsAnalyzer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1609485E25C3632A001705A6 /* Build configuration list for PBXNativeTarget "AnalyticsAnalyzer" */;
+			buildPhases = (
+				1609485325C3632A001705A6 /* Sources */,
+				1609485425C3632A001705A6 /* Frameworks */,
+				1609485525C3632A001705A6 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AnalyticsAnalyzer;
+			packageProductDependencies = (
+			);
+			productName = AnalyticsAnalyzer;
+			productReference = 1609485725C3632A001705A6 /* AnalyticsAnalyzer */;
+			productType = "com.apple.product-type.tool";
+		};
+		164945A427B6AE5600C0F5F0 /* encvTool */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 164945AB27B6AE5600C0F5F0 /* Build configuration list for PBXNativeTarget "encvTool" */;
+			buildPhases = (
+				164945A127B6AE5600C0F5F0 /* Sources */,
+				164945A227B6AE5600C0F5F0 /* Frameworks */,
+				164945A327B6AE5600C0F5F0 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = encvTool;
+			packageProductDependencies = (
+				164945AF27B6B17700C0F5F0 /* ArgumentParser */,
+			);
+			productName = encvTool;
+			productReference = 164945A527B6AE5600C0F5F0 /* encvTool */;
+			productType = "com.apple.product-type.tool";
+		};
+		1673F54727B07F710037D340 /* GAEN Analytics */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1673F55327B07F730037D340 /* Build configuration list for PBXNativeTarget "GAEN Analytics" */;
+			buildPhases = (
+				1673F54427B07F710037D340 /* Sources */,
+				1673F54527B07F710037D340 /* Frameworks */,
+				1673F54627B07F710037D340 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GAEN Analytics";
+			packageProductDependencies = (
+				16856E4C27BAA89C00F44960 /* Charts */,
+			);
+			productName = "GAEN Analytics";
+			productReference = 1673F54827B07F710037D340 /* GAEN Analytics.app */;
+			productType = "com.apple.product-type.application";
+		};
+		16856E8D27BFEE4600F44960 /* AnalyticsPlayground */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16856E9427BFEE4600F44960 /* Build configuration list for PBXNativeTarget "AnalyticsPlayground" */;
+			buildPhases = (
+				16856E8A27BFEE4600F44960 /* Sources */,
+				16856E8B27BFEE4600F44960 /* Frameworks */,
+				16856E8C27BFEE4600F44960 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AnalyticsPlayground;
+			productName = AnalyticsPlayground;
+			productReference = 16856E8E27BFEE4600F44960 /* AnalyticsPlayground */;
+			productType = "com.apple.product-type.tool";
+		};
+		169FB8552642F0C10082DDD2 /* AnalyticsTool */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 169FB85C2642F0C10082DDD2 /* Build configuration list for PBXNativeTarget "AnalyticsTool" */;
+			buildPhases = (
+				169FB8522642F0C10082DDD2 /* Sources */,
+				169FB8532642F0C10082DDD2 /* Frameworks */,
+				169FB8542642F0C10082DDD2 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AnalyticsTool;
+			packageProductDependencies = (
+				169FB85D2642F1300082DDD2 /* CSV */,
+				169FB85F2642F1360082DDD2 /* ArgumentParser */,
+			);
+			productName = AnalyticsTool;
+			productReference = 169FB8562642F0C10082DDD2 /* AnalyticsTool */;
+			productType = "com.apple.product-type.tool";
+		};
+		16D7B5DE26237CEE00D09126 /* CheckUserRisk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16D7B5E526237CEE00D09126 /* Build configuration list for PBXNativeTarget "CheckUserRisk" */;
+			buildPhases = (
+				16D7B5DB26237CEE00D09126 /* Sources */,
+				16D7B5DC26237CEE00D09126 /* Frameworks */,
+				16D7B5DD26237CEE00D09126 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CheckUserRisk;
+			packageProductDependencies = (
+				16DC0F04262391EF0023AF49 /* CSV */,
+				16AA11622625CE59007CA1A7 /* ArgumentParser */,
+			);
+			productName = CheckUserRisk;
+			productReference = 16D7B5DF26237CEE00D09126 /* CheckUserRisk */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1609484F25C3632A001705A6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					1609485625C3632A001705A6 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					164945A427B6AE5600C0F5F0 = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
+					1673F54727B07F710037D340 = {
+						CreatedOnToolsVersion = 13.3;
+					};
+					16856E8D27BFEE4600F44960 = {
+						CreatedOnToolsVersion = 13.3;
+					};
+					169FB8552642F0C10082DDD2 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					16D7B5DE26237CEE00D09126 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+				};
+			};
+			buildConfigurationList = 1609485225C3632A001705A6 /* Build configuration list for PBXProject "AnalyticsAnalyzer" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1609484E25C3632A001705A6;
+			packageReferences = (
+				1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */,
+				16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
+				16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */,
+				16856E4B27BAA89C00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
+			);
+			productRefGroup = 1609485825C3632A001705A6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1609485625C3632A001705A6 /* AnalyticsAnalyzer */,
+				16D7B5DE26237CEE00D09126 /* CheckUserRisk */,
+				169FB8552642F0C10082DDD2 /* AnalyticsTool */,
+				1673F54727B07F710037D340 /* GAEN Analytics */,
+				164945A427B6AE5600C0F5F0 /* encvTool */,
+				16856E8D27BFEE4600F44960 /* AnalyticsPlayground */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1673F54627B07F710037D340 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */,
+				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
+				16856E6927BC021C00F44960 /* System health.md in Resources */,
+				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
+				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
+				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
+				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
+				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
+				16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */,
+				16856E5A27BBF40700F44960 /* about.md in Resources */,
+				16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1609485325C3632A001705A6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16515AA625C9939200C97BB8 /* functionality.swift in Sources */,
+				1673F54127B002B80037D340 /* configuration.swift in Sources */,
+				16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */,
+				1673F56527B0A7C80037D340 /* TabularData.swift in Sources */,
+				1673F56927B0C0860037D340 /* encvAnalysis.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		164945A127B6AE5600C0F5F0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				164945A827B6AE5600C0F5F0 /* main.swift in Sources */,
+				164945AE27B6B05C00C0F5F0 /* TabularData.swift in Sources */,
+				164945B427B6B1E400C0F5F0 /* FetchENPA.swift in Sources */,
+				164945B127B6B19F00C0F5F0 /* functionality.swift in Sources */,
+				164945AD27B6B05800C0F5F0 /* configuration.swift in Sources */,
+				164945AC27B6B05300C0F5F0 /* encvAnalysis.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1673F54427B07F710037D340 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1673F55F27B0A57D0037D340 /* FetchENPA.swift in Sources */,
+				1673F5B827B428A00037D340 /* SummaryView.swift in Sources */,
+				16856E4427BAA64700F44960 /* ENXLineChart.swift in Sources */,
+				1673F56D27B1820B0037D340 /* ApiKeyView.swift in Sources */,
+				1673F56127B0A5BA0037D340 /* configuration.swift in Sources */,
+				16856E5927BBF34800F44960 /* DocView.swift in Sources */,
+				1673F55B27B0A4D70037D340 /* ExportView.swift in Sources */,
+				16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */,
+				16856E6E27BC62EC00F44960 /* TestView.swift in Sources */,
+				1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */,
+				1673F56027B0A5800037D340 /* functionality.swift in Sources */,
+				1673F55A27B0A4D70037D340 /* AnalysisState.swift in Sources */,
+				1673F54D27B07F710037D340 /* ContentView.swift in Sources */,
+				1673F55D27B0A4D70037D340 /* SetupState.swift in Sources */,
+				1673F55C27B0A4D70037D340 /* SetupView.swift in Sources */,
+				1673F54B27B07F710037D340 /* GAEN_AnalyticsApp.swift in Sources */,
+				1673F56627B0A8300037D340 /* TabularData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16856E8A27BFEE4600F44960 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16856E9927BFEFFA00F44960 /* main.swift in Sources */,
+				16856E9527BFEE5500F44960 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		169FB8522642F0C10082DDD2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				169FB8592642F0C10082DDD2 /* main.swift in Sources */,
+				169FB8612642F3E20082DDD2 /* functionality.swift in Sources */,
+				1673F54227B002E10037D340 /* configuration.swift in Sources */,
+				16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */,
+				1673F56727B0A8300037D340 /* TabularData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D7B5DB26237CEE00D09126 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16D7B5E226237CEE00D09126 /* main.swift in Sources */,
+				1673F54327B002E10037D340 /* configuration.swift in Sources */,
+				16DC0F022623908F0023AF49 /* functionality.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1609485C25C3632A001705A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1609485D25C3632A001705A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		1609485F25C3632A001705A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1609486025C3632A001705A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		164945A927B6AE5600C0F5F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		164945AA27B6AE5600C0F5F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1673F55427B07F730037D340 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GAEN-Analytics-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1673F55527B07F730037D340 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GAEN-Analytics-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		16856E9227BFEE4600F44960 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		16856E9327BFEE4600F44960 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		169FB85A2642F0C10082DDD2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		169FB85B2642F0C10082DDD2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		16D7B5E326237CEE00D09126 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		16D7B5E426237CEE00D09126 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = H2Z73245NN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1609485225C3632A001705A6 /* Build configuration list for PBXProject "AnalyticsAnalyzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1609485C25C3632A001705A6 /* Debug */,
+				1609485D25C3632A001705A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1609485E25C3632A001705A6 /* Build configuration list for PBXNativeTarget "AnalyticsAnalyzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1609485F25C3632A001705A6 /* Debug */,
+				1609486025C3632A001705A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		164945AB27B6AE5600C0F5F0 /* Build configuration list for PBXNativeTarget "encvTool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				164945A927B6AE5600C0F5F0 /* Debug */,
+				164945AA27B6AE5600C0F5F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1673F55327B07F730037D340 /* Build configuration list for PBXNativeTarget "GAEN Analytics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1673F55427B07F730037D340 /* Debug */,
+				1673F55527B07F730037D340 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16856E9427BFEE4600F44960 /* Build configuration list for PBXNativeTarget "AnalyticsPlayground" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16856E9227BFEE4600F44960 /* Debug */,
+				16856E9327BFEE4600F44960 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		169FB85C2642F0C10082DDD2 /* Build configuration list for PBXNativeTarget "AnalyticsTool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				169FB85A2642F0C10082DDD2 /* Debug */,
+				169FB85B2642F0C10082DDD2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D7B5E526237CEE00D09126 /* Build configuration list for PBXNativeTarget "CheckUserRisk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D7B5E326237CEE00D09126 /* Debug */,
+				16D7B5E426237CEE00D09126 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yaslab/CSV.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.3;
+			};
+		};
+		16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+		16856E4B27BAA89C00F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+		16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		164945AF27B6B17700C0F5F0 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		16856E4C27BAA89C00F44960 /* Charts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = Charts;
+		};
+		169FB85D2642F1300082DDD2 /* CSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */;
+			productName = CSV;
+		};
+		169FB85F2642F1360082DDD2 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		16AA11622625CE59007CA1A7 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		16DC0F04262391EF0023AF49 /* CSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */;
+			productName = CSV;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1609484F25C3632A001705A6 /* Project object */;
+}
