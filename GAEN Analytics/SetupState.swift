@@ -99,14 +99,26 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
 
     let testEncvKey = "x2TtU303DaAGRxUibfMG9rqT-D9l0A942JiP_6o7bamUJV4s0BiJ8bPsTU-B2n3XiBVnO3BKlc9Y7jKoRnHtOQ.1.DM6RDGij9f-wno9I_o6VbcBC3kZ9Y4CF0XvIyN3sBBV6a5rodTKDeEPmWOkPZI3Fy78LZJBopZNUFPJLk-I-2Q"
     let testEnpaKey = "436b5bda-8336-4a2c-84c9-52cf5558b238.a1fbbeaad15842696fe56fc45522de112ac089f51e8bdebbd4193b17a77d7a1b"
-    func useTestData() {
-        region = "US-EV"
-        encvKey = testEncvKey
-        enpaKey = testEncvKey
-        useTestServers = true
-        notifications = 1
-        startDate = defaultStart
+
+    var usingTestData: Bool {
+        get {
+            isUsingTestData
+        }
+        set(newValue) {
+            if newValue {
+                region = "US-EV"
+                encvKey = testEncvKey
+                enpaKey = testEnpaKey
+                useTestServers = true
+                notifications = 1
+                startDate = defaultStart
+                useTestServers = true
+            } else if useTestServers {
+                clear()
+            }
+        }
     }
+
     var isUsingTestData: Bool {
         useTestServers && encvKey == testEncvKey && enpaKey == testEnpaKey
     }
@@ -120,6 +132,10 @@ class SetupState: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
         notifications = 1
         useFaceID = false
         useTestServers = false
+    }
+
+    var isClear: Bool {
+        region.isEmpty && encvKey.isEmpty && enpaKey.isEmpty
     }
 
     override init() {

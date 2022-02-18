@@ -72,9 +72,6 @@ struct SetupView: View {
 //                )
             } // Sectikon
             Section(header: Text("API keys")) {
-                if self.state.isUsingTestData {
-                    Text("Using test data and servers").font(.headline)
-                }
                 HStack {
                     NavigationLink(destination:
                         ApiKeyView(title: "ENCV API key", apiKey:
@@ -83,7 +80,7 @@ struct SetupView: View {
                                         self.state.encvKey = trim($0)
                                     }))) {
                         Text("ENCV\(describe(key: state.encvKey))")
-                    }
+                    }.disabled(self.state.isUsingTestData)
 
                 }.padding(.vertical)
                 HStack {
@@ -92,10 +89,9 @@ struct SetupView: View {
                                                                           set: {
                                                                               self.state.enpaKey = trim($0)
                                                                           })))
-                    { Text("ENPA\(describe(key: state.enpaKey))") }
+                    { Text("ENPA\(describe(key: state.enpaKey))") }.disabled(self.state.isUsingTestData)
 
                 }.padding(.vertical)
-                Toggle("Use test servers", isOn: self.$state.useTestServers)
             } // Section
 
             Section {
@@ -103,14 +99,10 @@ struct SetupView: View {
                     Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
                 #endif
 
-                if self.state.setupNeeded {
-                    Button(action: {
-                        self.state.useTestData()
-                    }) {
-                        Text("Use test data")
-                    }
+                if self.state.isClear || self.state.isUsingTestData {
+                    Toggle("Use test servers", isOn: self.$state.usingTestData)
+
                 } else {
-                   
                     Button(action: { showingReset = true }) {
                         Text("Clear all")
                     }.alert(isPresented: $showingReset) {
@@ -120,6 +112,7 @@ struct SetupView: View {
                                   destructiveAction: {
                                       self.state.clear()
                                       self.showingReset = false
+                                      print("\(self.state.isClear)")
                                   },
                                   cancelAction: { self.showingReset = false })
                     }.padding()
