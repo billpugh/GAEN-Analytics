@@ -563,7 +563,8 @@ public func loadMetrics(json: Data, _ configuration: Configuration) -> [String: 
     let rawData = json["rawData"] as! [NSDictionary]
     for m in rawData {
         let clients = m["total_individual_clients"] as! Int
-        let epsilon = m["epsilon"] as! Double
+        let epsilonMaybe = m["epsilon"] as! Double
+        let epsilon = epsilonMaybe == 8 ? epsilonMaybe : 10.2
         let id = m["aggregation_id"] as! String
         let fullId = m["id"] as! String
         let aggregationStartTime = m["aggregation_start_time"] as! String
@@ -618,7 +619,8 @@ struct RawMetrics {
             if let rawData = json["rawData"] as? [NSDictionary] {
                 for m in rawData {
                     let clients = m["total_individual_clients"] as! Int
-                    let epsilon = Double(m["epsilon"] as! NSNumber)
+                    let maybeEpsilon = Double(m["epsilon"] as! NSNumber)
+                    let epsilon = maybeEpsilon == 8 ? 8 : 10.2
                     let id = m["aggregation_id"] as! String
                     let fullId = m["id"] as! String
 
@@ -899,8 +901,9 @@ public class Metric: Sendable {
             let count = clientsByDay[day]!
             let likely = "\(sumBy.map { round1(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))) })".dropFirst().dropLast()
             let raw = "\(sumBy)".dropFirst().dropLast()
+
             let stdev = round1(getStandardDeviation(totalCount: count))
-            print("\(dayFormatter.string(from: day)), \(nf6(count)),  \(stdev),  \(likely),  \(raw)")
+            print("\(dayFormatter.string(from: day)), \(nf6(count)), \(epsilon), \(stdev),  \(likely),  \(raw)")
             // print("\(dayFormatter.string(from: day)) \(nf6( count)) \(likelyPercentage(count, sumBy))")
         }
         print()

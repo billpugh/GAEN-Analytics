@@ -50,7 +50,6 @@
 		16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6327BC01D100F44960 /* Notifications arriving promptly.md */; };
 		16856E6C27BC022500F44960 /* Estimated users.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6427BC01E700F44960 /* Estimated users.md */; };
 		16856E6E27BC62EC00F44960 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E6D27BC62EC00F44960 /* TestView.swift */; };
-		16856E9527BFEE5500F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
 		16856E9927BFEFFA00F44960 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E9827BFEFFA00F44960 /* main.swift */; };
 		16856EA327C04EBE00F44960 /* SmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856EA227C04EBE00F44960 /* SmokeTest.swift */; };
 		16856EA727C04EEE00F44960 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
@@ -61,6 +60,10 @@
 		16856EAC27C04EEE00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		16856EAD27C04F0400F44960 /* AnalysisState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55727B0A4D70037D340 /* AnalysisState.swift */; };
 		16856EAE27C04F0400F44960 /* SetupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F55927B0A4D70037D340 /* SetupState.swift */; };
+		16856EAF27C2F57F00F44960 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
+		16856EB027C2F58200F44960 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16856EB127C2F5BB00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
+		16856EB227C2F70100F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
@@ -645,7 +648,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				16856E9927BFEFFA00F44960 /* main.swift in Sources */,
-				16856E9527BFEE5500F44960 /* main.swift in Sources */,
+				16856EB127C2F5BB00F44960 /* configuration.swift in Sources */,
+				16856EAF27C2F57F00F44960 /* FetchENPA.swift in Sources */,
+				16856EB027C2F58200F44960 /* functionality.swift in Sources */,
+				16856EB227C2F70100F44960 /* TabularData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
