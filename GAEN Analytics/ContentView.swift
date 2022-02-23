@@ -100,7 +100,7 @@ struct ContentView: View {
                                 #endif
                                 await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
                             }
-                            }) { Text(state.setupNeeded ? "setup needed" : "Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
                         HStack {
                             Button(action: { Task(priority: .userInitiated) {
@@ -109,7 +109,7 @@ struct ContentView: View {
                                 #endif
                                 await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
                             }
-                            }) { Text(state.setupNeeded ? "setup needed" : "Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
                     }
                     #if !targetEnvironment(macCatalyst)

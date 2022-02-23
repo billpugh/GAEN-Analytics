@@ -70,21 +70,21 @@ struct CheckView: View, Identifiable {
             HStack {
                 Image(systemName: selected ? "checkmark.square" : "square")
                 Text(id)
-            }
-
-        }.padding()
+            }.font(.body)
+        }
     }
 }
 
 struct RawExportView: View {
-    let analysisState = AnalysisState.shared
+    @ObservedObject var analysisState = AnalysisState.shared
+    @ObservedObject var state = SetupState.shared
     let additionalMetrics = ["riskParameters",
                              "beaconCount",
                              "dateExposure14d",
                              "keysUploadedWithReportType14d",
                              "periodicExposureNotification14d",
                              "secondaryAttack14d"]
-    @MainActor func exportRawENPA() {
+    func exportRawENPA() {
         guard let raw = analysisState.rawENPA, let url = raw.writeMetrics() else { return }
         let name = url.lastPathComponent
         #if targetEnvironment(macCatalyst)
@@ -99,25 +99,39 @@ struct RawExportView: View {
         #else
             shareURL = url
 
-            shareTitle = name
-            showingSheet = true
+            zipName = name
+            showingZipSheet = true
 
         #endif
     }
 
     @State private var showingZipSheet: Bool = false
     @State private var zipDocument: ZipFile?
+    @State private var zipName: String = ""
 
     var body: some View {
-        VStack(alignment: .leading) {
-            ForEach(additionalMetrics, id: \.self) {
-                CheckView(id: $0)
-            } // ForEach
+        List {
+            Section(header: Text("interaction metrics").font(.title).textCase(nil)) {
+                CheckView(id: "riskParameters")
+                CheckView(id: "beaconCount")
+            }
+            Section(header: Text("low noise 14 day metrics").font(.title).textCase(nil)) {
+                CheckView(id: "keysUploadedWithReportType14d")
+                CheckView(id: "periodicExposureNotification14d")
+                CheckView(id: "secondaryAttack14d")
+                CheckView(id: "dateExposure14d")
+            }
 
-            Button(action: { exportRawENPA() }) {
-                Text("Raw ENPA data")
-            }.padding().disabled(!analysisState.available)
-        }.font(.headline)
+            Section {
+                Button(action: { Task(priority: .userInitiated) {
+                    await AnalysisTask().analyze(config: state.config, result: analysisState)
+                }
+                }) { Text(state.setupNeeded ? "setup needed" : "Fetch ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress || analysisState.rawENPA != nil)
+                Button(action: { Task(priority: .userInitiated) { await exportRawENPA() }}) {
+                    Text("Export Raw ENPA data")
+                }.padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
+            }
+        }.font(.subheadline)
         #if targetEnvironment(macCatalyst)
             .fileExporter(isPresented: $showingZipSheet, document: zipDocument, contentType: UTType.zip, defaultFilename: zipDocument?.name ?? "") { result in
                 switch result {
@@ -133,8 +147,8 @@ struct RawExportView: View {
                        content: {
                            ActivityView(activityItems: [
                                ZipItem(url: shareURL,
-                                       title: self.shareTitle),
-                           ] as [Any], applicationActivities: nil, isPresented: self.$showingSheet)
+                                       title: self.zipName),
+                           ] as [Any], applicationActivities: nil, isPresented: self.$showingZipSheet)
                        })
         #endif
 

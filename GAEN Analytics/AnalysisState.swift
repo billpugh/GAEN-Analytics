@@ -51,6 +51,7 @@ class AnalysisState: NSObject, ObservableObject {
             additionalMetrics.remove(name)
         } else {
             additionalMetrics.insert(name)
+            rawENPA = nil
         }
         print("additional metrics: \(additionalMetrics)")
     }
@@ -242,7 +243,15 @@ actor AnalysisTask {
                     await result.log(enpa: errors)
                     return
                 }
-            }
+            } // for m
+            let additional = await result.additionalMetrics
+            for m in additional {
+                await result.update(enpa: "fetching \(m)")
+                let errors = raw.addMetric(names: [m])
+                if !errors.isEmpty {
+                    await result.log(enpa: errors)
+                }
+            } // for m
 
             let metrics = raw.metrics
 

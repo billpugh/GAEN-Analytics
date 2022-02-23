@@ -919,13 +919,16 @@ public class Metric: Sendable {
     }
 
     func sumsByDay() -> String {
-        var buf = TextBuffer()
+        let buf = TextBuffer()
+        let bucketString = (0 ..< buckets).map { "\($0)" }.joined(separator: ",")
 
+        buf.append("date,devices,epsilon,stdev,\(bucketString) ")
         for (day, sumBy) in sumByDay.sorted(by: { $0.0 < $1.0 }) {
             let count = clientsByDay[day]!
-            let likely = "\(sumBy.map { round1(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))) })".dropFirst().dropLast()
+            let likely = sumBy.map { "\(round2(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))))" }
+                .joined(separator: ",")
 
-            let stdev = round1(getStandardDeviation(totalCount: count))
+            let stdev = round2(getStandardDeviation(totalCount: count))
             buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely)")
         }
         return buf.all
@@ -938,7 +941,7 @@ public class Metric: Sendable {
             let likely = "\(sumBy.map { round1(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))) })".dropFirst().dropLast()
             let raw = "\(sumBy)".dropFirst().dropLast()
 
-            let stdev = round1(getStandardDeviation(totalCount: count))
+            let stdev = round2(getStandardDeviation(totalCount: count))
             print("\(dayFormatter.string(from: day)), \(nf6(count)), \(epsilon), \(stdev),  \(likely),  \(raw)")
             // print("\(dayFormatter.string(from: day)) \(nf6( count)) \(likelyPercentage(count, sumBy))")
         }
@@ -950,7 +953,7 @@ public class Metric: Sendable {
             let count = clientsByStart[start]!
             let likely = "\(sumBy.map { round1(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))) })".dropFirst().dropLast()
             let raw = "\(sumBy)".dropFirst().dropLast()
-            let stdev = round1(getStandardDeviation(totalCount: count))
+            let stdev = round2(getStandardDeviation(totalCount: count))
             print("\(dayTimeFormatter.string(from: start)), \(nf6(count)),  \(stdev),  \(likely),  \(raw)")
             // print("\(dayFormatter.string(from: day)) \(nf6( count)) \(likelyPercentage(count, sumBy))")
         }
