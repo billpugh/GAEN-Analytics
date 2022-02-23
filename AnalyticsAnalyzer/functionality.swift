@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import os.log
 import TabularData
+import ZIPFoundation
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "functionality")
 
 let beaconCountLimits = [3, 7, 15, 30, 50, 80, 120, 250, 999]
 let beaconCountEstimates = [2.0, 5.0, 10.0, 20.0, 35.0, 60.0, 91.0, 130.0, 251.0]
@@ -440,6 +443,7 @@ struct MetricSet {
 }
 
 func printRollingAverageKeyMetrics(iOS: MetricSet, android: MetricSet, options: Configuration, printFunction: ((String) -> Void)? = nil) {
+    logger.log("printRollingAverageKeyMetrics combined")
     var accum = Accumulators(options: options, iOS, printFunction: printFunction)
     accum.printHeader()
 
@@ -459,6 +463,7 @@ func getMetric(_ metrics: [String: Metric], _ name: String) -> Metric {
     if let metric = metrics[name] {
         return metric
     }
+    logger.log("Did not find metric \(name, privacy: .public)")
     print("Did not find metric \(name)")
     print("Metrics found include:")
     for name in metrics.keys.sorted() {
@@ -544,41 +549,6 @@ let androidStartTime = dateParser.date(from: "2021-12-05 00:00:00")!
 //  "hamming_weight": null,
 //  "total_individual_clients": 64534
 
-// func loadMetrics(jsonFile: String, startDate: Date? = nil) -> [String:Metric] {
-//
-//    let fileURL = URL(fileURLWithPath: jsonFile)
-//    let data = try! Data(contentsOf: fileURL)
-//    return loadMetrics(json: data, startDate: startDate, endDate: endDate )
-//
-// }
-
-public func loadMetrics(json: Data, _ configuration: Configuration) -> [String: Metric] {
-    var rawMetrics = RawMetrics(configuration)
-
-    let json = try! JSONSerialization.jsonObject(with: json, options: []) as! NSDictionary
-    let isoDateFormatter = DateFormatter()
-    isoDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    // isoDateFormatter.formatOptions = [.withFractionalSeconds]
-    // print(isoDateFormatter.string(from: Date()))
-    let rawData = json["rawData"] as! [NSDictionary]
-    for m in rawData {
-        let clients = m["total_individual_clients"] as! Int
-        let epsilonMaybe = m["epsilon"] as! Double
-        let epsilon = epsilonMaybe == 8 ? epsilonMaybe : 10.2
-        let id = m["aggregation_id"] as! String
-        let fullId = m["id"] as! String
-        let aggregationStartTime = m["aggregation_start_time"] as! String
-        let startTime = isoDateFormatter.date(from: aggregationStartTime)!
-        print(dateParser.string(from: startTime))
-        let aggregationEndTime: String = m["aggregation_end_time"] as! String
-        let endTime = isoDateFormatter.date(from: aggregationEndTime)!
-        let sum = m["sum"] as! [Int]
-        rawMetrics.addMetric(fullId: fullId, id: id, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
-    }
-
-    return rawMetrics.metrics
-}
-
 func maximumCategory(id _: String, fullId: String, start: Date, notificationStart: [Date], excludedHashes _: [Set<String>]) -> Int {
     let hash = fullId.components(separatedBy: "-")[5]
     for c in 1 ... 4 {
@@ -607,12 +577,55 @@ struct RawMetrics {
         self.configuration = configuration
     }
 
-    public mutating func addMetric(names: [String]) -> String? {
+    func createTempDirectory() -> URL? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd-HHmm"
+        let now = dateFormatter.string(from: Date())
+        guard let region = configuration.region else { return nil }
+        guard let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(region)-\(now)") else {
+            return nil
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            return nil
+        }
+
+        return tempDirURL
+    }
+
+    func writeMetrics() -> URL? {
+        guard let url = createTempDirectory() else { return nil }
+
+        do {
+            for (name, metric) in metrics {
+                let file = url.appendingPathComponent("\(name).csv")
+                let text = metric.sumsByDay()
+                try text.write(toFile: file.path, atomically: false, encoding: .utf8)
+            }
+        } catch {
+            logger.error("Unable to write raw metrics: \(error.localizedDescription)")
+            return nil
+        }
+        let fileManager = FileManager()
+        let destination = URL(fileURLWithPath: url.path + ".zip")
+        do {
+            try fileManager.zipItem(at: url, to: destination)
+        } catch {
+            logger.error("Creation of ZIP archive failed with error: \(error.localizedDescription)")
+        }
+        return destination
+    }
+
+    public mutating func addMetric(names: [String]) -> [String] {
+        var errors: [String] = []
         for n in names {
             let json = getStat(metric: n, configuration: configuration)
             if let error = json["error"] as? String {
-                print("got error fetching ENPA: \(error)")
-                return error
+                logger.log("got error fetching ENPA: \(error, privacy: .public)")
+                errors.append(error)
+                continue
             }
             // isoDateFormatter.formatOptions = [.withFractionalSeconds]
             // print(isoDateFormatter.string(from: Date()))
@@ -623,6 +636,8 @@ struct RawMetrics {
                     let epsilon = maybeEpsilon == 8 ? 8 : 10.2
                     let id = m["aggregation_id"] as! String
                     let fullId = m["id"] as! String
+                    let genericId = n
+                    let provider = m["data_provider"] as? String ?? "?"
 
                     let aggregationStartTime = m["aggregation_start_time"] as! String
                     let startTime = isoDateFormatter.date(from: aggregationStartTime)!
@@ -630,16 +645,17 @@ struct RawMetrics {
                     let aggregationEndTime: String = m["aggregation_end_time"] as! String
                     let endTime = isoDateFormatter.date(from: aggregationEndTime)!
                     let sum = m["sum"] as! [Int]
-                    addMetric(fullId: fullId, id: id, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
+                    addMetric(fullId: fullId, id: id, genericId: genericId, provider: provider, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
                 }
             } else {
-                return "raw data missing"
+                logger.log("raw data missing for \(n)")
+                errors.append("raw data missing for \(n)")
             }
         }
-        return nil
+        return errors
     }
 
-    public mutating func addMetric(fullId: String, id: String, epsilon: Double, startTime: Date, endTime _: Date, clients: Int, sum: [Int]) {
+    public mutating func addMetric(fullId: String, id: String, genericId: String, provider: String, epsilon: Double, startTime: Date, endTime _: Date, clients: Int, sum: [Int]) {
         if let startDate = configuration.startDate, startTime < startDate {
             return
         }
@@ -664,7 +680,7 @@ struct RawMetrics {
         if let prev = metrics[id] {
             prev.update(sum: sum, clients: clients, start: startTime)
         } else {
-            metrics[id] = Metric(id: id, epsilon: epsilon, sum: sum, clients: clients, start: startTime)
+            metrics[id] = Metric(id: id, genericId: genericId, provider: provider, epsilon: epsilon, sum: sum, clients: clients, start: startTime)
         }
     }
 }
@@ -755,10 +771,15 @@ public class Metric: Sendable {
     }
 
     init(id: String, _ first: Metric, _ second: Metric) {
+        assert(first.provider == second.provider)
+        assert(first.genericId == second.genericId)
         assert(first.sums.count == second.sums.count)
+
         assert(first.epsilon == second.epsilon)
         epsilon = first.epsilon
         aggregation_id = id
+        provider = first.provider
+        genericId = first.genericId
         sums = zip(first.sums, second.sums).map { x, y in x + y }
         clients = first.clients + second.clients
         lastClientCount = first.lastClientCount + second.lastClientCount
@@ -768,10 +789,12 @@ public class Metric: Sendable {
         clientsByStart.merge(second.clientsByStart, uniquingKeysWith: +)
     }
 
-    init(id: String, epsilon: Double, sum: [Int], clients: Int, start: Date) {
+    init(id: String, genericId: String, provider: String, epsilon: Double, sum: [Int], clients: Int, start: Date) {
         let startDay = dateAbstraction(start)
         aggregation_id = id
         sums = sum
+        self.genericId = genericId
+        self.provider = provider
         self.epsilon = epsilon
         self.clients = clients
         lastClientCount = clients
@@ -895,6 +918,19 @@ public class Metric: Sendable {
         }
     }
 
+    func sumsByDay() -> String {
+        var buf = TextBuffer()
+
+        for (day, sumBy) in sumByDay.sorted(by: { $0.0 < $1.0 }) {
+            let count = clientsByDay[day]!
+            let likely = "\(sumBy.map { round1(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))) })".dropFirst().dropLast()
+
+            let stdev = round1(getStandardDeviation(totalCount: count))
+            buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely)")
+        }
+        return buf.all
+    }
+
     func printSumsByDay() {
         print("\(aggregation_id): ")
         for (day, sumBy) in sumByDay.sorted(by: { $0.0 < $1.0 }) {
@@ -988,6 +1024,8 @@ public class Metric: Sendable {
     }
 
     public let aggregation_id: String
+    public let genericId: String
+    public let provider: String
     public var sums: [Int]
     public var sumByDay: [Date: [Int]] = [:]
     public var sumByStart: [Date: [Int]] = [:]

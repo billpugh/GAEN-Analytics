@@ -16,8 +16,28 @@ extension CSVFile: FileDocument {
         data = configuration.file.regularFileContents!
     }
 
-    // tell the system we support only plain text
     static var readableContentTypes = [UTType.commaSeparatedText]
+    var contentType: UTType {
+        UTType.commaSeparatedText
+    }
+
+    // this will be called when the system wants to write our data to disk
+    func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
+
+extension ZipFile: FileDocument {
+    init(configuration: ReadConfiguration) throws {
+        name = "unknown.zip"
+        data = configuration.file.regularFileContents!
+    }
+
+    // tell the system we support only plain text
+    static var readableContentTypes = [UTType.zip]
+    var contentType: UTType {
+        UTType.zip
+    }
 
     // this will be called when the system wants to write our data to disk
     func fileWrapper(configuration _: WriteConfiguration) throws -> FileWrapper {
@@ -121,8 +141,7 @@ struct ExportView: View {
     @State private var showingSheet: Bool = false
     let analysisState = AnalysisState.shared
 
-    @State private var csvDocument = CSVFile(name: "none", Data())
-    @State private var defaultFilename: String = ""
+    @State private var csvDocument: CSVFile?
 
     @MainActor func exportDataframe(_ name: String, _ dataFrame: DataFrame?) {
         if let dataFrame = dataFrame {
@@ -181,14 +200,16 @@ struct ExportView: View {
         } // Form
 
         #if targetEnvironment(macCatalyst)
-            .fileExporter(isPresented: $showingSheet, document: csvDocument, contentType: .commaSeparatedText, defaultFilename: csvDocument.name) { result in
+            .fileExporter(isPresented: $showingSheet, document: csvDocument, contentType: UTType.commaSeparatedText, defaultFilename: csvDocument?.name ?? "") { result in
                 switch result {
                 case let .success(url):
                     print("Saved to \(url)")
                 case let .failure(error):
                     print(error.localizedDescription)
                 }
+                csvDocument = nil
             }
+
         #else
                 .sheet(isPresented: self.$showingSheet, onDismiss: { print("share sheet dismissed") },
                        content: {

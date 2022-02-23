@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import os.log
 @_predatesConcurrency import TabularData
-// import UIKit
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "AnalyzeState")
 
 @MainActor
 class AnalysisState: NSObject, ObservableObject {
@@ -28,6 +29,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var status: String = "Fetch analytics"
     @Published var inProgress: Bool = false
     @Published var available: Bool = false
+    @Published var rawENPA: RawMetrics?
     @Published var iOSENPA: DataFrame?
     @Published var AndroidENPA: DataFrame?
     @Published var combinedENPA: DataFrame?
@@ -41,12 +43,13 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var csvExportReady = false
 
     func export(csvFile: CSVFile) {
-        print("exporting \(csvFile.name)")
+        logger.log("exporting \(csvFile.name, privacy: .public)")
         csvExport = csvFile
         csvExportReady = true
     }
 
     static func exportToURL(name: String, dataframe: DataFrameProtocol) -> URL? {
+        logger.log("Exporting \(name, privacy: .public) to URL")
         do {
             let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
 
@@ -59,19 +62,20 @@ class AnalysisState: NSObject, ObservableObject {
             let n = name.replacingOccurrences(of: "/", with: "%2F")
 
             guard let path = documents?.appendingPathComponent(n) else {
-                print("could not get path")
+                logger.error("Could not get path")
                 return nil
             }
 
             try csv.write(to: path, options: .atomicWrite)
             return path
         } catch {
-            print(error.localizedDescription)
+            logger.error("\(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
 
     static func exportToFileDocument(name: String, dataframe: DataFrameProtocol) -> CSVFile? {
+        logger.log("Exporting \(name, privacy: .public) to File")
         do {
             let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
             let csv = try dataframe.csvRepresentation(options: writingOptions)
@@ -80,7 +84,7 @@ class AnalysisState: NSObject, ObservableObject {
             return CSVFile(name: name, csv)
 
         } catch {
-            print(error.localizedDescription)
+            logger.error("\(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
@@ -117,8 +121,7 @@ class AnalysisState: NSObject, ObservableObject {
             enpaSummary.append("\n")
         }
         let joined = enpa.joined(separator: "\n")
-        print("log enpa:")
-        print(joined)
+
         enpaSummary.append(joined)
     }
 
@@ -127,12 +130,12 @@ class AnalysisState: NSObject, ObservableObject {
             encvSummary.append("\n")
         }
         let joined = encv.joined(separator: "\n")
-        print("log encv:")
-        print(joined)
+
         encvSummary.append(joined)
     }
 
-    func analyzedENPA(ios: DataFrame, android: DataFrame, combined: DataFrame) {
+    func analyzedENPA(raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame) {
+        rawENPA = raw
         iOSENPA = ios
         AndroidENPA = android
         combinedENPA = combined
@@ -145,10 +148,12 @@ class AnalysisState: NSObject, ObservableObject {
         if let encv = encv {
             status = encv
             encvDate = Date()
+            logger.log("encv: \(encv, privacy: .public)")
         }
         if let enpa = enpa {
             status = enpa
             encvDate = Date()
+            logger.log("enpa: \(enpa, privacy: .public)")
         }
     }
 
@@ -196,13 +201,17 @@ class AnalysisState: NSObject, ObservableObject {
 }
 
 func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
-    guard let codesClaimed = codesClaimed, let cv = cv else {
+    guard let codesClaimed = codesClaimed, let cv = cv, cv >= 1 else {
         return nil
     }
     return Int((Double(codesClaimed * 100_000) / cv).rounded())
 }
 
 actor AnalysisTask {
+    func getRawENPA(config: Configuration, names: [String], result _: AnalysisState) async {
+        var raw = RawMetrics(config)
+        let errors = raw.addMetric(names: names)
+    }
     func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
         await result.update(enpa: "fetching enpa")
         do {
@@ -215,17 +224,21 @@ actor AnalysisTask {
                              "dateExposure"]
             for m in readThese {
                 await result.update(enpa: "fetching \(m)")
-                if let error = raw.addMetric(names: [m]) {
-                    await result.log(enpa: [error])
+                let errors = raw.addMetric(names: [m])
+                if !errors.isEmpty {
+                    await result.log(enpa: errors)
                     return
                 }
             }
 
             let metrics = raw.metrics
 
-            let iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
-            let androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
-            let combinedDataFramePlain = try getRollingAverageKeyMetrics(metrics, options: config)
+            var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
+            iOSDataFrame.removeRandomElements()
+            var androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
+            androidDataFrame.removeRandomElements()
+            var combinedDataFramePlain = try getRollingAverageKeyMetrics(metrics, options: config)
+            combinedDataFramePlain.removeRandomElements()
             let combinedDataFrame: DataFrame
             if let encv = encvAverage {
                 let codes_claimed = encv.selecting(columnNames: ["date", "codes claimed"])
@@ -242,7 +255,7 @@ actor AnalysisTask {
             } else {
                 combinedDataFrame = combinedDataFramePlain
             }
-            await result.analyzedENPA(ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame)
+            await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
             let android = summarize("Android", androidDataFrame, categories: config.numCategories)
@@ -260,13 +273,15 @@ actor AnalysisTask {
         }
         guard let
             encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
-            let composite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
+
+            var composite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
         else {
+            logger.log("Failed to get ENCV composite.csv")
             return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
         }
-
+        logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
         let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
-
+        composite.removeRandomElements()
         let analysis = analyzeENCV(composite: composite, smsData: smsData)
         await result.gotENCV(composite: analysis.encv)
         await result.gotRollingAvg(rollingAvg: analysis.average)
@@ -274,22 +289,30 @@ actor AnalysisTask {
         return analysis
     }
 
-    func analyze(config: Configuration, result: AnalysisState) async {
-        print("Starting analysis")
+    func crash() {
+        logger.error("deliberate crash of GAEN analytics")
+        let foo: String? = nil
+        print("\(foo!.count)")
+    }
+    func analyze(config: Configuration, result: AnalysisState,
+                 analyzeENCV: Bool = true, analyzeENPA: Bool = true) async
+    {
+        logger.log("Starting analysis")
         await result.start(config: config)
         let encv: ENCVAnalysis?
-        if config.hasENCV {
-            print("Starting analyzeENCV")
+        if analyzeENCV, config.hasENCV {
+            logger.log("Starting analyzeENCV")
             encv = await getAndAnalyzeENCV(config: config, result: result)
-            print("Finished analyzeENCV")
+            logger.log("Finished analyzeENCV")
         } else {
             encv = nil
+            logger.log("skipping ENCV")
             await result.log(encv: ["Skipping ENCV"])
         }
-        if config.hasENPA {
-            print("Starting analyzeENPA")
+        if analyzeENPA, config.hasENPA {
+            logger.log("Starting analyzeENPA")
             await getAndAnalyzeENPA(config: config, encvAverage: encv?.average, result: result)
-            print("Finished analyzeENPA")
+            logger.log("Finished analyzeENPA")
         } else {
             await result.log(enpa: ["Skipping ENPA"])
         }
@@ -309,8 +332,10 @@ struct ChartOptions: Identifiable {
     }
 
     static func maybe(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) -> ChartOptions? {
+        logger.log("Making chart \(title, privacy: .public)")
         for c in columns {
             if data.indexOfColumn(c) == nil {
+                logger.log("Column \(c, privacy: .public) doesn't exist")
                 return nil
             }
         }
@@ -320,6 +345,12 @@ struct ChartOptions: Identifiable {
     init(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) {
         self.title = title
         // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
+        logger.log("Making chart \(title, privacy: .public)")
+        for c in columns {
+            if data.indexOfColumn(c) == nil {
+                logger.error("Column \(c, privacy: .public) doesn't exist")
+            }
+        }
         let rows = max(7, data.rows.count - 6)
         self.data = data.suffix(rows).selecting(columnNames: ["date"] + columns)
         self.columns = columns
@@ -407,8 +438,19 @@ func publishRequests(encv: DataFrame, config _: Configuration) -> ChartOptions {
 
 struct CSVFile {
     // by default our document is empty
-    var data = Data()
-    var name: String
+    let data: Data
+    let name: String
+
+    init(name: String, _ data: Data) {
+        self.data = data
+        self.name = name
+    }
+}
+
+struct ZipFile {
+    // by default our document is empty
+    let data: Data
+    let name: String
 
     init(name: String, _ data: Data) {
         self.data = data

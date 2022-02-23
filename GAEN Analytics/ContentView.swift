@@ -75,9 +75,13 @@ struct ContentView: View {
                                 Text("View Analysis summary").font(.headline).padding(.horizontal)
                             }.disabled(!analysisState.available)
                         #endif
+
                         NavigationLink(destination: ExportView(), tag: "export", selection: $viewShown) {
                             Text("Export analysis").font(.headline).padding(.horizontal)
                         }.disabled(!analysisState.available)
+                        NavigationLink(destination: RawExportView(), tag: "raw_export", selection: $viewShown) {
+                            Text("Export Raw ENPA").font(.headline).padding(.horizontal)
+                        }
 
                         HStack {
                             Button(action: { Task(priority: .userInitiated) {
@@ -87,6 +91,25 @@ struct ContentView: View {
                                 await AnalysisTask().analyze(config: state.config, result: analysisState)
                             }
                             }) { Text(state.setupNeeded ? "setup needed" : analysisState.status).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                        }
+
+                        HStack {
+                            Button(action: { Task(priority: .userInitiated) {
+                                #if targetEnvironment(macCatalyst)
+                                    self.viewShown = "summary"
+                                #endif
+                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
+                            }
+                            }) { Text(state.setupNeeded ? "setup needed" : "Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                        }
+                        HStack {
+                            Button(action: { Task(priority: .userInitiated) {
+                                #if targetEnvironment(macCatalyst)
+                                    self.viewShown = "summary"
+                                #endif
+                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
+                            }
+                            }) { Text(state.setupNeeded ? "setup needed" : "Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
                     }
                     #if !targetEnvironment(macCatalyst)

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import os.log
 import TabularData
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "encv")
 
 let readingOptions: CSVReadingOptions = {
     var ro = CSVReadingOptions()
@@ -29,6 +31,7 @@ public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> Dat
     request.setValue("application/json", forHTTPHeaderField: "accept")
 
     request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+    logger.log("requesting encv \(stat, privacy: .public)")
 
     return getData(request)
 }
@@ -37,13 +40,14 @@ public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Boo
     if let raw = getENCV(stat, apiKey: apiKey, useTestServers: useTestServers), raw.count > 0 {
         return try! DataFrame(csvData: raw, options: readingOptions)
     }
+    logger.log("failed to get encv \(stat, privacy: .public)")
     return nil
 }
 
 func getErrorsByDate(smsData: DataFrame) -> ([Date: Int], [Date: Int]) {
     var allErrors: [Date: Int] = [:]
     var error30007: [Date: Int] = [:]
-
+    logger.log("computing sms errors by date")
     let dateIndex = smsData.indexOfColumn("date")!
     let errorCodeIndex = smsData.indexOfColumn("error_code")!
     let quantityIndex = smsData.indexOfColumn("quantity")!
@@ -97,6 +101,7 @@ struct ENCVAnalysis {
 }
 
 func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
+    logger.log("analyzing encv")
     guard composite.indexOfColumn("codes_issued") != nil else {
         return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV data"])
     }
@@ -114,12 +119,14 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         encv.copyColumn("codes_claimed", giving: "confirmed_test_claimed")
         encv.copyColumn("tokens_claimed", giving: "confirmed_test_tokens_claimed")
     }
+
     encv.addColumnSum("publish_requests_android", "publish_requests_ios", giving: "publish_requests")
     if hasUserReports {
         encv.addColumnDifference("tokens_claimed", "publish_requests", giving: "unused_tokens")
     } else {
         encv.addColumnDifference("confirmed_test_tokens_claimed", "publish_requests", giving: "unused_tokens")
     }
+
     if let smsData = smsData {
         let (allErrors, error30007) = getErrorsByDate(smsData: smsData)
         let dates = encv["date", Date.self]
@@ -132,16 +139,18 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
 
     var tmp = encv
+    logger.log("transforming distribution")
     tmp.transformColumn("code_claim_age_distribution", transformDistribution)
     tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
 
     var rollingAvg = tmp.rollingAvg(days: 7)
+    logger.log("computed rolling average")
     rollingAvg.transformColumn("onset_to_upload_distribution", weightedSum)
     rollingAvg.renameColumn("onset_to_upload_distribution", to: "avg_days_onset_to_upload")
     // Buckets are: 1m, 5m, 15m, 30m, 1h, 2h, 3h, 6h, 12h, 24h, >24h
     rollingAvg.transformColumn("code_claim_age_distribution") { weightedSum($0, weights: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]) }
     rollingAvg.renameColumn("code_claim_age_distribution", to: "codes_claimed_within_hour_percentage")
-
+    logger.log("computed rolling distribution")
     if hasUserReports {
         rollingAvg.addColumnPercentage("user_reports_claimed", "user_reports_issued", giving: "user_reports_claim_rate")
         rollingAvg.addColumnPercentage("user_report_tokens_claimed", "user_reports_claimed", giving: "user_reports_consent_rate")
@@ -179,6 +188,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         "confirmed test claim rate",
         "confirmed test consent rate",
     ]
+    logger.log("computing summary")
     if hasUserReports {
         columnNames.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user report percentage"])
         if hasRevisions {

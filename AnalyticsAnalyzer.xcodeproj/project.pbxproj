@@ -69,6 +69,9 @@
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
 		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
+		16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D427C672A3007527FC /* ZIPFoundation */; };
+		16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D627C6741B007527FC /* ZIPFoundation */; };
+		16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4D827C689CD007527FC /* RawExportView.swift */; };
 		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
 		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
@@ -164,6 +167,7 @@
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16C5E4D827C689CD007527FC /* RawExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawExportView.swift; sourceTree = "<group>"; };
 		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
 		16D7B5E126237CEE00D09126 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16F6DAAE27A764A100388B5B /* FetchENPA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchENPA.swift; sourceTree = "<group>"; };
@@ -174,6 +178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +195,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16856E4D27BAA89C00F44960 /* Charts in Frameworks */,
+				16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +295,7 @@
 				1673F56C27B1820B0037D340 /* ApiKeyView.swift */,
 				1673F55727B0A4D70037D340 /* AnalysisState.swift */,
 				1673F55827B0A4D70037D340 /* ExportView.swift */,
+				16C5E4D827C689CD007527FC /* RawExportView.swift */,
 				1673F55927B0A4D70037D340 /* SetupState.swift */,
 				1673F55627B0A4D60037D340 /* SetupView.swift */,
 				1673F5B727B428A00037D340 /* SummaryView.swift */,
@@ -381,6 +388,7 @@
 			);
 			name = AnalyticsAnalyzer;
 			packageProductDependencies = (
+				16C5E4D427C672A3007527FC /* ZIPFoundation */,
 			);
 			productName = AnalyticsAnalyzer;
 			productReference = 1609485725C3632A001705A6 /* AnalyticsAnalyzer */;
@@ -421,6 +429,7 @@
 			name = "GAEN Analytics";
 			packageProductDependencies = (
 				16856E4C27BAA89C00F44960 /* Charts */,
+				16C5E4D627C6741B007527FC /* ZIPFoundation */,
 			);
 			productName = "GAEN Analytics";
 			productReference = 1673F54827B07F710037D340 /* GAEN Analytics.app */;
@@ -549,6 +558,7 @@
 				16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
 				16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */,
 				16856E4B27BAA89C00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
+				16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 1609485825C3632A001705A6 /* Products */;
 			projectDirPath = "";
@@ -632,6 +642,7 @@
 				1673F55B27B0A4D70037D340 /* ExportView.swift in Sources */,
 				16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */,
 				16856E6E27BC62EC00F44960 /* TestView.swift in Sources */,
+				16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */,
 				1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */,
 				1673F56027B0A5800037D340 /* functionality.swift in Sources */,
 				1673F55A27B0A4D70037D340 /* AnalysisState.swift in Sources */,
@@ -890,7 +901,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 0.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -928,7 +939,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 0.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1170,6 +1181,14 @@
 				minimumVersion = 0.4.1;
 			};
 		};
+		16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.9;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1197,6 +1216,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
+		};
+		16C5E4D427C672A3007527FC /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		16C5E4D627C6741B007527FC /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 		16DC0F04262391EF0023AF49 /* CSV */ = {
 			isa = XCSwiftPackageProductDependency;

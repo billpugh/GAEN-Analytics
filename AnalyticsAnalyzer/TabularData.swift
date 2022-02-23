@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import os.log
 import TabularData
 
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "tabular")
 func sum(_ x: Int?, _ y: Int?) -> Int? {
     guard let x = x else {
         return y
@@ -35,7 +37,7 @@ extension DataFrame {
     }
 
     func makeRow(_ row: [Any]) -> [String: Any?] {
-        print("appendRow")
+        logger.info("appendRow")
         let columns = self.columns
         var myMap: [String: Any?] = [:]
         for (c, v) in zip(columns, row) {
@@ -49,6 +51,7 @@ extension DataFrame {
     }
 
     func rollingAvg(days: Int) -> DataFrame {
+        logger.info("Computing \(days, privacy: .public) rolling average")
         var result = DataFrame()
         for c in columns {
             print(c.name)
@@ -98,6 +101,7 @@ extension DataFrame {
     }
 
     mutating func removeJoinNames() {
+        logger.info("removing join names")
         for c in columns {
             let name = c.name
             if name.hasPrefix("left.") {
@@ -115,7 +119,61 @@ extension DataFrame {
         }
     }
 
+    private func remove(_ x: Int?) -> Int? {
+        if Int.random(in: 0 ... 19) > 0 {
+            return x
+        }
+        if Int.random(in: 0 ... 1) > 0 {
+            return 0
+        }
+
+        return nil
+    }
+
+    private func remove(_ x: Double?) -> Double? {
+        if Int.random(in: 0 ... 19) > 0 {
+            return x
+        }
+        if Int.random(in: 0 ... 1) > 0 {
+            return 0.0
+        }
+
+        return nil
+    }
+
+    private func remove(_ x: [Int]?) -> [Int]? {
+        if Int.random(in: 0 ... 19) > 0 {
+            return x
+        }
+
+        return nil
+    }
+
+    mutating func removeRandomElements() {
+        let introduceNoise = false
+        guard introduceNoise else {
+            return
+        }
+
+        logger.info("removing random elemements")
+        for c in columns {
+            if c.wrappedElementType == Int.self {
+                var c = c.assumingType(Int.self)
+                c.transform { remove($0) }
+            }
+            if c.wrappedElementType == Double.self {
+                var c = c.assumingType(Double.self)
+                c.transform { remove($0) }
+            }
+            if c.wrappedElementType == [Int].self {
+                var c = c.assumingType([Int].self)
+                c.transform { remove($0) }
+            }
+        }
+    }
+
     mutating func addColumnDifference(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         var result = column1 - column2
@@ -125,6 +183,7 @@ extension DataFrame {
     }
 
     mutating func copyColumn(_ name1: String, giving: String) {
+        logger.info("copyColumn(\(name1, privacy: .public), giving \(giving, privacy: .public))")
         var column1 = self[name1, Int.self]
         column1.name = giving
 
@@ -132,6 +191,8 @@ extension DataFrame {
     }
 
     mutating func addColumnSum(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         var result = column1 + column2
@@ -141,6 +202,8 @@ extension DataFrame {
     }
 
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         let resultData = zip(column1, column2).map { ratio($0, $1) }
@@ -149,7 +212,9 @@ extension DataFrame {
 }
 
 func makeColumn<T>(_ name: String, _ value: T) -> AnyColumn {
-    Column<T>(name: name, contents: [value]).eraseToAnyColumn()
+    logger.info("makeColumn(\(name, privacy: .public))")
+
+    return Column<T>(name: name, contents: [value]).eraseToAnyColumn()
 }
 
 class TextBuffer {
@@ -167,6 +232,7 @@ class TextBuffer {
     }
 
     func asENPAData() throws -> DataFrame {
+        logger.info("converting ENPA TextBuffer to DataFrame")
         var readingOptions = CSVReadingOptions()
         readingOptions.addDateParseStrategy(
             Date.ParseStrategy(
