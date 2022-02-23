@@ -41,6 +41,19 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var encvSummary: String = ""
     @Published var csvExport: CSVFile? = nil
     @Published var csvExportReady = false
+    @Published var additionalMetrics: Set<String> = []
+    func metricSelected(_ name: String) -> Bool {
+        additionalMetrics.contains(name)
+    }
+
+    func toggleMetric(_ name: String) {
+        if metricSelected(name) {
+            additionalMetrics.remove(name)
+        } else {
+            additionalMetrics.insert(name)
+        }
+        print("additional metrics: \(additionalMetrics)")
+    }
 
     func export(csvFile: CSVFile) {
         logger.log("exporting \(csvFile.name, privacy: .public)")

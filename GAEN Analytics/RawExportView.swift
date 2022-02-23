@@ -53,9 +53,37 @@ class ZipItem: NSObject, UIActivityItemSource {
     }
 }
 
+struct CheckView: View, Identifiable {
+    let analysisState = AnalysisState.shared
+    var id: String
+    @State var selected: Bool
+    @MainActor init(id: String) {
+        self.id = id
+        selected = analysisState.metricSelected(id)
+    }
+
+    var body: some View {
+        Button(action: { selected.toggle()
+            analysisState.toggleMetric(id)
+
+        }) {
+            HStack {
+                Image(systemName: selected ? "checkmark.square" : "square")
+                Text(id)
+            }
+
+        }.padding()
+    }
+}
+
 struct RawExportView: View {
     let analysisState = AnalysisState.shared
-
+    let additionalMetrics = ["riskParameters",
+                             "beaconCount",
+                             "dateExposure14d",
+                             "keysUploadedWithReportType14d",
+                             "periodicExposureNotification14d",
+                             "secondaryAttack14d"]
     @MainActor func exportRawENPA() {
         guard let raw = analysisState.rawENPA, let url = raw.writeMetrics() else { return }
         let name = url.lastPathComponent
@@ -81,9 +109,15 @@ struct RawExportView: View {
     @State private var zipDocument: ZipFile?
 
     var body: some View {
-        Button(action: { exportRawENPA() }) {
-            Text("Raw ENPA data")
-        }.disabled(!analysisState.available)
+        VStack(alignment: .leading) {
+            ForEach(additionalMetrics, id: \.self) {
+                CheckView(id: $0)
+            } // ForEach
+
+            Button(action: { exportRawENPA() }) {
+                Text("Raw ENPA data")
+            }.padding().disabled(!analysisState.available)
+        }.font(.headline)
         #if targetEnvironment(macCatalyst)
             .fileExporter(isPresented: $showingZipSheet, document: zipDocument, contentType: UTType.zip, defaultFilename: zipDocument?.name ?? "") { result in
                 switch result {
@@ -103,6 +137,7 @@ struct RawExportView: View {
                            ] as [Any], applicationActivities: nil, isPresented: self.$showingSheet)
                        })
         #endif
+
         .navigationBarTitle("Export raw ENPA data")
     }
 }
