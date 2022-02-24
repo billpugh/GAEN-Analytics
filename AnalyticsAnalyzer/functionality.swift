@@ -8,7 +8,7 @@
 import Foundation
 import os.log
 import TabularData
-import ZIPFoundation
+// import ZIPFoundation
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "functionality")
 
 let beaconCountLimits = [3, 7, 15, 30, 50, 80, 120, 250, 999]
@@ -595,28 +595,7 @@ struct RawMetrics {
         return tempDirURL
     }
 
-    func writeMetrics() -> URL? {
-        guard let url = createTempDirectory() else { return nil }
 
-        do {
-            for (name, metric) in metrics {
-                let file = url.appendingPathComponent("\(name).csv")
-                let text = metric.sumsByDay()
-                try text.write(toFile: file.path, atomically: false, encoding: .utf8)
-            }
-        } catch {
-            logger.error("Unable to write raw metrics: \(error.localizedDescription)")
-            return nil
-        }
-        let fileManager = FileManager()
-        let destination = URL(fileURLWithPath: url.path + ".zip")
-        do {
-            try fileManager.zipItem(at: url, to: destination)
-        } catch {
-            logger.error("Creation of ZIP archive failed with error: \(error.localizedDescription)")
-        }
-        return destination
-    }
 
     public mutating func addMetric(names: [String]) -> [String] {
         var errors: [String] = []
@@ -1371,13 +1350,6 @@ func presentValue(_: String, _ x: Int?) -> String {
     }
 }
 
-func presentValue(_: String, _ x: Int?, divisor: Int) -> String {
-    if let x = x {
-        return "\(round1(Double(x) / Double(divisor)))"
-    } else {
-        return "_"
-    }
-}
 
 func showTrend(_ c: Column<Double>) -> String {
     let name = c.name

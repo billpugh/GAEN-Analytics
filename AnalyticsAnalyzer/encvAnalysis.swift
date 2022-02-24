@@ -102,7 +102,7 @@ struct ENCVAnalysis {
 
 func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     logger.log("analyzing encv")
-    guard composite.indexOfColumn("codes_issued") != nil else {
+    guard composite.hasColumn("codes_issued") else {
         return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV data"])
     }
     var encv = composite
@@ -138,15 +138,20 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         encv.append(column: Column(name: "sms_30007_errors", contents: error30007Column))
     }
 
+    let hasKeyServerStats = encv.hasColumn("publish_requests_android")
     var tmp = encv
     logger.log("transforming distribution")
     tmp.transformColumn("code_claim_age_distribution", transformDistribution)
-    tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
+    if hasKeyServerStats {
+        tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
+    }
 
     var rollingAvg = tmp.rollingAvg(days: 7)
     logger.log("computed rolling average")
-    rollingAvg.transformColumn("onset_to_upload_distribution", weightedSum)
-    rollingAvg.renameColumn("onset_to_upload_distribution", to: "avg_days_onset_to_upload")
+    if hasKeyServerStats {
+        rollingAvg.transformColumn("onset_to_upload_distribution", weightedSum)
+        rollingAvg.renameColumn("onset_to_upload_distribution", to: "avg_days_onset_to_upload")
+    }
     // Buckets are: 1m, 5m, 15m, 30m, 1h, 2h, 3h, 6h, 12h, 24h, >24h
     rollingAvg.transformColumn("code_claim_age_distribution") { weightedSum($0, weights: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]) }
     rollingAvg.renameColumn("code_claim_age_distribution", to: "codes_claimed_within_hour_percentage")
@@ -166,58 +171,78 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     } else {
         rollingAvg.addColumnPercentage("unused_tokens", "confirmed_test_tokens_claimed", giving: "publish_failure_rate")
     }
-    rollingAvg.addColumnPercentage("publish_requests_android", "publish_requests", giving: "android_publish_share")
-    rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
-    rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
+    if hasKeyServerStats {
+        rollingAvg.addColumnPercentage("publish_requests_android", "publish_requests", giving: "android_publish_share")
+        rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
+        rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
+    }
     if smsData != nil {
+        logger.log("adding sms stats")
         rollingAvg.addColumnPercentage("sms_errors", "codes_issued", giving: "sms_error_rate")
         rollingAvg.addColumnPercentage("sms_30007_errors", "codes_issued", giving: "sms_30007_error_rate")
     }
+    logger.log("computing summary")
+    rollingAvg.replaceUnderscoreWithSpace()
+    
     var columnNamesInt = ["confirmed test issued"]
     if hasUserReports {
         columnNamesInt.append("user reports issued")
     }
-    columnNamesInt.append("publish requests")
+    if hasKeyServerStats {
+        columnNamesInt.append("publish requests")
+    }
+    logger.log("computing summary of int fields")
+    let columnsInt = columnNamesInt.filter{ rollingAvg.requireColumn($0, Int.self)}.map { rollingAvg[$0, Int.self] }
+    logger.log("have summary of int fields")
+    let msgInt = columnsInt.map { c -> String in
+        let name = c.name
+        logger.log("summarizing \(name, privacy: .public)")
+        let lastValue = presentValue(name, c.last!)
+        
+        if c.count >= 9 {
+            let prevValue = presentValue(name, c[c.count - 8])
+            return  "\(name): \(prevValue) → \(lastValue)"
+        } else {
+            return "\(name): \(lastValue)"
+        }
+    }
+    var columnNamesDouble = [
 
-    rollingAvg.replaceUnderscoreWithSpace()
-    var columnNames = [
-        "publish failure rate",
-        "android publish share",
-        // "ios invalid ratio",
-        // "android invalid ratio",
         "confirmed test claim rate",
         "confirmed test consent rate",
     ]
-    logger.log("computing summary")
+    if hasKeyServerStats {
+        columnNamesDouble.append(contentsOf: ["publish failure rate",
+                                        "android publish share"])
+    }
+    
     if hasUserReports {
-        columnNames.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user report percentage"])
+        columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user report percentage"])
         if hasRevisions {
-            columnNames.append("user reports revision rate")
+            columnNamesDouble.append("user reports revision rate")
         }
     }
     if smsData != nil {
-        columnNames.append(contentsOf: ["sms error rate", "sms 30007 error rate"])
+        columnNamesDouble.append(contentsOf: ["sms error rate", "sms 30007 error rate"])
     }
-
-    let columnsInt = columnNamesInt.map { rollingAvg[$0, Int.self] }
-    let msgInt = columnsInt.map { c -> String in
-        let name = c.name.replacingOccurrences(of: "_", with: " ")
-        let lastValue = presentValue(name, c.last!, divisor: 7)
-        let prevValue = presentValue(name, c[c.count - 8], divisor: 7)
-        let m = "\(name): \(prevValue) → \(lastValue)"
-
-        return m
-    }
-    let columnsDouble = columnNames.map { rollingAvg[$0, Double.self] }
+    
+    logger.log("computing summary of double fields")
+    let columnsDouble = columnNamesDouble.filter{ rollingAvg.requireColumn($0, Double.self)}.map { rollingAvg[$0, Double.self] }
+    logger.log("have summary of double fields")
     let msgDouble = columnsDouble.map { c -> String in
-        let name = c.name.replacingOccurrences(of: "_", with: " ")
+       
+        let name = c.name
+        logger.log("summarizing \(name, privacy: .public)")
         let lastValue = presentValue(name, c.last!)
-        let prevValue = presentValue(name, c[c.count - 8])
-        let m = "\(name): \(prevValue) → \(lastValue)"
-
-        return m
+        if c.count >= 9 {
+            let prevValue = presentValue(name, c[c.count - 8])
+            return  "\(name): \(prevValue) → \(lastValue)"
+        } else {
+            return "\(name): \(lastValue)"
+        }
+       
     }
     let log = msgInt + msgDouble
-
+    logger.log("summary finished")
     return ENCVAnalysis(encv: encv, average: rollingAvg, log: log)
 }

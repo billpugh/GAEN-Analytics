@@ -37,6 +37,10 @@ struct DocView: View {
     var file: String
     var body: some View {
         VStack {
+            if title == "About GAEN Analyzer" {
+                Text("Version \(SetupState.shared.appVersion), build \(SetupState.shared.build)")
+            }
+                
             Text(markdown(file: file))
             Spacer()
         }.padding().navigationBarTitle(title, displayMode: .inline)

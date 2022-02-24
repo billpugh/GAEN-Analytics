@@ -72,12 +72,24 @@
 		16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D427C672A3007527FC /* ZIPFoundation */; };
 		16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D627C6741B007527FC /* ZIPFoundation */; };
 		16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4D827C689CD007527FC /* RawExportView.swift */; };
+		16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
+		16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
 		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
 		16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		16C5E4DA27C7C511007527FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1609484F25C3632A001705A6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1673F54727B07F710037D340;
+			remoteInfo = "GAEN Analytics";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		1609485525C3632A001705A6 /* CopyFiles */ = {
@@ -168,6 +180,7 @@
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16C5E4D827C689CD007527FC /* RawExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawExportView.swift; sourceTree = "<group>"; };
+		16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipFunctionality.swift; sourceTree = "<group>"; };
 		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
 		16D7B5E126237CEE00D09126 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16F6DAAE27A764A100388B5B /* FetchENPA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchENPA.swift; sourceTree = "<group>"; };
@@ -268,6 +281,7 @@
 			children = (
 				1609485A25C3632A001705A6 /* main.swift */,
 				16515AA525C9939200C97BB8 /* functionality.swift */,
+				16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */,
 				1673F56827B0C0860037D340 /* encvAnalysis.swift */,
 				16F6DAAE27A764A100388B5B /* FetchENPA.swift */,
 				1673F54027B002B80037D340 /* configuration.swift */,
@@ -463,6 +477,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				16C5E4DB27C7C511007527FC /* PBXTargetDependency */,
 			);
 			name = SmokeTest;
 			productName = SmokeTest;
@@ -609,6 +624,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16515AA625C9939200C97BB8 /* functionality.swift in Sources */,
+				16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */,
 				1673F54127B002B80037D340 /* configuration.swift in Sources */,
 				16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */,
 				1673F56527B0A7C80037D340 /* TabularData.swift in Sources */,
@@ -641,6 +657,7 @@
 				16856E5927BBF34800F44960 /* DocView.swift in Sources */,
 				1673F55B27B0A4D70037D340 /* ExportView.swift in Sources */,
 				16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */,
+				16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */,
 				16856E6E27BC62EC00F44960 /* TestView.swift in Sources */,
 				16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */,
 				1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */,
@@ -705,6 +722,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		16C5E4DB27C7C511007527FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1673F54727B07F710037D340 /* GAEN Analytics */;
+			targetProxy = 16C5E4DA27C7C511007527FC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1609485C25C3632A001705A6 /* Debug */ = {
@@ -882,7 +907,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -896,12 +921,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -920,7 +946,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -934,12 +960,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

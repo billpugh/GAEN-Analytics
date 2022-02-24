@@ -36,6 +36,30 @@ extension DataFrame {
         return Double(x) / Double(y)
     }
 
+    func hasColumn(_ name: String) -> Bool {
+        indexOfColumn(name) != nil
+    }
+    func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
+        let result = hasColumn(name)
+        if !result {
+            logger.error("Missing column \(name, privacy: .public)")
+            return false
+        }
+        let c : AnyColumn = self[name]
+        if c.wrappedElementType != type {
+            logger.error("Column \(name, privacy: .public) has type \(c.wrappedElementType, privacy: .public), expected \(type, privacy: .public)")
+            return false
+        }
+        return true
+    }
+    func requireColumn(_ name: String) -> Bool {
+        let result = hasColumn(name)
+        if !result {
+            logger.error("Missing column \(name, privacy: .public)")
+        }
+        return result
+    }
+
     func makeRow(_ row: [Any]) -> [String: Any?] {
         logger.info("appendRow")
         let columns = self.columns
@@ -47,14 +71,18 @@ extension DataFrame {
     }
 
     func average(_ sum: Int, _ days: Int) -> Int {
-        (sum + days / 2) / days
+        guard days > 0 else {
+            logger.error("asked for average over \(days, privacy: .public) days average")
+            return sum
+        }
+        return (sum + days / 2) / days
     }
 
     func rollingAvg(days: Int) -> DataFrame {
         logger.info("Computing \(days, privacy: .public) rolling average")
         var result = DataFrame()
         for c in columns {
-            print(c.name)
+            //print(c.name)
             if c.wrappedElementType == Date.self {
                 let c = c.assumingType(Date.self)
                 result.append(column: Column(c[days ..< c.count]))
@@ -113,10 +141,17 @@ extension DataFrame {
     }
 
     mutating func replaceUnderscoreWithSpace() {
+        logger.info("replacing underscore with spaces in column names")
         for c in columns {
             let name = c.name
+            let newName = name.replacingOccurrences(of: "_", with: " ")
+            if hasColumn(newName) {
+                logger.error("DataFrame has columns named both \(name) and \(newName)")
+                continue
+            }
             renameColumn(name, to: String(name.replacingOccurrences(of: "_", with: " ")))
         }
+        logger.info("completed replacing underscore with spaces in column names")
     }
 
     private func remove(_ x: Int?) -> Int? {
@@ -174,16 +209,23 @@ extension DataFrame {
 
     mutating func addColumnDifference(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1),  requireColumn(name2) else {
+            return
+        }
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         var result = column1 - column2
         result.name = giving
         // calculated.append(giving)
         append(column: result)
+        logger.info("added column \(giving, privacy: .public)")
     }
 
     mutating func copyColumn(_ name1: String, giving: String) {
         logger.info("copyColumn(\(name1, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1) else {
+            return
+        }
         var column1 = self[name1, Int.self]
         column1.name = giving
 
@@ -192,22 +234,28 @@ extension DataFrame {
 
     mutating func addColumnSum(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-
+        guard requireColumn(name1),  requireColumn(name2) else {
+            return
+        }
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         var result = column1 + column2
         result.name = giving
         // calculated.append(giving)
         append(column: result)
+        logger.info("added column \(giving, privacy: .public)")
     }
 
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-
+        guard hasColumn(name1), hasColumn(name2) else {
+            return
+        }
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         let resultData = zip(column1, column2).map { ratio($0, $1) }
         append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
     }
 }
 

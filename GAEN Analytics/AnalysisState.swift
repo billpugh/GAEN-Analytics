@@ -221,6 +221,23 @@ func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
     return Int((Double(codesClaimed * 100_000) / cv).rounded())
 }
 
+func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
+    logger.log("Computing est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
+    let codes_claimed = encv.selecting(columnNames: ["date", encvColumn])
+    var joined = enpa.joined(codes_claimed, on: "date", kind: .left)
+    joined.removeJoinNames()
+    logger.log("join computed; columns renamed")
+    
+    let codesClaimed = joined[encvColumn, Int.self]
+    let vc = joined[enpaColumn, Double.self]
+    let result = zip(codesClaimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
+    logger.log("est. users computed")
+    let c = Column(name: "est users", contents: result)
+    joined.append(column: c)
+    joined.addColumnPercentage("\(enpaColumn) count", "est users", giving: "ENPA %")
+    return joined
+}
+
 actor AnalysisTask {
     func getRawENPA(config: Configuration, names: [String], result _: AnalysisState) async {
         var raw = RawMetrics(config)
@@ -259,23 +276,12 @@ actor AnalysisTask {
             iOSDataFrame.removeRandomElements()
             var androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
             androidDataFrame.removeRandomElements()
-            var combinedDataFramePlain = try getRollingAverageKeyMetrics(metrics, options: config)
-            combinedDataFramePlain.removeRandomElements()
-            let combinedDataFrame: DataFrame
+            var combinedDataFrame = try getRollingAverageKeyMetrics(metrics, options: config)
+            combinedDataFrame.removeRandomElements()
             if let encv = encvAverage {
-                let codes_claimed = encv.selecting(columnNames: ["date", "codes claimed"])
-                var joined = combinedDataFramePlain.joined(codes_claimed, on: "date", kind: .left)
-                // print("\(joined.columns.count)  Columns in join: \(joined.columns.map(\.name))")
-                joined.removeJoinNames()
-                // print("\(joined.columns.count)  Columns in join: \(joined.columns.map(\.name))")
-                let codesClaimed = joined["codes claimed", Int.self]
-                let vc = joined["vc", Double.self]
-                let result = zip(codesClaimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
-                joined.append(column: Column(name: "est users", contents: result))
-                joined.addColumnPercentage("vc count", "est users", giving: "ENPA %")
-                combinedDataFrame = joined
-            } else {
-                combinedDataFrame = combinedDataFramePlain
+                combinedDataFrame = computeEstimatedUsers(encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
+                // iOSDataFrame = computeEstimatedUsers(encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
+                // androidDataFrame = computeEstimatedUsers(encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
             }
             await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
@@ -319,7 +325,12 @@ actor AnalysisTask {
     func analyze(config: Configuration, result: AnalysisState,
                  analyzeENCV: Bool = true, analyzeENPA: Bool = true) async
     {
-        logger.log("Starting analysis")
+        let info = Bundle.main.infoDictionary!
+        
+        let build = info["CFBundleVersion"] as? String ?? "unknown"
+        let appVersion = info["CFBundleShortVersionString"] as? String ?? "unknown"
+                       
+        logger.log("Starting analysis, GAEN Analytics version \(appVersion), build \(build)")
         await result.start(config: config)
         let encv: ENCVAnalysis?
         if analyzeENCV, config.hasENCV {

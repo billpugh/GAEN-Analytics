@@ -99,6 +99,19 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
     }
 
+    var build: String {
+        guard  let info = Bundle.main.infoDictionary else {
+            return "unknown"
+        }
+        return info["CFBundleVersion"] as? String ?? "unknown"
+    }
+    var appVersion: String {
+        guard let info = Bundle.main.infoDictionary else {
+            return "unknown"
+        }
+        return info["CFBundleShortVersionString"] as? String ?? "unknown"
+    }
+   
     var setupNeeded: Bool {
         region.isEmpty || encvKey.isEmpty && enpaKey.isEmpty
     }
