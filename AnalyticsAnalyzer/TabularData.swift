@@ -137,20 +137,16 @@ extension DataFrame {
             let name = c.name
             if name.hasPrefix("left.") {
                 let newName = String(name.dropFirst("left.".count))
-                if hasColumn(newName) {
-                    logger.error("can't rename \(name, privacy: .public) to \(newName, privacy: .public) which already exists")
-                } else {
+                    logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
                     renameColumn(name, to: newName)
                     count += 1
-                }
+                
             } else if name.hasPrefix("right.") {
                 let newName = String(name.dropFirst("right.".count))
-                if hasColumn(newName) {
-                    logger.error("can't rename \(name, privacy: .public) to \(newName, privacy: .public) which already exists")
-                } else {
+                    logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
                     renameColumn(name, to: newName)
                     count += 1
-                }
+                
             }
         }
         logger.info("removed \(count) join names")
@@ -173,6 +169,9 @@ extension DataFrame {
         logger.info("replacing underscore with spaces in column names")
         for c in columns {
             let name = c.name
+            if !name.contains("_") {
+                continue
+            }
             let newName = name.replacingOccurrences(of: "_", with: " ")
             if hasColumn(newName) {
                 logger.error("DataFrame has columns named both \(name, privacy: .public) and \(newName, privacy: .public)")

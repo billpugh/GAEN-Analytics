@@ -184,6 +184,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         rollingAvg.addColumnPercentage("sms_30007_errors", "codes_issued", giving: "sms_30007_error_rate")
     }
     logger.log("computing summary")
+    //print("\(rollingAvg.columns.count) Columns: \(rollingAvg.columns.map(\.name))")
     rollingAvg.checkUniqueColumnNames()
     rollingAvg.replaceUnderscoreWithSpace()
 

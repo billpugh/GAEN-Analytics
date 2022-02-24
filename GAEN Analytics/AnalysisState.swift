@@ -223,6 +223,8 @@ func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
 
 func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
     logger.log("Computing est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
+    encv.checkUniqueColumnNames()
+    enpa.checkUniqueColumnNames()
     let codes_claimed = encv.selecting(columnNames: ["date", encvColumn])
     var joined = enpa.joined(codes_claimed, on: "date", kind: .left)
     joined.removeJoinNames()
