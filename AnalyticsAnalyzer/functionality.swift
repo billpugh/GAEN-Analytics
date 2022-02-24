@@ -366,6 +366,14 @@ struct Accumulators {
         let ntPerKy = "\(un / ku)," + notifiedCount.per100KValues(range: 1 ... numCategories).map { "\($0 / ku)" }.joined(separator: ",")
         let icPrint = interactionCount.per100K(range1: 1 ... numCategories, range2: 5 ... 4 + numCategories)
         let saPrint = excessSecondaryAttack.per100KNoSTD(range: 0 ... numCategories - 1)
+        let xsa: [Double] = excessSecondaryAttack.per100KValues(range: 0 ... numCategories - 1)
+        let xsarPrint = zip(xsa, unValues).map({
+            if let ar = percentage($0, $1) {
+                return "\(ar)"
+            }
+            return ""
+        }
+        ).joined(separator: ",")
         let dePrint: String
         let nsPrint: String
 
@@ -379,7 +387,7 @@ struct Accumulators {
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint)")
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -396,11 +404,11 @@ struct Accumulators {
         let kuHeader = "ku std,ku,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
         let esHeader = range.map { "nts\($0)%," }.joined()
-        let sarHeader = range.map { "sar\($0)%" }.joined(separator: ",")
+        let sarHeader = range.map { "xsar\($0)%" }.joined(separator: ",")
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)dec count,\(deHeader)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)dec count,\(deHeader)")
     }
 }
 
@@ -1316,7 +1324,12 @@ func round2(_ x: Double) -> Double {
 func percentage(_ x: Int, _ y: Int) -> Double {
     round4(Double(x) / Double(y))
 }
-
+func percentage(_ x: Double, _ y: Double) -> Double? {
+    if y <= 0 {
+        return nil
+    }
+    return x/y
+}
 func round4(_ x: Double) -> Double {
     (x * 10000).rounded() / 10000.0
 }
