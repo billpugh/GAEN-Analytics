@@ -13,7 +13,6 @@ import ZIPFoundation
 
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "archive")
 
-
 extension RawMetrics {
     func writeMetrics() -> URL? {
         guard let url = createTempDirectory() else { return nil }

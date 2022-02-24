@@ -603,8 +603,6 @@ struct RawMetrics {
         return tempDirURL
     }
 
-
-
     public mutating func addMetric(names: [String]) -> [String] {
         var errors: [String] = []
         for n in names {
@@ -1324,12 +1322,14 @@ func round2(_ x: Double) -> Double {
 func percentage(_ x: Int, _ y: Int) -> Double {
     round4(Double(x) / Double(y))
 }
+
 func percentage(_ x: Double, _ y: Double) -> Double? {
     if y <= 0 {
         return nil
     }
-    return x/y
+    return x / y
 }
+
 func round4(_ x: Double) -> Double {
     (x * 10000).rounded() / 10000.0
 }
@@ -1362,7 +1362,6 @@ func presentValue(_: String, _ x: Int?) -> String {
         return "_"
     }
 }
-
 
 func showTrend(_ c: Column<Double>) -> String {
     let name = c.name

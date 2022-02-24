@@ -126,7 +126,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     } else {
         encv.addColumnDifference("confirmed_test_tokens_claimed", "publish_requests", giving: "unused_tokens")
     }
-
+    encv.checkUniqueColumnNames()
     if let smsData = smsData {
         let (allErrors, error30007) = getErrorsByDate(smsData: smsData)
         let dates = encv["date", Date.self]
@@ -145,8 +145,9 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     if hasKeyServerStats {
         tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
     }
-
+    tmp.checkUniqueColumnNames()
     var rollingAvg = tmp.rollingAvg(days: 7)
+    rollingAvg.checkUniqueColumnNames()
     logger.log("computed rolling average")
     if hasKeyServerStats {
         rollingAvg.transformColumn("onset_to_upload_distribution", weightedSum)
@@ -176,14 +177,16 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
         rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
     }
+    rollingAvg.checkUniqueColumnNames()
     if smsData != nil {
         logger.log("adding sms stats")
         rollingAvg.addColumnPercentage("sms_errors", "codes_issued", giving: "sms_error_rate")
         rollingAvg.addColumnPercentage("sms_30007_errors", "codes_issued", giving: "sms_30007_error_rate")
     }
     logger.log("computing summary")
+    rollingAvg.checkUniqueColumnNames()
     rollingAvg.replaceUnderscoreWithSpace()
-    
+
     var columnNamesInt = ["confirmed test issued"]
     if hasUserReports {
         columnNamesInt.append("user reports issued")
@@ -192,30 +195,29 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         columnNamesInt.append("publish requests")
     }
     logger.log("computing summary of int fields")
-    let columnsInt = columnNamesInt.filter{ rollingAvg.requireColumn($0, Int.self)}.map { rollingAvg[$0, Int.self] }
+    let columnsInt = columnNamesInt.filter { rollingAvg.requireColumn($0, Int.self) }.map { rollingAvg[$0, Int.self] }
     logger.log("have summary of int fields")
     let msgInt = columnsInt.map { c -> String in
         let name = c.name
         logger.log("summarizing \(name, privacy: .public)")
         let lastValue = presentValue(name, c.last!)
-        
+
         if c.count >= 9 {
             let prevValue = presentValue(name, c[c.count - 8])
-            return  "\(name): \(prevValue) → \(lastValue)"
+            return "\(name): \(prevValue) → \(lastValue)"
         } else {
             return "\(name): \(lastValue)"
         }
     }
     var columnNamesDouble = [
-
         "confirmed test claim rate",
         "confirmed test consent rate",
     ]
     if hasKeyServerStats {
         columnNamesDouble.append(contentsOf: ["publish failure rate",
-                                        "android publish share"])
+                                              "android publish share"])
     }
-    
+
     if hasUserReports {
         columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user report percentage"])
         if hasRevisions {
@@ -225,22 +227,21 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     if smsData != nil {
         columnNamesDouble.append(contentsOf: ["sms error rate", "sms 30007 error rate"])
     }
-    
+
     logger.log("computing summary of double fields")
-    let columnsDouble = columnNamesDouble.filter{ rollingAvg.requireColumn($0, Double.self)}.map { rollingAvg[$0, Double.self] }
+    let columnsDouble = columnNamesDouble.filter { rollingAvg.requireColumn($0, Double.self) }.map { rollingAvg[$0, Double.self] }
     logger.log("have summary of double fields")
     let msgDouble = columnsDouble.map { c -> String in
-       
+
         let name = c.name
         logger.log("summarizing \(name, privacy: .public)")
         let lastValue = presentValue(name, c.last!)
         if c.count >= 9 {
             let prevValue = presentValue(name, c[c.count - 8])
-            return  "\(name): \(prevValue) → \(lastValue)"
+            return "\(name): \(prevValue) → \(lastValue)"
         } else {
             return "\(name): \(lastValue)"
         }
-       
     }
     let log = msgInt + msgDouble
     logger.log("summary finished")

@@ -39,19 +39,21 @@ extension DataFrame {
     func hasColumn(_ name: String) -> Bool {
         indexOfColumn(name) != nil
     }
+
     func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
         let result = hasColumn(name)
         if !result {
             logger.error("Missing column \(name, privacy: .public)")
             return false
         }
-        let c : AnyColumn = self[name]
+        let c: AnyColumn = self[name]
         if c.wrappedElementType != type {
             logger.error("Column \(name, privacy: .public) has type \(c.wrappedElementType, privacy: .public), expected \(type, privacy: .public)")
             return false
         }
         return true
     }
+
     func requireColumn(_ name: String) -> Bool {
         let result = hasColumn(name)
         if !result {
@@ -82,7 +84,7 @@ extension DataFrame {
         logger.info("Computing \(days, privacy: .public) rolling average")
         var result = DataFrame()
         for c in columns {
-            //print(c.name)
+            // print(c.name)
             if c.wrappedElementType == Date.self {
                 let c = c.assumingType(Date.self)
                 result.append(column: Column(c[days ..< c.count]))
@@ -130,23 +132,50 @@ extension DataFrame {
 
     mutating func removeJoinNames() {
         logger.info("removing join names")
+        var count = 0
         for c in columns {
             let name = c.name
             if name.hasPrefix("left.") {
-                renameColumn(name, to: String(name.dropFirst("left.".count)))
+                let newName = String(name.dropFirst("left.".count))
+                if hasColumn(newName) {
+                    logger.error("can't rename \(name, privacy: .public) to \(newName, privacy: .public) which already exists")
+                } else {
+                    renameColumn(name, to: newName)
+                    count += 1
+                }
             } else if name.hasPrefix("right.") {
-                renameColumn(name, to: String(name.dropFirst("right.".count)))
+                let newName = String(name.dropFirst("right.".count))
+                if hasColumn(newName) {
+                    logger.error("can't rename \(name, privacy: .public) to \(newName, privacy: .public) which already exists")
+                } else {
+                    renameColumn(name, to: newName)
+                    count += 1
+                }
+            }
+        }
+        logger.info("removed \(count) join names")
+    }
+
+    func checkUniqueColumnNames() {
+        logger.info("Checking for unique column names")
+        var seen : Set<String> = []
+        for c in columns {
+            let name = c.name
+            if seen.contains(name) {
+                logger.error("DataFrame contains two columns named \(name)")
+            } else {
+                seen.insert(name)
             }
         }
     }
-
+    
     mutating func replaceUnderscoreWithSpace() {
         logger.info("replacing underscore with spaces in column names")
         for c in columns {
             let name = c.name
             let newName = name.replacingOccurrences(of: "_", with: " ")
             if hasColumn(newName) {
-                logger.error("DataFrame has columns named both \(name) and \(newName)")
+                logger.error("DataFrame has columns named both \(name, privacy: .public) and \(newName, privacy: .public)")
                 continue
             }
             renameColumn(name, to: String(name.replacingOccurrences(of: "_", with: " ")))
@@ -209,7 +238,7 @@ extension DataFrame {
 
     mutating func addColumnDifference(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard requireColumn(name1),  requireColumn(name2) else {
+        guard requireColumn(name1), requireColumn(name2) else {
             return
         }
         let column1 = self[name1, Int.self]
@@ -234,7 +263,7 @@ extension DataFrame {
 
     mutating func addColumnSum(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard requireColumn(name1),  requireColumn(name2) else {
+        guard requireColumn(name1), requireColumn(name2) else {
             return
         }
         let column1 = self[name1, Int.self]

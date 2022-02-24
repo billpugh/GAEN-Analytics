@@ -227,7 +227,7 @@ func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFram
     var joined = enpa.joined(codes_claimed, on: "date", kind: .left)
     joined.removeJoinNames()
     logger.log("join computed; columns renamed")
-    
+
     let codesClaimed = joined[encvColumn, Int.self]
     let vc = joined[enpaColumn, Double.self]
     let result = zip(codesClaimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
@@ -326,10 +326,10 @@ actor AnalysisTask {
                  analyzeENCV: Bool = true, analyzeENPA: Bool = true) async
     {
         let info = Bundle.main.infoDictionary!
-        
+
         let build = info["CFBundleVersion"] as? String ?? "unknown"
         let appVersion = info["CFBundleShortVersionString"] as? String ?? "unknown"
-                       
+
         logger.log("Starting analysis, GAEN Analytics version \(appVersion), build \(build)")
         await result.start(config: config)
         let encv: ENCVAnalysis?
