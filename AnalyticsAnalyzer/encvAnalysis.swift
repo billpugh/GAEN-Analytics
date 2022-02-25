@@ -108,7 +108,10 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     var encv = composite
     let user_reports_claimed = encv["user_reports_claimed", Int.self]
     let hasRevisions = encv.indexOfColumn("requests_with_revisions") != nil
-    let hasUserReports = user_reports_claimed.max()! > 10
+    let user_reports_count = user_reports_claimed.max()!
+    
+    
+    let hasUserReports = user_reports_count > 10
     if hasUserReports {
         encv.addColumnDifference("codes_issued", "user_reports_issued", giving: "confirmed_test_issued")
         encv.addColumnDifference("codes_claimed", "user_reports_claimed", giving: "confirmed_test_claimed")
@@ -165,7 +168,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     rollingAvg.addColumnPercentage("confirmed_test_tokens_claimed", "confirmed_test_claimed", giving: "confirmed_test_consent_rate")
     if hasUserReports {
         rollingAvg.addColumnPercentage("unused_tokens", "tokens_claimed", giving: "publish_failure_rate")
-        rollingAvg.addColumnPercentage("user_report_tokens_claimed", "tokens_claimed", giving: "user_report_percentage")
+        rollingAvg.addColumnPercentage("user_report_tokens_claimed", "tokens_claimed", giving: "user_reports_percentage")
         if hasRevisions {
             rollingAvg.addColumnPercentage("requests_with_revisions", "tokens_claimed", giving: "user_reports_revision_rate")
         }
@@ -220,7 +223,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
 
     if hasUserReports {
-        columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user report percentage"])
+        columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user reports percentage"])
         if hasRevisions {
             columnNamesDouble.append("user reports revision rate")
         }

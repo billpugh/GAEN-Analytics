@@ -194,9 +194,9 @@ class AnalysisState: NSObject, ObservableObject {
             if false {
                 print("\(encv.columns.count) enpa Columns: \(encv.columns.map(\.name))")
             }
-            let hasUserReports = encv.indexOfColumn("user_report_claim_rate") != nil
+            let hasUserReports = encv.indexOfColumn("user reports claim rate") != nil
 
-            let hasSMSerrors = encv.indexOfColumn("sms_error_rate") != nil
+            let hasSMSerrors = encv.indexOfColumn("sms error rate") != nil
             let maybeCharts: [ChartOptions?] = [
                 claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
                 userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
@@ -459,7 +459,7 @@ func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
 
 func claimedConsent(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
     if hasUserReports {
-        return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate,user report claim rate,user report consent rate".components(separatedBy: ","))
+        return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate,user reports claim rate,user reports consent rate".components(separatedBy: ","))
     }
     return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate".components(separatedBy: ","))
 }
@@ -468,7 +468,7 @@ func userReportRate(encv: DataFrame, hasUserReports: Bool, config _: Configurati
     if !hasUserReports {
         return nil
     }
-    return ChartOptions(title: "User report %", data: encv, columns: "user report percentage,user reports revision rate".components(separatedBy: ","))
+    return ChartOptions(title: "User report %", data: encv, columns: "user reports percentage,user reports revision rate".components(separatedBy: ","))
 }
 
 func tokensClaimed(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
