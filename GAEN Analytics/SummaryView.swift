@@ -14,11 +14,11 @@ struct SummaryView: View {
     var body: some View {
         Form {
             Section(header: TopicView(topic: "ENCV")) {
-                Text(analysisState.encvSummary)
+                Text(analysisState.encvSummary).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.encvCharts)
             Section(header: TopicView(topic: "ENPA")) {
-                Text(analysisState.enpaSummary)
+                Text(analysisState.enpaSummary).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
         }.textCase(nil)

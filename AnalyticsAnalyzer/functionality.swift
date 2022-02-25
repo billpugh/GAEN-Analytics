@@ -357,6 +357,7 @@ struct Accumulators {
         let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
 
         let cvPrint = verifiedCount.per100K(range: 1 ... 1 + numCategories)
+        let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 2)
         let kuPrint = uploadedCount.per100K(range: 1 ... 1 + numCategories)
         let unPrint = notifiedCount.per100K(range: 1 ... numCategories)
         let ku = uploadedCount.per100KValues(range: 1 ... 1 + numCategories).reduce(0,+)
@@ -367,6 +368,12 @@ struct Accumulators {
         let icPrint = interactionCount.per100K(range1: 1 ... numCategories, range2: 5 ... 4 + numCategories)
         let saPrint = excessSecondaryAttack.per100KNoSTD(range: 0 ... numCategories - 1)
         let xsa: [Double] = excessSecondaryAttack.per100KValues(range: 0 ... numCategories - 1)
+        let sarPrint = zip(saValues, unValues).map {
+            if let ar = percentage($0, $1) {
+                return "\(ar)"
+            }
+            return ""
+        }.joined(separator: ",")
         let xsarPrint = zip(xsa, unValues).map({
             if let ar = percentage($0, $1) {
                 return "\(ar)"
@@ -387,7 +394,7 @@ struct Accumulators {
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint)")
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -404,7 +411,7 @@ struct Accumulators {
         let kuHeader = "ku std,ku,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
         let esHeader = range.map { "nts\($0)%," }.joined()
-        let sarHeader = range.map { "xsar\($0)%" }.joined(separator: ",")
+        let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")

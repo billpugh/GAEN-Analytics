@@ -522,7 +522,7 @@ func userReportRate(encv: DataFrame, hasUserReports: Bool, config _: Configurati
 
 func tokensClaimed(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
     if hasUserReports {
-        return ChartOptions(title: "tokensClaimed", data: encv, columns: "tokens claimed,confirmed test tokens claimed,user report tokens claimed".components(separatedBy: ","))
+        return ChartOptions(title: "tokens claimed", data: encv, columns: "tokens claimed,confirmed test tokens claimed,user report tokens claimed".components(separatedBy: ","))
     }
     return ChartOptions(title: "tokens claimed", data: encv, columns: "tokens claimed".components(separatedBy: ","))
 }

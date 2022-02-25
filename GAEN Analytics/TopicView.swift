@@ -24,7 +24,7 @@ struct TopicView: View {
                 }
             }.font(.title)
             if showingPopover {
-                Text(markdown(file: topic)).transition(.scale).font(.body)
+                Text(markdown(file: topic)).textSelection(.enabled).transition(.scale).font(.body)
             }
         }.textCase(nil)
     }

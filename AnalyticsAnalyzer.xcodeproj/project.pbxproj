@@ -11,6 +11,7 @@
 		163EF28A27C921FA00D3C19D /* Test.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28727C9216800D3C19D /* Test.md */; };
 		163EF28B27C921FE00D3C19D /* ENCV.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28827C9218A00D3C19D /* ENCV.md */; };
 		163EF28C27C9220200D3C19D /* ENPA.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28927C9219E00D3C19D /* ENPA.md */; };
+		163EF28F27C933C600D3C19D /* User report %.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28E27C9330100D3C19D /* User report %.md */; };
 		164945A827B6AE5600C0F5F0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164945A727B6AE5600C0F5F0 /* main.swift */; };
 		164945AC27B6B05300C0F5F0 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
 		164945AD27B6B05800C0F5F0 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
@@ -150,6 +151,7 @@
 		163EF28727C9216800D3C19D /* Test.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Test.md; sourceTree = "<group>"; };
 		163EF28827C9218A00D3C19D /* ENCV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ENCV.md; sourceTree = "<group>"; };
 		163EF28927C9219E00D3C19D /* ENPA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ENPA.md; sourceTree = "<group>"; };
+		163EF28E27C9330100D3C19D /* User report %.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "User report %.md"; sourceTree = "<group>"; };
 		164945A527B6AE5600C0F5F0 /* encvTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = encvTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		164945A727B6AE5600C0F5F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16515AA525C9939200C97BB8 /* functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = functionality.swift; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 				16856E5727BBF31D00F44960 /* about.md */,
 				16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */,
 				16856E5F27BC014400F44960 /* claimed and consent rates.md */,
+				163EF28E27C9330100D3C19D /* User report %.md */,
 				16856E6027BC018C00F44960 /* tokens claimed.md */,
 				16856E6127BC01A300F44960 /* System health.md */,
 				16856E6227BC01BB00F44960 /* Notifications per key upload.md */,
@@ -614,6 +617,7 @@
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
+				163EF28F27C933C600D3C19D /* User report %.md in Resources */,
 				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
 				163EF28A27C921FA00D3C19D /* Test.md in Resources */,
 				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
@@ -923,7 +927,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -932,7 +936,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -962,7 +965,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -971,7 +974,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

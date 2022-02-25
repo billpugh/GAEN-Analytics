@@ -8,19 +8,6 @@
 import LocalAuthentication
 import SwiftUI
 
-// struct ActivityIndicator: UIViewRepresentable {
-//
-//    typealias UIView = UIActivityIndicatorView
-//    var isAnimating: Bool
-//    fileprivate var configuration = { (indicator: UIView) in }
-//
-//    func makeUIView(context: UIViewRepresentableContext<Self>) -> UIView { UIView() }
-//    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<Self>) {
-//        isAnimating ? uiView.startAnimating() : uiView.stopAnimating()
-//        configuration(uiView)
-//    }
-// }
-
 struct ContentView: View {
     @ObservedObject var state = SetupState.shared
 
@@ -120,13 +107,13 @@ struct ContentView: View {
 
                         if true {
                             Section(header: TopicView(topic: "ENCV")) {
-                                Text(analysisState.encvSummary)
+                                Text(analysisState.encvSummary).textSelection(.enabled)
                             }
                             ENXChartsView(charts: analysisState.encvCharts)
                                 .environmentObject(analysisState)
 
                             Section(header: TopicView(topic: "ENPA").font(.title)) {
-                                Text(analysisState.enpaSummary)
+                                Text(analysisState.enpaSummary).textSelection(.enabled)
                             }
                             ENXChartsView(charts: analysisState.enpaCharts)
                                 .environmentObject(analysisState)

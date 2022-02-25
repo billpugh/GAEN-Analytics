@@ -80,7 +80,7 @@ struct LineChart: UIViewRepresentable {
         self.data = data
         self.columns = columns
 
-        let allColors: [UIColor] = [.blue, .red, .orange, .green, .purple, .cyan, .magenta, .yellow]
+        let allColors: [UIColor] = [.blue, .red, .yellow, .green, .purple, .cyan, .magenta, .orange]
 
         var c: [String: UIColor] = [:]
         for (i, name) in columns.enumerated() {
