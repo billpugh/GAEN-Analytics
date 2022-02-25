@@ -92,12 +92,18 @@ struct SetupView: View {
                 #if !targetEnvironment(macCatalyst)
                     Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
                 #endif
+                if !self.state.usingTestData {
+                    Toggle("Enable debugging features", isOn: self.$state.debuggingFeatures.animation())
+                }
+                if self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
+                    Toggle("Use test data", isOn: self.$state.usingTestData.animation())
 
-                if self.state.isClear || self.state.isUsingTestData {
-                    Toggle("Use test servers", isOn: self.$state.usingTestData)
-
-                } else {
-                    Button(action: { showingReset = true }) {
+                } else if !self.state.isClear {
+                    Button(action: {
+                        withAnimation {
+                            showingReset = true
+                        }
+                    }) {
                         Text("Clear all")
                     }.alert(isPresented: $showingReset) {
                         makeAlert(title: "Really clear ",

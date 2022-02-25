@@ -228,7 +228,7 @@ struct LineChart: UIViewRepresentable {
         // xAxis.axisMaximum = 12
         // let weeks = 9
         // xAxis.axisMinimum = Double(-7*weeks)
-        xAxis.setLabelCount(3, force: true)
+        xAxis.setLabelCount(5, force: true)
     }
 
     func formatLeftAxis(leftAxis: YAxis, yMax: Double) {

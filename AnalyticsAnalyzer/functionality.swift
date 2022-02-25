@@ -619,7 +619,10 @@ struct RawMetrics {
                     let provider = m["data_provider"] as? String ?? "?"
                     let clients = m["total_individual_clients"] as! Int
                     let maybeEpsilon = Double(m["epsilon"] as! NSNumber)
-                    let epsilon = maybeEpsilon == 8 || provider == "google" ? 8 : 10.2
+                    if provider == "google", maybeEpsilon != 8 {
+                        continue
+                    }
+                    let epsilon = maybeEpsilon == 10 ? 10.2 : maybeEpsilon
                     let id = m["aggregation_id"] as! String
                     let fullId = m["id"] as! String
                     let genericId = n
@@ -724,7 +727,7 @@ let events = ["CodeVerified": [1, 2],
               "com.apple.EN.KeysUploaded": [1, 2],
               "com.apple.EN.UserNotificationInteraction": [1, 5]]
 
-public class Metric: Sendable {
+public class Metric: @unchecked Sendable {
     let epsilon: Double
     var p: Double {
         1 / (1 + exp(epsilon))

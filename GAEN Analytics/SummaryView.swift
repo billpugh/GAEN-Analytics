@@ -13,17 +13,18 @@ struct SummaryView: View {
     @ObservedObject var analysisState = AnalysisState.shared
     var body: some View {
         Form {
-            Section(header: Text("ENCV").font(.title)) {
+            Section(header: TopicView(topic: "ENCV")) {
                 Text(analysisState.encvSummary)
             }
             ENXChartsView(charts: analysisState.encvCharts)
-            Section(header: Text("ENPA").font(.title)) {
+            Section(header: TopicView(topic: "ENPA")) {
                 Text(analysisState.enpaSummary)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
         }.textCase(nil)
 
             .environmentObject(analysisState)
+        #if targetEnvironment(macCatalyst)
             .fileExporter(isPresented: $analysisState.csvExportReady, document: analysisState.csvExport, contentType: .commaSeparatedText) { result in
                 switch result {
                 case let .success(url):
@@ -32,6 +33,7 @@ struct SummaryView: View {
                     print(error.localizedDescription)
                 }
             }
+        #endif
     }
 }
 

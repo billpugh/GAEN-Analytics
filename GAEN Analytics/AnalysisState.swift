@@ -7,7 +7,7 @@
 
 import Foundation
 import os.log
-@_predatesConcurrency import TabularData
+import TabularData
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "AnalyzeState")
 
 @MainActor
@@ -62,7 +62,7 @@ class AnalysisState: NSObject, ObservableObject {
         csvExportReady = true
     }
 
-    static func exportToURL(name: String, dataframe: DataFrameProtocol) -> URL? {
+    static func exportToURL(name: String, dataframe: DataFrame) -> URL? {
         logger.log("Exporting \(name, privacy: .public) to URL")
         do {
             let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
@@ -88,12 +88,37 @@ class AnalysisState: NSObject, ObservableObject {
         }
     }
 
-    static func exportToFileDocument(name: String, dataframe: DataFrameProtocol) -> CSVFile? {
+    static func exportToURL(name: String, dataframe: DataFrame.Slice) -> URL? {
+        logger.log("Exporting \(name, privacy: .public) to URL")
+        do {
+            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
+
+            let csv = try dataframe.csvRepresentation(options: writingOptions)
+
+            let documents = FileManager.default.urls(
+                for: .documentDirectory,
+                in: .userDomainMask
+            ).first
+            let n = name.replacingOccurrences(of: "/", with: "%2F")
+
+            guard let path = documents?.appendingPathComponent(n) else {
+                logger.error("Could not get path")
+                return nil
+            }
+
+            try csv.write(to: path, options: .atomicWrite)
+            return path
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    static func exportToFileDocument(name: String, dataframe: DataFrame) -> CSVFile? {
         logger.log("Exporting \(name, privacy: .public) to File")
         do {
             let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
             let csv = try dataframe.csvRepresentation(options: writingOptions)
-            let string = String(data: csv, encoding: .utf8)
 
             return CSVFile(name: name, csv)
 
@@ -101,6 +126,30 @@ class AnalysisState: NSObject, ObservableObject {
             logger.error("\(error.localizedDescription, privacy: .public)")
             return nil
         }
+    }
+
+    static func exportToFileDocument(name: String, dataframe: DataFrame.Slice) -> CSVFile? {
+        logger.log("Exporting \(name, privacy: .public) to File")
+        do {
+            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
+            let csv = try dataframe.csvRepresentation(options: writingOptions)
+
+            return CSVFile(name: name, csv)
+
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    func clear() {
+        config = nil
+        available = false
+        enpaSummary = ""
+        encvSummary = ""
+        enpaCharts = []
+        encvCharts = []
+        status = "Fetch analytics"
     }
 
     func start(config: Configuration) {

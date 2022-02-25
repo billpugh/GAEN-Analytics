@@ -5,8 +5,8 @@
 //  Created by Bill Pugh on 2/6/22.
 //
 
-@_predatesConcurrency import Foundation
-public struct Configuration: Sendable {
+import Foundation
+public struct Configuration: @unchecked Sendable {
     let daysSinceExposureThreshold: Int
     let numDays: Int
     let numCategories: Int

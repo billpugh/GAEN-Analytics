@@ -54,17 +54,19 @@ struct ContentView: View {
                 List {
                     Section(header: Text("GAEN Analytics app").font(.title).textCase(nil)) {
                         if self.state.isUsingTestData {
-                            Text("Using test data and servers").font(.headline).padding(.horizontal)
+                            Text("Using test data and servers").padding(.horizontal)
                         }
-                        Text("Region: \(state.region)").font(.headline).padding(.horizontal)
+                        if !state.isClear {
+                            Text("Region: \(state.region)").padding(.horizontal)
+                        }
                         NavigationLink(destination: DocView(title: "About GAEN Analyzer", file: "about"), tag: "about", selection: $viewShown) {
                             Text("About GAEN Analyzer").padding(.horizontal)
                         }
-                    }
+                    }.font(.headline)
                     Section(header: Text("Actions").font(.title).textCase(nil)) {
                         NavigationLink(destination: SetupView(), tag: "setup", selection: $viewShown) {
                             HStack {
-                                Text("Setup").font(.headline).padding(.horizontal)
+                                Text(state.setupNeeded ? "Setup needed" : "Setup").font(.headline).padding(.horizontal)
                                 if !state.setupNeeded {
                                     Image(systemName: "checkmark")
                                 }
@@ -81,7 +83,7 @@ struct ContentView: View {
                         }.disabled(!analysisState.available)
                         NavigationLink(destination: RawExportView(), tag: "raw_export", selection: $viewShown) {
                             Text("Export Raw ENPA").font(.headline).padding(.horizontal)
-                        }
+                        }.disabled(state.setupNeeded)
 
                         HStack {
                             Button(action: { Task(priority: .userInitiated) {
@@ -90,40 +92,45 @@ struct ContentView: View {
                                 #endif
                                 await AnalysisTask().analyze(config: state.config, result: analysisState)
                             }
-                            }) { Text(state.setupNeeded ? "setup needed" : analysisState.status).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                            }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.status).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
 
-                        HStack {
-                            Button(action: { Task(priority: .userInitiated) {
-                                #if targetEnvironment(macCatalyst)
-                                    self.viewShown = "summary"
-                                #endif
-                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
+                        if state.debuggingFeatures && !state.setupNeeded {
+                            HStack {
+                                Button(action: { Task(priority: .userInitiated) {
+                                    #if targetEnvironment(macCatalyst)
+                                        self.viewShown = "summary"
+                                    #endif
+                                    await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
+                                }
+                                }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                             }
-                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
-                        }
-                        HStack {
-                            Button(action: { Task(priority: .userInitiated) {
-                                #if targetEnvironment(macCatalyst)
-                                    self.viewShown = "summary"
-                                #endif
-                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
+                            HStack {
+                                Button(action: { Task(priority: .userInitiated) {
+                                    #if targetEnvironment(macCatalyst)
+                                        self.viewShown = "summary"
+                                    #endif
+                                    await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
+                                }
+                                }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                             }
-                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
                     }
                     #if !targetEnvironment(macCatalyst)
-                        Section(header: Text("ENCV").font(.title)) {
-                            Text(analysisState.encvSummary)
-                        }
-                        ENXChartsView(charts: analysisState.encvCharts)
-                            .environmentObject(analysisState)
 
-                        Section(header: Text("ENPA").font(.title)) {
-                            Text(analysisState.enpaSummary)
+                        if true {
+                            Section(header: TopicView(topic: "ENCV")) {
+                                Text(analysisState.encvSummary)
+                            }
+                            ENXChartsView(charts: analysisState.encvCharts)
+                                .environmentObject(analysisState)
+
+                            Section(header: TopicView(topic: "ENPA").font(.title)) {
+                                Text(analysisState.enpaSummary)
+                            }
+                            ENXChartsView(charts: analysisState.enpaCharts)
+                                .environmentObject(analysisState)
                         }
-                        ENXChartsView(charts: analysisState.enpaCharts)
-                            .environmentObject(analysisState)
 
                     #endif
                 }.fileExporter(isPresented: $analysisState.csvExportReady, document: analysisState.csvExport, contentType: .commaSeparatedText, defaultFilename: analysisState.csvExport?.name) { result in

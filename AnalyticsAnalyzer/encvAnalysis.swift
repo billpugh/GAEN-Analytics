@@ -109,8 +109,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     let user_reports_claimed = encv["user_reports_claimed", Int.self]
     let hasRevisions = encv.indexOfColumn("requests_with_revisions") != nil
     let user_reports_count = user_reports_claimed.max()!
-    
-    
+
     let hasUserReports = user_reports_count > 10
     if hasUserReports {
         encv.addColumnDifference("codes_issued", "user_reports_issued", giving: "confirmed_test_issued")
