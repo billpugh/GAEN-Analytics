@@ -221,30 +221,48 @@ func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
     return Int((Double(codesClaimed * 100_000) / cv).rounded())
 }
 
+func makeMap(_ encv: DataFrame, _ encvColumn: String) -> [Date: Int] {
+    let dates = encv["date", Date.self]
+    let codes_claimed = encv[encvColumn, Int.self]
+    var map: [Date: Int] = [:]
+    for (date, cc) in zip(dates, codes_claimed) {
+        if let date = date {
+            map[date] = cc
+        }
+    }
+    return map
+}
+
 func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
     logger.log("Computing est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
     encv.checkUniqueColumnNames()
     enpa.checkUniqueColumnNames()
-    let codes_claimed = encv.selecting(columnNames: ["date", encvColumn])
-    var joined = enpa.joined(codes_claimed, on: "date", kind: .left)
-    joined.removeJoinNames()
-    logger.log("join computed; columns renamed")
+    guard
+        encv.requireColumn("date", Date.self),
+        encv.requireColumn(encvColumn, Int.self)
+    else {
+        return enpa
+    }
+    var result = enpa
+    let map = makeMap(encv, encvColumn)
+    logger.log("make map from encv data")
+    let dates = enpa["date", Date.self]
 
-    let codesClaimed = joined[encvColumn, Int.self]
-    let vc = joined[enpaColumn, Double.self]
-    let result = zip(codesClaimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
+    let codes_claimed_values = dates.map { map[$0!] }
+    let new_codes_claimed = Column(name: encvColumn, contents: codes_claimed_values)
+    result.append(column: new_codes_claimed)
+    logger.log("added encv data to enpa data")
+
+    let vc = result[enpaColumn, Double.self]
+    let estUsers = zip(new_codes_claimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
     logger.log("est. users computed")
-    let c = Column(name: "est users", contents: result)
-    joined.append(column: c)
-    joined.addColumnPercentage("\(enpaColumn) count", "est users", giving: "ENPA %")
-    return joined
+    let c = Column(name: "est users", contents: estUsers)
+    result.append(column: c)
+    result.addColumnPercentage("\(enpaColumn) count", "est users", giving: "ENPA %")
+    return result
 }
 
 actor AnalysisTask {
-    func getRawENPA(config: Configuration, names: [String], result _: AnalysisState) async {
-        var raw = RawMetrics(config)
-        let errors = raw.addMetric(names: names)
-    }
     func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
         await result.update(enpa: "fetching enpa")
         do {

@@ -137,16 +137,15 @@ extension DataFrame {
             let name = c.name
             if name.hasPrefix("left.") {
                 let newName = String(name.dropFirst("left.".count))
-                    logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
-                    renameColumn(name, to: newName)
-                    count += 1
-                
+                logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
+                renameColumn(name, to: newName)
+                count += 1
+
             } else if name.hasPrefix("right.") {
                 let newName = String(name.dropFirst("right.".count))
-                    logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
-                    renameColumn(name, to: newName)
-                    count += 1
-                
+                logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
+                renameColumn(name, to: newName)
+                count += 1
             }
         }
         logger.info("removed \(count) join names")
@@ -154,7 +153,7 @@ extension DataFrame {
 
     func checkUniqueColumnNames() {
         logger.info("Checking for unique column names")
-        var seen : Set<String> = []
+        var seen: Set<String> = []
         for c in columns {
             let name = c.name
             if seen.contains(name) {
@@ -164,7 +163,7 @@ extension DataFrame {
             }
         }
     }
-    
+
     mutating func replaceUnderscoreWithSpace() {
         logger.info("replacing underscore with spaces in column names")
         for c in columns {

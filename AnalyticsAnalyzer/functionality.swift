@@ -616,13 +616,13 @@ struct RawMetrics {
             // print(isoDateFormatter.string(from: Date()))
             if let rawData = json["rawData"] as? [NSDictionary] {
                 for m in rawData {
+                    let provider = m["data_provider"] as? String ?? "?"
                     let clients = m["total_individual_clients"] as! Int
                     let maybeEpsilon = Double(m["epsilon"] as! NSNumber)
-                    let epsilon = maybeEpsilon == 8 ? 8 : 10.2
+                    let epsilon = maybeEpsilon == 8 || provider == "google" ? 8 : 10.2
                     let id = m["aggregation_id"] as! String
                     let fullId = m["id"] as! String
                     let genericId = n
-                    let provider = m["data_provider"] as? String ?? "?"
 
                     let aggregationStartTime = m["aggregation_start_time"] as! String
                     let startTime = isoDateFormatter.date(from: aggregationStartTime)!
@@ -910,11 +910,14 @@ public class Metric: Sendable {
         buf.append("date,devices,epsilon,stdev,\(bucketString) ")
         for (day, sumBy) in sumByDay.sorted(by: { $0.0 < $1.0 }) {
             let count = clientsByDay[day]!
-            let likely = sumBy.map { "\(round2(getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0))))" }
+            let likelyValues = sumBy.map { getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0)) }
+            let likely = likelyValues.map { "\(round2($0))" }
                 .joined(separator: ",")
-
+            let likelySum = likelyValues.reduce(0.0,+)
+            let sums = sumBy.map { "\($0)" }
+                .joined(separator: ",")
             let stdev = round2(getStandardDeviation(totalCount: count))
-            buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely)")
+            buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely),\(likelySum),\(sums)")
         }
         return buf.all
     }
@@ -1387,7 +1390,7 @@ func summarize(_ heading: String, _ enpa: DataFrame, categories: Int) -> [String
         return [heading] + ntTrends
     }
     let output = [heading, showTrend(ntPerKu)] + ntTrends
-    if enpa.indexOfColumn("est users") != nil {
+    if enpa.hasColumn("est users"), enpa.requireColumn("est users", Int.self), enpa.requireColumn("ENPA %", Double.self) {
         let users = enpa["est users", Int.self]
         let adoption = enpa["ENPA %", Double.self]
         if let lastUsers = users.last, let lastAdoption = adoption.last,
