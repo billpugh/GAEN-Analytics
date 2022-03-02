@@ -5,7 +5,9 @@
 //  Created by Bill Pugh on 2/9/22.
 //
 
+import os.log
 import SwiftUI
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "SummaryView")
 
 struct SummaryView: View {
     @ObservedObject var state = SetupState.shared
@@ -30,7 +32,7 @@ struct SummaryView: View {
                 case let .success(url):
                     print("Saved to \(url)")
                 case let .failure(error):
-                    print(error.localizedDescription)
+                    logger.error("Error exporting file \(error.localizedDescription, privacy: .public)")
                 }
             }
         #endif

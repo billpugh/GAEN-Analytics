@@ -542,7 +542,7 @@ func getRollingAverageAndroidMetrics(_ metrics: [String: Metric], options: Confi
 //    return Int(total)
 // }
 
-let androidStartTime = dateParser.date(from: "2021-12-05 00:00:00")!
+let androidStartTime = dateParser.date(from: "2021-11-20 00:00:00")!
 
 // "id": "sum-apple-com.apple.EN.UserNotification-us-ev-a31dc1d420e6fd3488f7a867a9268d5e31458108b6de0dcfeaa0fa7b5d96317b-202112160000-202112160800",
 //  "sum": [

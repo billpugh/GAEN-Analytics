@@ -127,7 +127,7 @@ struct RawExportView: View {
                     await AnalysisTask().analyze(config: state.config, result: analysisState)
                 }
                 }) { Text(state.setupNeeded ? "setup needed" : "Fetch ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress || analysisState.rawENPA != nil)
-                Button(action: { Task(priority: .userInitiated) { await exportRawENPA() }}) {
+                Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
                     Text("Export Raw ENPA data")
                 }.padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
             }

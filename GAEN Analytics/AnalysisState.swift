@@ -34,6 +34,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var AndroidENPA: DataFrame?
     @Published var combinedENPA: DataFrame?
     @Published var encvComposite: DataFrame?
+    @Published var worksheet: DataFrame?
     @Published var rollingAvg: DataFrame?
     @Published var enpaCharts: [ChartOptions] = []
     @Published var encvCharts: [ChartOptions] = []
@@ -197,11 +198,12 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary.append(joined)
     }
 
-    func analyzedENPA(raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame) {
+    func analyzedENPA(raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?) {
         rawENPA = raw
         iOSENPA = ios
         AndroidENPA = android
         combinedENPA = combined
+        self.worksheet = worksheet
         encvDate = Date()
         makeENPACharts()
         enpaAvailable = true
@@ -282,8 +284,8 @@ func makeMap(_ encv: DataFrame, _ encvColumn: String) -> [Date: Int] {
     return map
 }
 
-func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
-    logger.log("Computing est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
+func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
+    logger.log("Computing \(platform, privacy: .public) est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
     encv.checkUniqueColumnNames()
     enpa.checkUniqueColumnNames()
     guard
@@ -293,21 +295,27 @@ func computeEstimatedUsers(encv: DataFrame, _ encvColumn: String, enpa: DataFram
         return enpa
     }
     var result = enpa
-    let map = makeMap(encv, encvColumn)
-    logger.log("make map from encv data")
-    let dates = enpa["date", Date.self]
+    let newEncvColumn: Column<Int>
+    if false {
+        let map = makeMap(encv, encvColumn)
+        logger.log("make map from encv data")
+        let dates = enpa["date", Date.self]
 
-    let codes_claimed_values = dates.map { map[$0!] }
-    let new_codes_claimed = Column(name: encvColumn, contents: codes_claimed_values)
-    result.append(column: new_codes_claimed)
+        let encv_values = dates.map { map[$0!] }
+        newEncvColumn = Column(name: encvColumn, contents: encv_values)
+        result.append(column: newEncvColumn)
+    } else {
+        newEncvColumn = result.addColumn(encvColumn, Int.self, from: encv)
+    }
     logger.log("added encv data to enpa data")
 
     let vc = result[enpaColumn, Double.self]
-    let estUsers = zip(new_codes_claimed, vc).map { computeEstimatedDevices($0.0, $0.1) }
-    logger.log("est. users computed")
-    let c = Column(name: "est users", contents: estUsers)
+    let estUsers = zip(newEncvColumn, vc).map { computeEstimatedDevices($0.0, $0.1) }
+    let estUsersColumnName = "est \(platform)users from \(enpaColumn)"
+    logger.log("\(estUsersColumnName) computed")
+    let c = Column(name: estUsersColumnName, contents: estUsers)
     result.append(column: c)
-    result.addColumnPercentage("\(enpaColumn) count", "est users", giving: "ENPA %")
+    result.addColumnPercentage("\(enpaColumn) count", estUsersColumnName, giving: "\(platform)\(enpaColumn) ENPA %")
     return result
 }
 
@@ -347,12 +355,43 @@ actor AnalysisTask {
             androidDataFrame.removeRandomElements()
             var combinedDataFrame = try getRollingAverageKeyMetrics(metrics, options: config)
             combinedDataFrame.removeRandomElements()
+            var worksheet: DataFrame
             if let encv = encvAverage {
-                combinedDataFrame = computeEstimatedUsers(encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
-                // iOSDataFrame = computeEstimatedUsers(encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
-                // androidDataFrame = computeEstimatedUsers(encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
+                combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
+                combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
+                iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
+                androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
+                combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %")
+                worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %", "est users from ku", "ku ENPA %")
+
+                worksheet.addColumn("tokens claimed", Int.self, from: encv)
+                worksheet.addColumn("publish requests", Int.self, from: encv)
+                worksheet.addColumn("publish failure rate", Double.self, from: encv)
+
+            } else {
+                worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt")
             }
-            await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame)
+            worksheet.renameColumn("vc count", to: "enpa users")
+            worksheet.addColumn("vc count", Int.self, newName: "iOS enpa users", from: iOSDataFrame)
+            worksheet.addColumn("vc", Double.self, newName: "iOS vc", from: iOSDataFrame)
+            worksheet.addColumn("ku", Double.self, newName: "iOS ku", from: iOSDataFrame)
+            worksheet.addColumn("nt", Double.self, newName: "iOS nt", from: iOSDataFrame)
+            worksheet.addOptionalColumn("publish requests ios", Int.self, from: iOSDataFrame)
+            worksheet.addOptionalColumn("est iOS users from ku", Int.self, from: iOSDataFrame)
+            worksheet.addOptionalColumn("iOS ku ENPA %", Double.self, from: iOSDataFrame)
+            worksheet.addOptionalColumn("publish requests ios", Int.self, from: encvAverage)
+
+            worksheet.addColumn("vc count", Int.self, newName: "android enpa users", from: androidDataFrame)
+            worksheet.addColumn("vc", Double.self, newName: "android vc", from: androidDataFrame)
+            worksheet.addColumn("ku", Double.self, newName: "android ku", from: androidDataFrame)
+            worksheet.addColumn("nt", Double.self, newName: "android nt", from: androidDataFrame)
+            worksheet.addOptionalColumn("publish requests android", Int.self, from: androidDataFrame)
+            worksheet.addOptionalColumn("est Android users from ku", Int.self, from: androidDataFrame)
+            worksheet.addOptionalColumn("Android ku ENPA %", Double.self, from: androidDataFrame)
+            worksheet.addOptionalColumn("publish requests android", Int.self, from: encvAverage)
+            worksheet.addOptionalColumn("android publish share", Double.self, from: encvAverage)
+
+            await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
             let android = summarize("Android", androidDataFrame, categories: config.numCategories)
@@ -493,12 +532,12 @@ func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
 
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users"])
+    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users from vc"])
 }
 
 // est. users
 func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %"], maxBound: 1.0)
+    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["vc ENPA %"], maxBound: 1.0)
 }
 
 // codes claimed/consent

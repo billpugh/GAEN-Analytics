@@ -73,6 +73,7 @@ func day(date: Date) -> Int {
     Int(date.timeIntervalSince1970) / 86400
 }
 
+let darkYellow = UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 1)
 struct LineChart: UIViewRepresentable {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
@@ -80,7 +81,8 @@ struct LineChart: UIViewRepresentable {
         self.data = data
         self.columns = columns
 
-        let allColors: [UIColor] = [.blue, .red, .yellow, .green, .purple, .cyan, .magenta, .orange]
+        let allColors: [UIColor] = [.blue, .red, .green, darkYellow, .purple, .cyan, .magenta, .orange]
+        // let allColors: [UIColor] = [.systemBlue, .systemRed, .systemGreen, .systemYellow, .systemPurple, .systemCyan, .systemIndigo, .systemOrange]
 
         var c: [String: UIColor] = [:]
         for (i, name) in columns.enumerated() {
@@ -174,7 +176,6 @@ struct LineChart: UIViewRepresentable {
         _: ViewPortHandler?
     ) -> String {
         if let s = entry.data as? String {
-            print("foo: \(s)")
             return s
         }
         // print("\(value) \(dataSetIndex) \(entry.x) \(entry.y) \(entry.data)")

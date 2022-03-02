@@ -32,18 +32,34 @@ extension DataFrame {
         guard let x = x, let y = y, y > 0 else {
             return nil
         }
-
         return Double(x) / Double(y)
+    }
+
+    func ratio(_ x: Double?, _ y: Double?) -> Double? {
+        guard let x = x, let y = y, y > 0.1 else {
+            return nil
+        }
+        return x / y
     }
 
     func hasColumn(_ name: String) -> Bool {
         indexOfColumn(name) != nil
     }
 
-    func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
-        let result = hasColumn(name)
-        if !result {
-            logger.error("Missing column \(name, privacy: .public)")
+    func requireColumns(_ names: String...) {
+        var hasAll = true
+        for n in names {
+            if !requireColumn(n) {
+                hasAll = false
+            }
+        }
+        if !hasAll {
+            print("\(columns.count) Columns: \(columns.map(\.name))")
+        }
+    }
+
+    @discardableResult func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
+        guard requireColumn(name) else {
             return false
         }
         let c: AnyColumn = self[name]
@@ -62,7 +78,7 @@ extension DataFrame {
         return result
     }
 
-    func makeRow(_ row: [Any]) -> [String: Any?] {
+    func makeMap(_ row: [Any]) -> [String: Any?] {
         logger.info("appendRow")
         let columns = self.columns
         var myMap: [String: Any?] = [:]
@@ -130,27 +146,6 @@ extension DataFrame {
         return result
     }
 
-    mutating func removeJoinNames() {
-        logger.info("removing join names")
-        var count = 0
-        for c in columns {
-            let name = c.name
-            if name.hasPrefix("left.") {
-                let newName = String(name.dropFirst("left.".count))
-                logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
-                renameColumn(name, to: newName)
-                count += 1
-
-            } else if name.hasPrefix("right.") {
-                let newName = String(name.dropFirst("right.".count))
-                logger.info("renaming \(name, privacy: .public) to \(newName, privacy: .public)")
-                renameColumn(name, to: newName)
-                count += 1
-            }
-        }
-        logger.info("removed \(count) join names")
-    }
-
     func checkUniqueColumnNames() {
         logger.info("Checking for unique column names")
         var seen: Set<String> = []
@@ -162,6 +157,67 @@ extension DataFrame {
                 seen.insert(name)
             }
         }
+    }
+
+    func makeMap<T1: Hashable, T2>(key: String, _ type1: T1.Type, value: String, _ type2: T2.Type) -> [T1: T2] {
+        let keys = self[key, type1]
+        let values = self[value, type2]
+        var map: [T1: T2] = [:]
+        for (k, v) in zip(keys, values) {
+            if let k = k, let v = v {
+                map[k] = v
+            }
+        }
+        return map
+    }
+
+    func printColumnNames() {
+        print("\(columns.count) Columns: \(columns.map(\.name))")
+    }
+
+    @discardableResult mutating func addColumn<T1>(_ column: String, _ type1: T1.Type, newName: String? = nil,
+                                                   from: DataFrame) -> Column<T1>
+    {
+        addColumn(column, type1, newName: newName, from: from, join: "date", Date.self)
+    }
+
+    mutating func addOptionalColumn<T1>(_ column: String, _ type1: T1.Type, newName: String? = nil,
+                                        from: DataFrame?)
+    {
+        guard let from = from, from.hasColumn(column) else {
+            printColumnNames()
+            return
+        }
+        addColumn(column, type1, newName: newName, from: from, join: "date", Date.self)
+    }
+
+    @discardableResult mutating func addColumn<T1, T2: Hashable>(_ column: String, _ type1: T1.Type, newName: String? = nil,
+                                                                 from: DataFrame, join: String, _ type2: T2.Type) -> Column<T1>
+    {
+        let newName = newName ?? column
+        guard !hasColumn(newName) else {
+            logger.error("DataFrame already has column named \(newName, privacy: .public)")
+            let existing = self[newName, type1]
+            return existing
+        }
+        guard requireColumn(join, type2), from.requireColumn(column, type1),
+              from.requireColumn(join, type2)
+        else {
+            logger.error("invalid request to join column \(column, privacy: .public) joining on \(join, privacy: .public)")
+            let newColumn = Column<T1>(name: newName, capacity: 0)
+            append(column: newColumn)
+            return newColumn
+        }
+
+        let map = from.makeMap(key: join, type2, value: column, type1)
+        logger.log("make map")
+
+        let joinColumn = self[join, type2]
+
+        let newColumnValues = joinColumn.map { $0 == nil ? nil : map[$0!] }
+        let newColumn = Column(name: newName, contents: newColumnValues)
+        append(column: newColumn)
+        return newColumn
     }
 
     mutating func replaceUnderscoreWithSpace() {
@@ -236,7 +292,7 @@ extension DataFrame {
 
     mutating func addColumnDifference(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard requireColumn(name1), requireColumn(name2) else {
+        guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
             return
         }
         let column1 = self[name1, Int.self]
@@ -261,7 +317,7 @@ extension DataFrame {
 
     mutating func addColumnSum(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard requireColumn(name1), requireColumn(name2) else {
+        guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
             return
         }
         let column1 = self[name1, Int.self]
@@ -275,11 +331,23 @@ extension DataFrame {
 
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard hasColumn(name1), hasColumn(name2) else {
+        guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
             return
         }
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
+        let resultData = zip(column1, column2).map { ratio($0, $1) }
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
+    mutating func addColumnShare(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
+            return
+        }
+        let column1 = self[name1, Double.self]
+        let column2 = self[name2, Double.self]
         let resultData = zip(column1, column2).map { ratio($0, $1) }
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")

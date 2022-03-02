@@ -180,7 +180,6 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     override init() {
         let faceid = UserDefaults.standard.bool(forKey: Self.faceIDKey)
         useFaceID = faceid
-        print("useFaceID = \(faceid)")
         if let data = UserDefaults.standard.string(forKey: Self.regionKey) {
             region = data
         }

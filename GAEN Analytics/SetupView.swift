@@ -25,7 +25,7 @@ struct SetupView: View {
     @State var showingTestData: Bool = false
     func describe(key: String) -> String {
         if key.isEmpty {
-            return " <empty>"
+            return " not provided"
         }
         return ", length \(key.count), \(key.prefix(8))…"
     }
@@ -93,7 +93,7 @@ struct SetupView: View {
                     Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
                 #endif
                 if !self.state.usingTestData {
-                    Toggle("Enable debugging features", isOn: self.$state.debuggingFeatures.animation())
+                    Toggle("Enable test/debugging features", isOn: self.$state.debuggingFeatures.animation())
                 }
                 if self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
                     Toggle("Use test data", isOn: self.$state.usingTestData.animation())
@@ -112,7 +112,7 @@ struct SetupView: View {
                                   destructiveAction: {
                                       self.state.clear()
                                       self.showingReset = false
-                                      print("\(self.state.isClear)")
+
                                   },
                                   cancelAction: { self.showingReset = false })
                     }.padding()

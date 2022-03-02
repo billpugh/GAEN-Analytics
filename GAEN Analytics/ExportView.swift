@@ -161,36 +161,47 @@ struct ExportView: View {
         }
     }
 
+    var dateStamp: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd-HHmm"
+        return dateFormatter.string(from: Date())
+    }
+
     var body: some View {
         Form {
             Section(header: Text("ENPA")) {
                 if analysisState.combinedENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region).csv", analysisState.combinedENPA) }) {
+                    Button(action: { exportDataframe("\(analysisState.region)-\(dateStamp).csv", analysisState.combinedENPA) }) {
                         Text("combined Data")
                     }
                 }
 
                 if analysisState.iOSENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-ios.csv.csv", analysisState.iOSENPA) }) {
+                    Button(action: { exportDataframe("\(analysisState.region)-ios-\(dateStamp).csv.csv", analysisState.iOSENPA) }) {
                         Text("iOS Data")
                     }
                 }
 
                 if analysisState.AndroidENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-android.csv", analysisState.AndroidENPA) }) {
+                    Button(action: { exportDataframe("\(analysisState.region)-android-\(dateStamp).csv", analysisState.AndroidENPA) }) {
                         Text("Android Data")
+                    }
+                }
+                if analysisState.worksheet != nil {
+                    Button(action: { exportDataframe("\(analysisState.region)-worksheet-\(dateStamp).csv", analysisState.worksheet) }) {
+                        Text("Worksheet")
                     }
                 }
             } // Section
 
             Section(header: Text("ENCV")) {
                 if analysisState.encvComposite != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-composite.csv", analysisState.encvComposite) }) {
+                    Button(action: { exportDataframe("\(analysisState.region)-composite-\(dateStamp).csv", analysisState.encvComposite) }) {
                         Text("composite.csv")
                     }
                 }
                 if analysisState.rollingAvg != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-encv.csv", analysisState.rollingAvg) }) {
+                    Button(action: { exportDataframe("\(analysisState.region)-encv-\(dateStamp).csv", analysisState.rollingAvg) }) {
                         Text("analyzed data (7 day rolling average)")
                     }
                 }

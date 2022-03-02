@@ -176,6 +176,8 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
     if hasKeyServerStats {
         rollingAvg.addColumnPercentage("publish_requests_android", "publish_requests", giving: "android_publish_share")
+        rollingAvg.addColumnPercentage("publish_requests_ios", "publish_requests_android", giving: "ios_scaling_factor")
+
         rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
         rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
     }
