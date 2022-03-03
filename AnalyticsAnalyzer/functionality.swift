@@ -221,6 +221,9 @@ struct FixedLengthAccumulator {
     func cumulativeDistribution(range: ClosedRange<Int>) -> String {
         let values = sums[range]
         let total = values.reduce(0.0,+)
+        if total < 25*stdPerDay() || total < 30 {
+            return String.init(repeating: ",", count: range.count-2)
+        }
         var sum = 0.0
         let prefixSum = values[range.lowerBound ..< range.upperBound].map { (sum += $0 / total, sum).1 }
         return prefixSum.map { "\($0)" }.joined(separator: ",")

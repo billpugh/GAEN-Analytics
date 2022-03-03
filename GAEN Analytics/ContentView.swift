@@ -113,7 +113,7 @@ struct ContentView: View {
                             Button(action: {
                                 showFilePicker = true
 
-                            }) { Text("Load older composite stats") }.padding(.horizontal).sheet(isPresented: self.$showFilePicker) {
+                            }) { Text("Load older composite stats").font(.headline) }.padding(.horizontal).sheet(isPresented: self.$showFilePicker) {
                                 DocumentPicker()
                             }
                         }
