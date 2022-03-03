@@ -33,6 +33,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var iOSENPA: DataFrame?
     @Published var AndroidENPA: DataFrame?
     @Published var combinedENPA: DataFrame?
+    // persisted
     @Published var encvComposite: DataFrame?
     @Published var worksheet: DataFrame?
     @Published var rollingAvg: DataFrame?
@@ -69,17 +70,12 @@ class AnalysisState: NSObject, ObservableObject {
             let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
 
             let csv = try dataframe.csvRepresentation(options: writingOptions)
+            let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
+                                            isDirectory: true)
 
-            let documents = FileManager.default.urls(
-                for: .documentDirectory,
-                in: .userDomainMask
-            ).first
             let n = name.replacingOccurrences(of: "/", with: "%2F")
 
-            guard let path = documents?.appendingPathComponent(n) else {
-                logger.error("Could not get path")
-                return nil
-            }
+            let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
             return path
@@ -96,22 +92,89 @@ class AnalysisState: NSObject, ObservableObject {
 
             let csv = try dataframe.csvRepresentation(options: writingOptions)
 
-            let documents = FileManager.default.urls(
-                for: .documentDirectory,
-                in: .userDomainMask
-            ).first
+            let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
+                                            isDirectory: true)
+
             let n = name.replacingOccurrences(of: "/", with: "%2F")
 
-            guard let path = documents?.appendingPathComponent(n) else {
-                logger.error("Could not get path")
-                return nil
-            }
+            let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
             return path
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
             return nil
+        }
+    }
+
+    func deleteComposite() {
+        logger.log("Deleting composite")
+        do {
+            guard let url = urlForComposite else {
+                return
+            }
+            let path = url.path
+            let fileManager = FileManager.default
+
+            // Check if file exists
+            if fileManager.fileExists(atPath: path) {
+                // Delete file
+                try fileManager.removeItem(atPath: path)
+            }
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    var urlForComposite: URL? {
+        let documents = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first
+        guard let path = documents?.appendingPathComponent("composite.csv") else {
+            logger.error("Could not get path")
+            return nil
+        }
+        return path
+    }
+
+    func loadComposite() {
+        guard let path = urlForComposite else {
+            return
+        }
+        if FileManager.default.fileExists(atPath: path.path) {
+            loadComposite(path)
+        } else {
+            logger.info("No stored composite.csv")
+        }
+    }
+
+    func loadComposite(_ url: URL) {
+        do {
+            let data = try Data(contentsOf: url)
+            let composite = try DataFrame(csvData: data, options: readingOptions)
+            logger.log("Loaded composite, got \(composite.rows.count, privacy: .public) rows")
+            encvComposite = composite
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    func saveComposite() {
+        guard let encvComposite = encvComposite else {
+            return
+        }
+        do {
+            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
+            let csv = try encvComposite.csvRepresentation(options: writingOptions)
+
+            guard let path = urlForComposite else {
+                return
+            }
+            try csv.write(to: path, options: .atomicWrite)
+            print("wrote to \(path)")
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -150,6 +213,7 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary = ""
         enpaCharts = []
         encvCharts = []
+        deleteComposite()
         status = "Fetch analytics"
     }
 
@@ -171,6 +235,7 @@ class AnalysisState: NSObject, ObservableObject {
 
     func gotENCV(composite: DataFrame?) {
         encvComposite = composite
+        saveComposite()
     }
 
     func gotRollingAvg(rollingAvg: DataFrame?) {
@@ -410,16 +475,22 @@ actor AnalysisTask {
         guard let
             encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
 
-            var composite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
+            let newComposite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
         else {
             logger.log("Failed to get ENCV composite.csv")
             return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
         }
+        let composite: DataFrame
+        if let existingComposite = await result.encvComposite {
+            composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
+        } else {
+            composite = newComposite
+        }
+
         logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
         let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
-        composite.removeRandomElements()
         let analysis = analyzeENCV(composite: composite, smsData: smsData)
-        await result.gotENCV(composite: analysis.encv)
+        await result.gotENCV(composite: composite)
         await result.gotRollingAvg(rollingAvg: analysis.average)
         await result.log(encv: analysis.log)
         return analysis

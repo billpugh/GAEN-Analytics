@@ -352,6 +352,21 @@ extension DataFrame {
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
+    func merge<T: Hashable>(key: String, _ type: T.Type, adding: DataFrame) -> DataFrame {
+        let newKeys = adding[key, type]
+        var newKeyValues: Set<T> = []
+        for k in newKeys {
+            if let k = k {
+                newKeyValues.insert(k)
+            }
+        }
+        let reused = filter(on: key, type) { $0 != nil && !newKeyValues.contains($0!) }
+        var result = DataFrame(reused)
+        result.append(adding)
+        logger.log("Reused \(reused.rows.count) of \(rows.count), added \(adding.rows.count)")
+        return result
+    }
 }
 
 func makeColumn<T>(_ name: String, _ value: T) -> AnyColumn {

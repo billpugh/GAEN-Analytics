@@ -7,13 +7,40 @@
 
 import LocalAuthentication
 import SwiftUI
+import UniformTypeIdentifiers
+
+struct DocumentPicker: UIViewControllerRepresentable {
+    func makeCoordinator() -> DocumentPicker.Coordinator {
+        DocumentPicker.Coordinator()
+    }
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<DocumentPicker>) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.commaSeparatedText], asCopy: false)
+        picker.allowsMultipleSelection = false
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_: DocumentPicker.UIViewControllerType, context _: UIViewControllerRepresentableContext<DocumentPicker>) {}
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            AnalysisState.shared.loadComposite(urls[0])
+        }
+    }
+}
 
 struct ContentView: View {
     @ObservedObject var state = SetupState.shared
 
     @ObservedObject var analysisState = AnalysisState.shared
     @State var viewShown: String? = nil
+    @State var showFilePicker = false
     @State var isUnlocked = false
+
+    init() {
+        analysisState.loadComposite()
+    }
 
     func authenticate() {
         let context = LAContext()
@@ -80,6 +107,15 @@ struct ContentView: View {
                                 await AnalysisTask().analyze(config: state.config, result: analysisState)
                             }
                             }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.status).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                        }
+
+                        HStack {
+                            Button(action: {
+                                showFilePicker = true
+
+                            }) { Text("Load older composite stats") }.padding(.horizontal).sheet(isPresented: self.$showFilePicker) {
+                                DocumentPicker()
+                            }
                         }
 
                         if state.debuggingFeatures && !state.setupNeeded {
