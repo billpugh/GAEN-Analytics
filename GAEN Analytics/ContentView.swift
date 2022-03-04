@@ -106,8 +106,9 @@ struct ContentView: View {
                                 #endif
                                 await AnalysisTask().analyze(config: state.config, result: analysisState)
                             }
-                            }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.status).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                            }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.nextAction).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
                         }
+                        AnalysisProgressView().padding(.horizontal)
 
                         HStack {
                             Button(action: {

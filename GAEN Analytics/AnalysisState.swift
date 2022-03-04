@@ -27,7 +27,15 @@ class AnalysisState: NSObject, ObservableObject {
 
     @Published var config: Configuration? = nil
     @Published var status: String = "Fetch analytics"
+    @Published var nextAction: String = "Fetch analytics"
     @Published var inProgress: Bool = false
+    var progressSteps: Double = 0.0
+    @Published var progress: Double = 0.0
+    var progressCount: Double {
+        let enpaCount = 7 + additionalMetrics.count
+        return Double(enpaCount + 3)
+    }
+
     @Published var available: Bool = false
     @Published var rawENPA: RawMetrics?
     @Published var iOSENPA: DataFrame?
@@ -222,24 +230,30 @@ class AnalysisState: NSObject, ObservableObject {
         worksheet = nil
         rollingAvg = nil
         deleteComposite()
-        encvComposite  = nil
+        encvComposite = nil
         status = "Fetch analytics"
+        nextAction = "Fetch analytics"
     }
 
     func start(config: Configuration) {
         self.config = config
         inProgress = true
+        progress = 0.0
+        progressSteps = 0
         available = false
         enpaSummary = ""
         encvSummary = ""
+        nextAction = "Fetching analytics"
         enpaCharts = []
         encvCharts = []
     }
 
     func finish() {
         inProgress = false
+        progress = 1.0
         available = true
         status = "Update analytics"
+        nextAction = "Update analytics"
     }
 
     func gotENCV(composite: DataFrame?) {
@@ -284,14 +298,19 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     func update(encv: String? = nil, enpa: String? = nil) {
+        progressSteps = progressSteps + 1
+        progress = min(progressSteps / progressCount, 1.0)
+
         if let encv = encv {
-            status = encv
             encvDate = Date()
+            status = encv
+            print("PS #\(progressSteps) \(progress): \(encv)")
             logger.log("encv: \(encv, privacy: .public)")
         }
         if let enpa = enpa {
-            status = enpa
             encvDate = Date()
+            status = enpa
+            print("PS #\(progressSteps) \(progress): \(enpa)")
             logger.log("enpa: \(enpa, privacy: .public)")
         }
     }
@@ -395,7 +414,6 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
 
 actor AnalysisTask {
     func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
-        await result.update(enpa: "fetching enpa")
         do {
             var raw = RawMetrics(config)
             let readThese = ["userRisk",
@@ -405,7 +423,7 @@ actor AnalysisTask {
                              "keysUploaded",
                              "dateExposure"]
             for m in readThese {
-                await result.update(enpa: "fetching \(m)")
+                await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
                 if !errors.isEmpty {
                     await result.log(enpa: errors)
@@ -414,7 +432,7 @@ actor AnalysisTask {
             } // for m
             let additional = await result.additionalMetrics
             for m in additional {
-                await result.update(enpa: "fetching \(m)")
+                await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
                 if !errors.isEmpty {
                     await result.log(enpa: errors)
@@ -422,7 +440,7 @@ actor AnalysisTask {
             } // for m
 
             let metrics = raw.metrics
-
+            await result.update(enpa: "Analyzing enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
             iOSDataFrame.removeRandomElements()
             var androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
@@ -481,6 +499,7 @@ actor AnalysisTask {
         if !config.hasENCV {
             return ENCVAnalysis(encv: nil, average: nil, log: ["Skipping ENCV"])
         }
+        await result.update(encv: "Fetching enpa composite")
         guard let
             encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
 
@@ -497,7 +516,9 @@ actor AnalysisTask {
         }
 
         logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
+        await result.update(encv: "Fetching sms errors")
         let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+        await result.update(encv: "Analyzing encv")
         let analysis = analyzeENCV(composite: composite, smsData: smsData)
         await result.gotENCV(composite: composite)
         await result.gotRollingAvg(rollingAvg: analysis.average)

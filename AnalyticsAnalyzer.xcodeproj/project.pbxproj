@@ -20,6 +20,7 @@
 		164945B127B6B19F00C0F5F0 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		164945B427B6B1E400C0F5F0 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16515AA625C9939200C97BB8 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16570A1627D2662B00BEAA12 /* AnalysisProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */; };
 		1673F54127B002B80037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		1673F54227B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		1673F54327B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
@@ -155,6 +156,7 @@
 		164945A527B6AE5600C0F5F0 /* encvTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = encvTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		164945A727B6AE5600C0F5F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16515AA525C9939200C97BB8 /* functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = functionality.swift; sourceTree = "<group>"; };
+		16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisProgressView.swift; sourceTree = "<group>"; };
 		1673F54027B002B80037D340 /* configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configuration.swift; sourceTree = "<group>"; };
 		1673F54827B07F710037D340 /* GAEN Analytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GAEN Analytics.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1673F54A27B07F710037D340 /* GAEN_AnalyticsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GAEN_AnalyticsApp.swift; sourceTree = "<group>"; };
@@ -319,6 +321,7 @@
 				16856E6D27BC62EC00F44960 /* TestView.swift */,
 				1673F56C27B1820B0037D340 /* ApiKeyView.swift */,
 				1673F55727B0A4D70037D340 /* AnalysisState.swift */,
+				16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */,
 				1673F55827B0A4D70037D340 /* ExportView.swift */,
 				16C5E4D827C689CD007527FC /* RawExportView.swift */,
 				1673F55927B0A4D70037D340 /* SetupState.swift */,
@@ -674,6 +677,7 @@
 				1673F56D27B1820B0037D340 /* ApiKeyView.swift in Sources */,
 				163EF28627C91FA800D3C19D /* TopicView.swift in Sources */,
 				1673F56127B0A5BA0037D340 /* configuration.swift in Sources */,
+				16570A1627D2662B00BEAA12 /* AnalysisProgressView.swift in Sources */,
 				16856E5927BBF34800F44960 /* DocView.swift in Sources */,
 				1673F55B27B0A4D70037D340 /* ExportView.swift in Sources */,
 				16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */,
@@ -929,7 +933,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -967,7 +971,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;

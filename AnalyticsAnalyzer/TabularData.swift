@@ -210,7 +210,7 @@ extension DataFrame {
         }
 
         let map = from.makeMap(key: join, type2, value: column, type1)
-        
+
         let joinColumn = self[join, type2]
 
         let newColumnValues = joinColumn.map { $0 == nil ? nil : map[$0!] }

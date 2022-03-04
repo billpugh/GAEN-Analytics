@@ -144,7 +144,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
                 notifications = 1
                 startDate = defaultStart
                 useTestServers = true
-            } 
+            }
         }
     }
 
