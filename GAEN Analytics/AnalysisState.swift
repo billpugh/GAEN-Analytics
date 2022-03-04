@@ -108,6 +108,7 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     func deleteComposite() {
+        encvComposite = nil
         logger.log("Deleting composite")
         do {
             guard let url = urlForComposite else {
@@ -213,7 +214,15 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary = ""
         enpaCharts = []
         encvCharts = []
+        rawENPA = nil
+        iOSENPA = nil
+        AndroidENPA = nil
+        combinedENPA = nil
+        encvComposite = nil
+        worksheet = nil
+        rollingAvg = nil
         deleteComposite()
+        encvComposite  = nil
         status = "Fetch analytics"
     }
 

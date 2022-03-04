@@ -70,6 +70,9 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
 
     @Published var encvKey: String = "" {
         didSet {
+            Task(priority: .userInitiated) {
+                await AnalysisState.shared.deleteComposite()
+            }
             UserDefaults.standard.set(encvKey, forKey: Self.encvKeyKey)
         }
     }
@@ -132,6 +135,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             isUsingTestData
         }
         set(newValue) {
+            clear()
             if newValue {
                 region = "US-EV"
                 encvKey = SetupState.testEncvKey
@@ -140,9 +144,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
                 notifications = 1
                 startDate = defaultStart
                 useTestServers = true
-            } else if useTestServers {
-                clear()
-            }
+            } 
         }
     }
 

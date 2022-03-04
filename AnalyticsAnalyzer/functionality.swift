@@ -360,7 +360,7 @@ struct Accumulators {
         let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
 
         let cvPrint = verifiedCount.per100K(range: 1 ... 1 + numCategories)
-        let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 2)
+        let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 1)
         let kuPrint = uploadedCount.per100K(range: 1 ... 1 + numCategories)
         let unPrint = notifiedCount.per100K(range: 1 ... numCategories)
         let ku = uploadedCount.per100KValues(range: 1 ... 1 + numCategories).reduce(0,+)
