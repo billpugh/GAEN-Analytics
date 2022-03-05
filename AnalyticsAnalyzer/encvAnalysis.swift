@@ -248,7 +248,13 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
             return "\(name): \(lastValue)"
         }
     }
-    let log = msgInt + msgDouble
+    var log: [String] = []
+    if let firstDate = encv["date", Date.self].first, let dateMsg = dateFormatter.string(for: firstDate) {
+        log = ["encv data starts \(dateMsg)"]
+    }
+    log.append(contentsOf: msgInt)
+    log.append(contentsOf: msgDouble)
+    
     logger.log("summary finished")
     return ENCVAnalysis(encv: encv, average: rollingAvg, log: log)
 }
