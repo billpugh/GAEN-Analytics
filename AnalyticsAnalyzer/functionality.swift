@@ -372,13 +372,13 @@ struct Accumulators {
         let saPrint = excessSecondaryAttack.per100KNoSTD(range: 0 ... numCategories - 1)
         let xsa: [Double] = excessSecondaryAttack.per100KValues(range: 0 ... numCategories - 1)
         let sarPrint = zip(saValues, unValues).map {
-            if let ar = percentage($0, $1) {
+            if let ar = sar($0, $1) {
                 return "\(ar)"
             }
             return ""
         }.joined(separator: ",")
         let xsarPrint = zip(xsa, unValues).map({
-            if let ar = percentage($0, $1) {
+            if let ar = sar($0, $1) {
                 return "\(ar)"
             }
             return ""
@@ -1344,6 +1344,12 @@ func percentage(_ x: Double, _ y: Double) -> Double? {
         return nil
     }
     return x / y
+}
+func sar(_ sa: Double, _ cv: Double) -> Double? {
+    if cv <= 5 {
+        return nil
+    }
+    return sa / cv
 }
 
 func round4(_ x: Double) -> Double {
