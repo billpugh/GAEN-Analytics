@@ -254,7 +254,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
     log.append(contentsOf: msgInt)
     log.append(contentsOf: msgDouble)
-    
+
     logger.log("summary finished")
     return ENCVAnalysis(encv: encv, average: rollingAvg, log: log)
 }

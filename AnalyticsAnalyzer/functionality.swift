@@ -1345,6 +1345,7 @@ func percentage(_ x: Double, _ y: Double) -> Double? {
     }
     return x / y
 }
+
 func sar(_ sa: Double, _ cv: Double) -> Double? {
     if cv <= 5 {
         return nil
