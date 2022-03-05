@@ -30,6 +30,28 @@ struct DocumentPicker: UIViewControllerRepresentable {
     }
 }
 
+struct WelcomeView: View {
+    @ObservedObject var state = SetupState.shared
+
+    var body: some View {
+        VStack {
+            Text("Welcome to GAEN Analytics!")
+                .font(.largeTitle)
+
+            Text("The actions available are listed in the left-hand menu; swipe from the left edge to show it.")
+                .foregroundColor(.secondary)
+            if state.setupNeeded {
+                Text("You probably want to select Setup to provide the information needed to use GAENAnalytics")
+                    .foregroundColor(.secondary)
+            } else {
+                Text("You probably want to select Fetch Analytics to fetch the data for \(state.region)")
+                    .foregroundColor(.secondary)
+            }
+            DocView(title: "About GAEN Analyzer", file: "about").padding()
+        }
+    }
+}
+
 struct ContentView: View {
     @ObservedObject var state = SetupState.shared
 
@@ -65,106 +87,82 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             if isUnlocked || !state.useFaceID {
-                List {
-                    Section(header: Text("GAEN Analytics app").font(.title).textCase(nil)) {
-                        if self.state.isUsingTestData {
-                            Text("Using test data and servers").padding(.horizontal)
-                        }
-                        if !state.isClear {
-                            Text("Region: \(state.region)").padding(.horizontal)
-                        }
-                        NavigationLink(destination: DocView(title: "About GAEN Analyzer", file: "about"), tag: "about", selection: $viewShown) {
-                            Text("About GAEN Analyzer").padding(.horizontal)
-                        }
-                    }.font(.headline)
-                    Section(header: Text("Actions").font(.title).textCase(nil)) {
-                        NavigationLink(destination: SetupView(), tag: "setup", selection: $viewShown) {
-                            HStack {
-                                Text(state.setupNeeded ? "Setup needed" : "Setup").font(.headline).padding(.horizontal)
-                                if !state.setupNeeded {
-                                    Image(systemName: "checkmark")
-                                }
+                Form {
+                    NavigationLink(destination: DocView(title: "About GAEN Analyzer", file: "about"), tag: "about", selection: $viewShown) {
+                        Text("About GAEN Analyzer").padding()
+                    }
+
+                    NavigationLink(destination: SetupView(), tag: "setup", selection: $viewShown) {
+                        HStack {
+                            Text(state.setupNeeded ? "Setup needed" : "Setup for \(state.region)").font(.headline).padding()
+                            if !state.setupNeeded {
+                                Image(systemName: "checkmark")
                             }
                         }
-                        #if targetEnvironment(macCatalyst)
-                            NavigationLink(destination: SummaryView(), tag: "summary", selection: $viewShown) {
-                                Text("View Analysis summary").font(.headline).padding(.horizontal)
-                            }.disabled(!analysisState.available)
-                        #endif
+                    }
 
-                        NavigationLink(destination: ExportView(), tag: "export", selection: $viewShown) {
-                            Text("Export analysis").font(.headline).padding(.horizontal)
-                        }.disabled(!analysisState.available)
-                        NavigationLink(destination: RawExportView(), tag: "raw_export", selection: $viewShown) {
-                            Text("Export Raw ENPA").font(.headline).padding(.horizontal)
-                        }.disabled(state.setupNeeded)
+                    NavigationLink(destination: SummaryView(), tag: "summary", selection: $viewShown) {
+                        Text(analysisState.available ? "View analysis summary" : "Fetch analytics"
+                        ).font(.headline).padding()
+                    }.disabled(state.setupNeeded)
 
+                    NavigationLink(destination: ExportView(), tag: "export", selection: $viewShown) {
+                        Text("Export analysis").font(.headline).padding()
+                    }.disabled(!analysisState.available)
+                    NavigationLink(destination: RawExportView(), tag: "raw_export", selection: $viewShown) {
+                        Text(analysisState.available && analysisState.rawENPA != nil ? "Export raw ENPA" : "Configure raw ENPA export").font(.headline).padding()
+                    }.disabled(state.setupNeeded)
+
+                    if false {
+                        HStack {
+                            Button(action: { Task(priority: .userInitiated) {
+                                self.viewShown = "summary"
+                                await AnalysisTask().analyze(config: state.config, result: analysisState)
+                            }
+                            }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.nextAction).font(.headline) }.padding().disabled(state.setupNeeded || analysisState.inProgress)
+                        }
+                        AnalysisProgressView().padding(.horizontal)
+                    }
+                    HStack {
+                        Button(action: {
+                            showFilePicker = true
+
+                        }) { Text("Load older encv composite stats").font(.headline) }.padding().sheet(isPresented: self.$showFilePicker) {
+                            DocumentPicker()
+                        }
+                    }
+
+                    if state.debuggingFeatures && !state.setupNeeded {
                         HStack {
                             Button(action: { Task(priority: .userInitiated) {
                                 #if targetEnvironment(macCatalyst)
                                     self.viewShown = "summary"
                                 #endif
-                                await AnalysisTask().analyze(config: state.config, result: analysisState)
+                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
                             }
-                            }) { Text(state.setupNeeded ? "waiting for setup" : analysisState.nextAction).font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
+                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENCV").font(.headline) }.padding().disabled(state.setupNeeded || analysisState.inProgress)
                         }
-                        AnalysisProgressView().padding(.horizontal)
-
                         HStack {
-                            Button(action: {
-                                showFilePicker = true
-
-                            }) { Text("Load older composite stats").font(.headline) }.padding(.horizontal).sheet(isPresented: self.$showFilePicker) {
-                                DocumentPicker()
+                            Button(action: { Task(priority: .userInitiated) {
+                                #if targetEnvironment(macCatalyst)
+                                    self.viewShown = "summary"
+                                #endif
+                                await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
                             }
-                        }
-
-                        if state.debuggingFeatures && !state.setupNeeded {
-                            HStack {
-                                Button(action: { Task(priority: .userInitiated) {
-                                    #if targetEnvironment(macCatalyst)
-                                        self.viewShown = "summary"
-                                    #endif
-                                    await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENPA: false)
-                                }
-                                }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENCV").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
-                            }
-                            HStack {
-                                Button(action: { Task(priority: .userInitiated) {
-                                    #if targetEnvironment(macCatalyst)
-                                        self.viewShown = "summary"
-                                    #endif
-                                    await AnalysisTask().analyze(config: state.config, result: analysisState, analyzeENCV: false)
-                                }
-                                }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENPA").font(.headline) }.padding(.horizontal).disabled(state.setupNeeded || analysisState.inProgress)
-                            }
+                            }) { Text(state.setupNeeded ? "setup needed" : "Fetch/Analyze just ENPA").font(.headline) }.padding().disabled(state.setupNeeded || analysisState.inProgress)
                         }
                     }
-                    #if !targetEnvironment(macCatalyst)
 
-                        if true {
-                            Section(header: TopicView(topic: "ENCV")) {
-                                Text(analysisState.encvSummary).textSelection(.enabled)
-                            }
-                            ENXChartsView(charts: analysisState.encvCharts)
-                                .environmentObject(analysisState)
+                }.navigationBarTitle("GAEN Analytics").font(.headline)
 
-                            Section(header: TopicView(topic: "ENPA").font(.title)) {
-                                Text(analysisState.enpaSummary).textSelection(.enabled)
-                            }
-                            ENXChartsView(charts: analysisState.enpaCharts)
-                                .environmentObject(analysisState)
+                    .fileExporter(isPresented: $analysisState.csvExportReady, document: analysisState.csvExport, contentType: .commaSeparatedText, defaultFilename: analysisState.csvExport?.name) { result in
+                        switch result {
+                        case let .success(url):
+                            print("Saved to \(url)")
+                        case let .failure(error):
+                            print(error.localizedDescription)
                         }
-
-                    #endif
-                }.fileExporter(isPresented: $analysisState.csvExportReady, document: analysisState.csvExport, contentType: .commaSeparatedText, defaultFilename: analysisState.csvExport?.name) { result in
-                    switch result {
-                    case let .success(url):
-                        print("Saved to \(url)")
-                    case let .failure(error):
-                        print(error.localizedDescription)
                     }
-                }
             } else {
                 VStack {
                     Button("Unlock GAEN Analytics") {
@@ -176,10 +174,11 @@ struct ContentView: View {
                     .clipShape(Capsule())
                 }
             }
-        } // .listStyle(SidebarListStyle())
-
-        .navigationBarTitle("GAEN Analytics")
-    }
+            WelcomeView()
+        }
+        // NavigationView
+        .listStyle(SidebarListStyle())
+    } // View
 }
 
 struct ContentView_Previews: PreviewProvider {

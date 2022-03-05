@@ -37,6 +37,17 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     @Published var available: Bool = false
+    @Published var availableAt: Date?
+    var availableAtMessage: String {
+        guard let availableAt = availableAt else {
+            return "Not available"
+        }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter.string(from: availableAt)
+    }
+
     @Published var rawENPA: RawMetrics?
     @Published var iOSENPA: DataFrame?
     @Published var AndroidENPA: DataFrame?
@@ -241,6 +252,7 @@ class AnalysisState: NSObject, ObservableObject {
         progress = 0.0
         progressSteps = 0
         available = false
+
         enpaSummary = ""
         encvSummary = ""
         nextAction = "Fetching analytics"
@@ -252,6 +264,7 @@ class AnalysisState: NSObject, ObservableObject {
         inProgress = false
         progress = 1.0
         available = true
+        availableAt = Date()
         status = "Update analytics"
         nextAction = "Update analytics"
     }
@@ -453,9 +466,10 @@ actor AnalysisTask {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
-                combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %")
+                combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
                 worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %", "est users from ku", "ku ENPA %")
 
+                worksheet.addColumn("codes issued", Int.self, from: encv)
                 worksheet.addColumn("tokens claimed", Int.self, from: encv)
                 worksheet.addColumn("publish requests", Int.self, from: encv)
                 worksheet.addColumn("publish failure rate", Double.self, from: encv)
@@ -556,7 +570,7 @@ actor AnalysisTask {
             await getAndAnalyzeENPA(config: config, encvAverage: encv?.average, result: result)
             logger.log("Finished analyzeENPA")
         } else {
-            await result.log(enpa: ["Skipping ENPA"])
+            await result.log(enpa: ["Skipping ENPA \(analyzeENPA) \(config.hasENPA)"])
         }
 
         await result.finish()

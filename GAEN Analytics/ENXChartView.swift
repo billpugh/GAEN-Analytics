@@ -92,7 +92,7 @@ struct ENXChartView: View {
                 }) {
                     Image(systemName: "square.and.arrow.up")
                 }.animation(.easeInOut, value: showingShare)
-            }.font(.headline) // HStack
+            }.padding(.top).font(.headline) // HStack
         ) {
             if showingPopover {
                 Text(markdown(file: title)).transition(.scale)

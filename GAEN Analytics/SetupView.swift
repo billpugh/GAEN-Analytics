@@ -42,7 +42,7 @@ struct SetupView: View {
                     TextField("e.g, US-HT", text: Binding(get: { self.state.region },
                                                           set: {
                                                               self.state.region = trim($0)
-                                                          }))
+                                                          })).disabled(state.isUsingTestData)
                 }
 
                 HStack {

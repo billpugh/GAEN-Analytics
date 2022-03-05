@@ -14,16 +14,35 @@ struct SummaryView: View {
 
     @ObservedObject var analysisState = AnalysisState.shared
     var body: some View {
-        Form {
-            Section(header: TopicView(topic: "ENCV")) {
+        List {
+            Section(header: Text("GAEN Analytics for\u{00a0}\(state.region)"
+            ).font(.title)) {
+                AnalysisProgressView()
+                if analysisState.available {
+                    Button(action: { Task(priority: .userInitiated) {
+                        await AnalysisTask().analyze(config: state.config, result: analysisState)
+                    }
+                    }) { Text("Update analytics").font(.headline)
+                    }
+                }
+            }.textCase(.none)
+
+            Section(header: TopicView(topic: "ENCV").padding(.top)) {
                 Text(analysisState.encvSummary).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.encvCharts)
-            Section(header: TopicView(topic: "ENPA")) {
+            Section(header: TopicView(topic: "ENPA").padding(.top)) {
                 Text(analysisState.enpaSummary).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
-        }.textCase(nil)
+        }.listStyle(GroupedListStyle())
+            .onAppear {
+                if !state.setupNeeded && !analysisState.inProgress && !analysisState.available {
+                    Task(priority: .userInitiated) {
+                        await AnalysisTask().analyze(config: state.config, result: analysisState)
+                    }
+                }
+            }
 
             .environmentObject(analysisState)
         #if targetEnvironment(macCatalyst)

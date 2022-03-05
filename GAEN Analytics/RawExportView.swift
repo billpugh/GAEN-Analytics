@@ -111,18 +111,18 @@ struct RawExportView: View {
 
     var body: some View {
         List {
-            Section(header: Text("interaction metrics").font(.title).textCase(nil)) {
+            Section(header: Text("Additional interaction metrics").font(.headline).textCase(nil)) {
                 CheckView(id: "riskParameters")
                 CheckView(id: "beaconCount")
             }
-            Section(header: Text("low noise 14 day metrics").font(.title).textCase(nil)) {
+            Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {
                 CheckView(id: "keysUploadedWithReportType14d")
                 CheckView(id: "periodicExposureNotification14d")
                 CheckView(id: "secondaryAttack14d")
                 CheckView(id: "dateExposure14d")
             }
 
-            Section {
+            Section(header: Text("Actions").font(.headline).textCase(nil)) {
                 #if !targetEnvironment(macCatalyst)
                     Button(action: { Task(priority: .userInitiated) {
                         await AnalysisTask().analyze(config: state.config, result: analysisState)
@@ -133,7 +133,7 @@ struct RawExportView: View {
                 #endif
                 Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
                     Text("Export Raw ENPA data")
-                }.padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
+                }.padding().font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
             }
         }.font(.subheadline)
         #if targetEnvironment(macCatalyst)

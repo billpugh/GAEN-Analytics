@@ -14,6 +14,8 @@ struct AnalysisProgressView: View {
             ProgressView(value: state.progress, total: 1.0) {
                 Text("\(state.status)")
             }
+        } else if state.available {
+            Text("Fetched at \(state.availableAtMessage)")
         }
     }
 }

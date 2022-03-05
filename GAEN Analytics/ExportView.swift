@@ -169,7 +169,7 @@ struct ExportView: View {
 
     var body: some View {
         Form {
-            Section(header: Text("ENPA")) {
+            Section(header: Text("ENPA").padding(.top)) {
                 if analysisState.combinedENPA != nil {
                     Button(action: { exportDataframe("\(analysisState.region)-\(dateStamp).csv", analysisState.combinedENPA) }) {
                         Text("combined Data")
@@ -187,14 +187,9 @@ struct ExportView: View {
                         Text("Android Data")
                     }
                 }
-                if analysisState.worksheet != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-worksheet-\(dateStamp).csv", analysisState.worksheet) }) {
-                        Text("Worksheet")
-                    }
-                }
             } // Section
 
-            Section(header: Text("ENCV")) {
+            Section(header: Text("ENCV").padding(.top)) {
                 if analysisState.encvComposite != nil {
                     Button(action: { exportDataframe("\(analysisState.region)-composite-\(dateStamp).csv", analysisState.encvComposite) }) {
                         Text("composite.csv")
@@ -208,6 +203,13 @@ struct ExportView: View {
 
                 // Text("System health")
             } // Section
+            if analysisState.worksheet != nil {
+                Section(header: Text("Worksheet with columns from above").textCase(.none).padding(.top)) {
+                    Button(action: { exportDataframe("\(analysisState.region)-worksheet-\(dateStamp).csv", analysisState.worksheet) }) {
+                        Text("Worksheet")
+                    }
+                }
+            }
         } // Form
 
         #if targetEnvironment(macCatalyst)
