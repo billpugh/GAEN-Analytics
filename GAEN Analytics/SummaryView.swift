@@ -28,11 +28,13 @@ struct SummaryView: View {
             }.textCase(.none)
 
             Section(header: TopicView(topic: "ENCV").padding(.top)) {
-                Text(analysisState.encvSummary).textSelection(.enabled)
+                Text(analysisState.encvSummary).fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.encvCharts)
             Section(header: TopicView(topic: "ENPA").padding(.top)) {
-                Text(analysisState.enpaSummary).textSelection(.enabled)
+                Text(analysisState.enpaSummary)
+                    .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
         }.listStyle(GroupedListStyle())
