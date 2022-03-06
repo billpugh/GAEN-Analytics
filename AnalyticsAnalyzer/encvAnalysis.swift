@@ -157,7 +157,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
     // Buckets are: 1m, 5m, 15m, 30m, 1h, 2h, 3h, 6h, 12h, 24h, >24h
     rollingAvg.transformColumn("code_claim_age_distribution") { weightedSum($0, weights: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]) }
-    rollingAvg.renameColumn("code_claim_age_distribution", to: "codes_claimed_within_hour_percentage")
+    rollingAvg.renameColumn("code_claim_age_distribution", to: "codes_claimed_within_hour_%")
     logger.log("computed rolling distribution")
     if hasUserReports {
         rollingAvg.addColumnPercentage("user_reports_claimed", "user_reports_issued", giving: "user_reports_claim_rate")
