@@ -135,26 +135,28 @@ class CSVItem: NSObject, UIActivityItemSource {
     }
 }
 
-var shareURL: URL?
-struct ExportView: View {
-    @State private var shareTitle: String = ""
-    @State private var showingSheet: Bool = false
+struct ExportItem: View {
+    var title: String
+    var fileTitle: String
+    var dataFrame: DataFrame?
     let analysisState = AnalysisState.shared
 
-    @State private var csvDocument: CSVFile?
+    @Binding var showingSheet: Bool
+    @State private var showingPopover = false
 
-    @MainActor func exportDataframe(_ name: String, _ dataFrame: DataFrame?) {
+    @MainActor func exportDataframe() {
+        let fileName = "\(analysisState.region)-\(fileTitle)-\(dateStamp).csv"
         if let dataFrame = dataFrame {
             #if targetEnvironment(macCatalyst)
-                if let csv = AnalysisState.exportToFileDocument(name: name, dataframe: dataFrame) {
+                if let csv = AnalysisState.exportToFileDocument(name: fileName, dataframe: dataFrame) {
                     csvDocument = csv
                     showingSheet = true
                 }
             #else
-                if let url = AnalysisState.exportToURL(name: name, dataframe: dataFrame) {
+                if let url = AnalysisState.exportToURL(name: fileName, dataframe: dataFrame) {
                     shareURL = url
 
-                    shareTitle = name
+                    shareTitle = fileName
                     showingSheet = true
                 }
             #endif
@@ -168,46 +170,54 @@ struct ExportView: View {
     }
 
     var body: some View {
+        if dataFrame != nil {
+            VStack(alignment: .leading) {
+                HStack {
+                    Button(action: { exportDataframe() }) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text(title)
+                    }.buttonStyle(BorderlessButtonStyle())
+                    Spacer()
+                    Button(action: { showingPopover.toggle() }) {
+                        Image(systemName: "info.circle")
+
+                    }.buttonStyle(BorderlessButtonStyle())
+                }.font(.headline)
+
+                if showingPopover {
+                    Text(markdown(file: title)).fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
+                }
+            }
+        }
+    }
+}
+
+var shareURL: URL?
+var shareTitle: String = ""
+private var csvDocument: CSVFile?
+struct ExportView: View {
+    @State private var showingSheet: Bool = false
+    let analysisState = AnalysisState.shared
+
+    var body: some View {
         Form {
-            Section(header: Text("ENPA").padding(.top)) {
-                if analysisState.combinedENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-\(dateStamp).csv", analysisState.combinedENPA) }) {
-                        Text("combined Data")
-                    }
-                }
+            Section(header: Text("ENPA").font(.title).padding(.top)) {
+                ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, showingSheet: $showingSheet)
 
-                if analysisState.iOSENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-ios-\(dateStamp).csv.csv", analysisState.iOSENPA) }) {
-                        Text("iOS Data")
-                    }
-                }
-
-                if analysisState.AndroidENPA != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-android-\(dateStamp).csv", analysisState.AndroidENPA) }) {
-                        Text("Android Data")
-                    }
-                }
+                ExportItem(title: "iOS ENPA", fileTitle: "iOS", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
+                ExportItem(title: "Android ENPA", fileTitle: "Android", dataFrame: analysisState.AndroidENPA, showingSheet: $showingSheet)
             } // Section
 
-            Section(header: Text("ENCV").padding(.top)) {
-                if analysisState.encvComposite != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-composite-\(dateStamp).csv", analysisState.encvComposite) }) {
-                        Text("composite.csv")
-                    }
-                }
-                if analysisState.rollingAvg != nil {
-                    Button(action: { exportDataframe("\(analysisState.region)-encv-\(dateStamp).csv", analysisState.rollingAvg) }) {
-                        Text("analyzed data (7 day rolling average)")
-                    }
-                }
+            Section(header: Text("ENCV").font(.title).padding(.top)) {
+                ExportItem(title: "ENCV data", fileTitle: "encv-composite", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
+                ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
 
                 // Text("System health")
             } // Section
             if analysisState.worksheet != nil {
-                Section(header: Text("Worksheet with columns from above").textCase(.none).padding(.top)) {
-                    Button(action: { exportDataframe("\(analysisState.region)-worksheet-\(dateStamp).csv", analysisState.worksheet) }) {
-                        Text("Worksheet")
-                    }
+                Section(header: Text("Worksheet").font(.title).textCase(.none).padding(.top)) {
+                    ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
                 }
             }
         } // Form
@@ -228,7 +238,7 @@ struct ExportView: View {
                        content: {
                            ActivityView(activityItems: [
                                CSVItem(url: shareURL,
-                                       title: self.shareTitle),
+                                       title: shareTitle),
                            ] as [Any], applicationActivities: nil, isPresented: self.$showingSheet)
                        })
         #endif
