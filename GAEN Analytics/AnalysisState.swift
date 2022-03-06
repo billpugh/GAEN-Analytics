@@ -358,6 +358,9 @@ class AnalysisState: NSObject, ObservableObject {
                 claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
                 userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
                 tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
+                timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
+                onsetToUpload(encv: encv, hasUserReports: hasUserReports, config: config),
+
                 // publishRequests(encv: encv, config: config),
                 systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
             ]
@@ -679,6 +682,14 @@ func tokensClaimed(encv: DataFrame, hasUserReports: Bool, config _: Configuratio
         return ChartOptions(title: "tokens claimed", data: encv, columns: "tokens claimed,confirmed test tokens claimed,user report tokens claimed".components(separatedBy: ","))
     }
     return ChartOptions(title: "tokens claimed", data: encv, columns: "tokens claimed".components(separatedBy: ","))
+}
+
+func timeToClaimCodes(encv: DataFrame, hasUserReports _: Bool, config _: Configuration) -> ChartOptions {
+    ChartOptions(title: "codes claimed within hour %", data: encv, columns: "codes claimed within hour %".components(separatedBy: ","))
+}
+
+func onsetToUpload(encv: DataFrame, hasUserReports _: Bool, config _: Configuration) -> ChartOptions {
+    ChartOptions(title: "avg days onset to upload", data: encv, columns: "avg days onset to upload".components(separatedBy: ","))
 }
 
 func systemHealth(encv: DataFrame, hasSMS: Bool, config _: Configuration) -> ChartOptions {
