@@ -628,7 +628,7 @@ struct RawMetrics {
                 for m in rawData {
                     let provider = m["data_provider"] as? String ?? "?"
                     let clients = m["total_individual_clients"] as! Int
-                    let maybeEpsilon = Double(m["epsilon"] as! NSNumber)
+                    let maybeEpsilon = Double(truncating: m["epsilon"] as! NSNumber)
                     if provider == "google", maybeEpsilon != 8 {
                         continue
                     }

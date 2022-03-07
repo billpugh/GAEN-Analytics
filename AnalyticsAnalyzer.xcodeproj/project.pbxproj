@@ -44,7 +44,6 @@
 		1673F5B827B428A00037D340 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F5B727B428A00037D340 /* SummaryView.swift */; };
 		16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4127BA9F0F00F44960 /* ENXChartView.swift */; };
 		16856E4427BAA64700F44960 /* ENXLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4327BAA64700F44960 /* ENXLineChart.swift */; };
-		16856E4D27BAA89C00F44960 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 16856E4C27BAA89C00F44960 /* Charts */; };
 		16856E5927BBF34800F44960 /* DocView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E5827BBF34800F44960 /* DocView.swift */; };
 		16856E5A27BBF40700F44960 /* about.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5727BBF31D00F44960 /* about.md */; };
 		16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */; };
@@ -91,6 +90,8 @@
 		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
 		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
+		16DEAB3B27D64F9400069680 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 16DEAB3A27D64F9400069680 /* Charts */; };
+		16DEAB4127D65A4600069680 /* testServers.json in Resources */ = {isa = PBXBuildFile; fileRef = 16DEAB3F27D6537300069680 /* testServers.json */; };
 		16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 /* End PBXBuildFile section */
@@ -211,6 +212,8 @@
 		16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipFunctionality.swift; sourceTree = "<group>"; };
 		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
 		16D7B5E126237CEE00D09126 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16DEAB3927D64DC000069680 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		16DEAB3F27D6537300069680 /* testServers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testServers.json; sourceTree = "<group>"; };
 		16F6DAAE27A764A100388B5B /* FetchENPA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchENPA.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,8 +238,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16856E4D27BAA89C00F44960 /* Charts in Frameworks */,
 				16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */,
+				16DEAB3B27D64F9400069680 /* Charts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +281,7 @@
 		1609484E25C3632A001705A6 = {
 			isa = PBXGroup;
 			children = (
+				16DEAB3927D64DC000069680 /* README.md */,
 				1609485925C3632A001705A6 /* AnalyticsAnalyzer */,
 				1673F54927B07F710037D340 /* GAEN Analytics */,
 				169FB8572642F0C10082DDD2 /* AnalyticsTool */,
@@ -285,6 +289,7 @@
 				16856E8F27BFEE4600F44960 /* AnalyticsPlayground */,
 				16D7B5E026237CEE00D09126 /* CheckUserRisk */,
 				16856EA127C04EBE00F44960 /* SmokeTest */,
+				16DEAB3D27D652C600069680 /* Resources */,
 				1609485825C3632A001705A6 /* Products */,
 				16DC0F03262391EF0023AF49 /* Frameworks */,
 			);
@@ -401,7 +406,6 @@
 		16B2B5D627D40D85000F763A /* ENCV charts */ = {
 			isa = PBXGroup;
 			children = (
-				16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */,
 				16856E5F27BC014400F44960 /* claimed and consent rates.md */,
 				163EF28E27C9330100D3C19D /* User report %.md */,
 				16856E6027BC018C00F44960 /* tokens claimed.md */,
@@ -415,6 +419,7 @@
 		16B2B5D727D40D9A000F763A /* ENPA charts */ = {
 			isa = PBXGroup;
 			children = (
+				16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */,
 				16856E6227BC01BB00F44960 /* Notifications per key upload.md */,
 				16856E6327BC01D100F44960 /* Notifications arriving promptly.md */,
 				16856E6427BC01E700F44960 /* Estimated users.md */,
@@ -449,6 +454,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		16DEAB3D27D652C600069680 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				16DEAB3F27D6537300069680 /* testServers.json */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -508,8 +521,8 @@
 			);
 			name = "GAEN Analytics";
 			packageProductDependencies = (
-				16856E4C27BAA89C00F44960 /* Charts */,
 				16C5E4D627C6741B007527FC /* ZIPFoundation */,
+				16DEAB3A27D64F9400069680 /* Charts */,
 			);
 			productName = "GAEN Analytics";
 			productReference = 1673F54827B07F710037D340 /* GAEN Analytics.app */;
@@ -637,8 +650,6 @@
 				1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */,
 				16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
-				16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */,
-				16856E4B27BAA89C00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
 				16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 1609485825C3632A001705A6 /* Products */;
@@ -671,6 +682,7 @@
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
+				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
 				16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */,
@@ -1000,7 +1012,7 @@
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
@@ -1039,7 +1051,7 @@
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
@@ -1262,24 +1274,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/danielgindi/Charts.git";
 			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-		16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/danielgindi/Charts.git";
-			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
-		16856E4B27BAA89C00F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/danielgindi/Charts.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
+				minimumVersion = 4.0.0;
 			};
 		};
 		16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
@@ -1287,7 +1283,7 @@
 			repositoryURL = "https://github.com/apple/swift-argument-parser";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.1;
+				minimumVersion = 1.0.0;
 			};
 		};
 		16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
@@ -1305,11 +1301,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
-		};
-		16856E4C27BAA89C00F44960 /* Charts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 16856E4827BAA7E900F44960 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = Charts;
 		};
 		169FB85D2642F1300082DDD2 /* CSV */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1340,6 +1331,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */;
 			productName = CSV;
+		};
+		16DEAB3A27D64F9400069680 /* Charts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = Charts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

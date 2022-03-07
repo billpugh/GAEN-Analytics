@@ -33,6 +33,20 @@ private func dateFor(key: String) -> Date {
 //    let configStartDate: Date
 // }
 
+func getTestServers() -> NSDictionary? {
+    do {
+        if let fileURL = Bundle.main.url(forResource: "testServers", withExtension: "json") {
+            let data = try Data(contentsOf: fileURL)
+            let json = try JSONSerialization.jsonObject(with: data, options: [.mutableContainers]) as! NSDictionary
+
+            return json
+        }
+        return nil
+    } catch {
+        return nil
+    }
+}
+
 class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDelegate {
     static let shared = SetupState()
 
@@ -127,8 +141,10 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         region.isEmpty || encvKey.isEmpty && enpaKey.isEmpty
     }
 
-    static let testEncvKey = "x2TtU303DaAGRxUibfMG9rqT-D9l0A942JiP_6o7bamUJV4s0BiJ8bPsTU-B2n3XiBVnO3BKlc9Y7jKoRnHtOQ.1.DM6RDGij9f-wno9I_o6VbcBC3kZ9Y4CF0XvIyN3sBBV6a5rodTKDeEPmWOkPZI3Fy78LZJBopZNUFPJLk-I-2Q"
-    static let testEnpaKey = "436b5bda-8336-4a2c-84c9-52cf5558b238.a1fbbeaad15842696fe56fc45522de112ac089f51e8bdebbd4193b17a77d7a1b"
+    let testEncvKey: String
+    let testEnpaKey: String
+
+    let disableTestServer: Bool
 
     @MainActor var usingTestData: Bool {
         get {
@@ -138,8 +154,8 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             clear()
             if newValue {
                 region = "US-EV"
-                encvKey = SetupState.testEncvKey
-                enpaKey = SetupState.testEnpaKey
+                encvKey = testEncvKey
+                enpaKey = testEnpaKey
                 useTestServers = true
                 notifications = 1
                 startDate = defaultStart
@@ -149,7 +165,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     }
 
     var isUsingTestData: Bool {
-        useTestServers && encvKey == SetupState.testEncvKey && enpaKey == SetupState.testEnpaKey
+        useTestServers && encvKey == testEncvKey && enpaKey == testEnpaKey && testEncvKey != ""
     }
 
     @MainActor func clear() {
@@ -173,8 +189,17 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         notifications = testConfigWithNotifications
         useTestServers = true
         region = "US-EV"
-        encvKey = SetupState.testEncvKey
-        enpaKey = SetupState.testEnpaKey
+        if let testConfig = getTestServers() {
+            testEncvKey = testConfig["testEncvKey"] as! String
+            testEnpaKey = testConfig["testEnpaKey"] as! String
+            disableTestServer = false
+        } else {
+            testEncvKey = ""
+            testEnpaKey = ""
+            disableTestServer = true
+        }
+        encvKey = testEncvKey
+        enpaKey = testEnpaKey
         startDate = defaultStart
         configStartDate = nil
     }
@@ -186,7 +211,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             region = data
         }
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
-        useTestServers = UserDefaults.standard.bool(forKey: Self.testServerKey)
+
         debuggingFeatures = UserDefaults.standard.bool(forKey: Self.debuggingKey)
         if let data = UserDefaults.standard.string(forKey: Self.encvKeyKey) {
             encvKey = data
@@ -194,8 +219,27 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         if let data = UserDefaults.standard.string(forKey: Self.enpaKeyKey) {
             enpaKey = data
         }
+        if let testConfig = getTestServers() {
+            testEncvKey = testConfig["testEncvKey"] as! String
+            testEnpaKey = testConfig["testEnpaKey"] as! String
+            disableTestServer = false
+        } else {
+            testEncvKey = ""
+            testEnpaKey = ""
+            disableTestServer = true
+        }
 
         startDate = dateFor(key: Self.startKey)
         configStartDate = nil // dateFor(key: Self.configStartKey)
+        let uTestServers = UserDefaults.standard.bool(forKey: Self.testServerKey)
+        useTestServers = uTestServers
+        if disableTestServer, uTestServers {
+            region = ""
+            encvKey = ""
+            enpaKey = ""
+            useTestServers = false
+        } else {
+            useTestServers = uTestServers
+        }
     }
 }

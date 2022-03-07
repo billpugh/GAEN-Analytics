@@ -145,7 +145,7 @@ struct ExportItem: View {
     @State private var showingPopover = false
 
     @MainActor func exportDataframe() {
-        let fileName = "\(analysisState.region)-\(fileTitle)-\(dateStamp).csv"
+        let fileName = "\(analysisState.region)-\(fileTitle)-\(dateTimeStamp).csv"
         if let dataFrame = dataFrame {
             #if targetEnvironment(macCatalyst)
                 if let csv = AnalysisState.exportToFileDocument(name: fileName, dataframe: dataFrame) {
@@ -163,7 +163,7 @@ struct ExportItem: View {
         }
     }
 
-    var dateStamp: String {
+    var dateTimeStamp: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd-HHmm"
         return dateFormatter.string(from: Date())
@@ -210,14 +210,14 @@ struct ExportView: View {
             } // Section
 
             Section(header: Text("ENCV").font(.title).padding(.top)) {
-                ExportItem(title: "ENCV data", fileTitle: "encv-composite", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
-                ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
+                ExportItem(title: "ENCV data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
+                ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
 
                 // Text("System health")
             } // Section
             if analysisState.worksheet != nil {
                 Section(header: Text("Worksheet").font(.title).textCase(.none).padding(.top)) {
-                    ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
+                    ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.worksheet, showingSheet: $showingSheet)
                 }
             }
         } // Form

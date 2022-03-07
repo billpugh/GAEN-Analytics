@@ -36,14 +36,17 @@ struct DocView: View {
     var title: String
     var file: String
     var body: some View {
-        VStack {
-            if title == "About GAEN Analyzer" {
-                Text("Version \(SetupState.shared.appVersion), build \(SetupState.shared.build)")
-            }
+        ScrollView {
+            VStack {
+                if title == "About GAEN Analyzer" {
+                    Text("Version \(SetupState.shared.appVersion), build \(SetupState.shared.build)")
+                }
 
-            Text(markdown(file: file))
-            Spacer()
-        }.padding().navigationBarTitle(title, displayMode: .inline)
+                Text(markdown(file: file))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+            }.padding().navigationBarTitle(title, displayMode: .inline)
+        }
     }
 }
 

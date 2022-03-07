@@ -86,9 +86,7 @@ class AnalysisState: NSObject, ObservableObject {
     static func exportToURL(name: String, dataframe: DataFrame) -> URL? {
         logger.log("Exporting \(name, privacy: .public) to URL")
         do {
-            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
-
-            let csv = try dataframe.csvRepresentation(options: writingOptions)
+            let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
             let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                             isDirectory: true)
 
@@ -107,9 +105,7 @@ class AnalysisState: NSObject, ObservableObject {
     static func exportToURL(name: String, dataframe: DataFrame.Slice) -> URL? {
         logger.log("Exporting \(name, privacy: .public) to URL")
         do {
-            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
-
-            let csv = try dataframe.csvRepresentation(options: writingOptions)
+            let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
             let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                             isDirectory: true)
@@ -180,13 +176,13 @@ class AnalysisState: NSObject, ObservableObject {
         }
     }
 
+    static let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
     func saveComposite() {
         guard let encvComposite = encvComposite else {
             return
         }
         do {
-            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
-            let csv = try encvComposite.csvRepresentation(options: writingOptions)
+            let csv = try encvComposite.csvRepresentation(options: AnalysisState.writingOptions)
 
             guard let path = urlForComposite else {
                 return
@@ -201,8 +197,7 @@ class AnalysisState: NSObject, ObservableObject {
     static func exportToFileDocument(name: String, dataframe: DataFrame) -> CSVFile? {
         logger.log("Exporting \(name, privacy: .public) to File")
         do {
-            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
-            let csv = try dataframe.csvRepresentation(options: writingOptions)
+            let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
             return CSVFile(name: name, csv)
 
@@ -215,8 +210,7 @@ class AnalysisState: NSObject, ObservableObject {
     static func exportToFileDocument(name: String, dataframe: DataFrame.Slice) -> CSVFile? {
         logger.log("Exporting \(name, privacy: .public) to File")
         do {
-            let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
-            let csv = try dataframe.csvRepresentation(options: writingOptions)
+            let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
             return CSVFile(name: name, csv)
 
