@@ -4,4 +4,4 @@ Using self-report will tend to drive this down, as self-report codes are typical
 
 If these is a sudden delay in SMS codes being distributed, this number will spike upwards. 
 
-Changes in which codes are issued can also effect this. If codes are issued in the middle of the night, few of them are likely to be claimed within an hour. 
+Changes in when codes are issued can also effect this. If codes are issued in the middle of the night, few of them are likely to be claimed within an hour. 
