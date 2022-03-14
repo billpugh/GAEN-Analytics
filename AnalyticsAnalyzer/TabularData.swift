@@ -58,6 +58,20 @@ extension DataFrame {
         }
     }
 
+    func emptyPrefix(_ name: String) -> Int {
+        let c: AnyColumn = self[name]
+        for (i, v) in c.enumerated() {
+            if v != nil {
+                return i
+            }
+        }
+        return c.count
+    }
+
+    func emptyPrefix(_ names: [String]) -> Int {
+        names.map { emptyPrefix($0) }.min()!
+    }
+
     @discardableResult func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
         guard requireColumn(name) else {
             return false
@@ -195,11 +209,8 @@ extension DataFrame {
                                                                  from: DataFrame, join: String, _ type2: T2.Type) -> Column<T1>
     {
         let newName = newName ?? column
-        guard !hasColumn(newName) else {
-            logger.error("DataFrame already has column named \(newName, privacy: .public)")
-            let existing = self[newName, type1]
-            return existing
-        }
+        removeIfPresent(newName)
+
         guard requireColumn(join, type2), from.requireColumn(column, type1),
               from.requireColumn(join, type2)
         else {
@@ -298,9 +309,16 @@ extension DataFrame {
         let column2 = self[name2, Int.self]
         var result = column1 - column2
         result.name = giving
+        removeIfPresent(giving)
         // calculated.append(giving)
         append(column: result)
         logger.info("added column \(giving, privacy: .public)")
+    }
+
+    mutating func removeIfPresent(_ name: String) {
+        if hasColumn(name) {
+            removeColumn(name)
+        }
     }
 
     mutating func copyColumn(_ name1: String, giving: String) {
@@ -308,6 +326,7 @@ extension DataFrame {
         guard requireColumn(name1) else {
             return
         }
+        removeIfPresent(giving)
         var column1 = self[name1, Int.self]
         column1.name = giving
 
@@ -322,6 +341,7 @@ extension DataFrame {
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
         var result = column1 + column2
+        removeIfPresent(giving)
         result.name = giving
         // calculated.append(giving)
         append(column: result)
@@ -388,7 +408,7 @@ class TextBuffer {
         text = []
     }
 
-    func asENPAData() throws -> DataFrame {
+    func asENPAData(startDate: Date? = nil) throws -> DataFrame {
         logger.info("converting ENPA TextBuffer to DataFrame")
         var readingOptions = CSVReadingOptions()
         readingOptions.addDateParseStrategy(
@@ -397,13 +417,25 @@ class TextBuffer {
                 locale: Locale(identifier: "en_US"),
                 timeZone: TimeZone(abbreviation: "GMT")!
             ))
-        return try DataFrame(csvData: all.data(using: .utf8)!,
-                             types: ["date": .date,
-                                     "days": .integer,
-                                     "vc count": .integer,
-                                     "kc count": .integer,
-                                     "nc count": .integer,
-                                     "dec count": .integer],
-                             options: readingOptions)
+        let result = try DataFrame(csvData: all.data(using: .utf8)!,
+                                   types: ["date": .date,
+                                           "days": .integer,
+                                           "vc count": .integer,
+                                           "kc count": .integer,
+                                           "nc count": .integer,
+                                           "dec count": .integer],
+                                   options: readingOptions)
+        if let startDate = startDate {
+            let df = DateFormatter()
+            df.dateStyle = .full
+            df.timeStyle = .full
+            df.timeZone = TimeZone(identifier: "UTC")!
+            print("filtering rows to \(df.string(from: startDate))")
+            let filtered = DataFrame(result.filter { date($0) >= startDate })
+            let dates = filtered["date", Date.self]
+            print("first date: \(df.string(from: dates.first!!))")
+            return filtered
+        }
+        return result
     }
 }

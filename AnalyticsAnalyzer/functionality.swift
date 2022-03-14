@@ -571,7 +571,7 @@ func getRollingAverageKeyMetrics(_ metrics: [String: Metric], options: Configura
 
     printRollingAverageKeyMetrics(metrics,
                                   options: options, printFunction: { buffer.append($0) })
-    return try buffer.asENPAData()
+    return try buffer.asENPAData(startDate: options.startDate)
 }
 
 func printRollingAverageKeyMetrics(_ metrics: [String: Metric], options: Configuration, printFunction: ((String) -> Void)? = nil) {
@@ -585,7 +585,7 @@ func printRollingAverageKeyMetrics(_ metrics: [String: Metric], options: Configu
 func getRollingAverageIOSMetrics(_ metrics: [String: Metric], options: Configuration) throws -> DataFrame {
     let buffer = TextBuffer()
     printRollingAverageKeyIOSMetrics(metrics, options: options, printFunction: { buffer.append($0) })
-    return try buffer.asENPAData()
+    return try buffer.asENPAData(startDate: options.startDate)
 }
 
 func printRollingAverageKeyIOSMetrics(_ metrics: [String: Metric], options: Configuration, printFunction: ((String) -> Void)? = nil) {
@@ -603,7 +603,7 @@ func printRollingAverageKeyMetricsAndroid(_ metrics: [String: Metric], options: 
 func getRollingAverageAndroidMetrics(_ metrics: [String: Metric], options: Configuration) throws -> DataFrame {
     let buffer = TextBuffer()
     printRollingAverageKeyMetricsAndroid(metrics, options: options, printFunction: { buffer.append($0) })
-    return try buffer.asENPAData()
+    return try buffer.asENPAData(startDate: options.startDate)
 }
 
 // private func beaconEstimate(_ beaconCounts: [Int], _ clients: Int) -> Int {
@@ -783,6 +783,7 @@ let dateParser: DateFormatter = {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    formatter.timeZone = TimeZone(identifier: "UTC")!
     return formatter
 }()
 
@@ -1394,12 +1395,14 @@ extension String.StringInterpolation {
 let dayFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
+    formatter.timeZone = TimeZone(identifier: "UTC")!
     return formatter
 }()
 
 let dayTimeFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd HH:mm"
+    formatter.timeZone = TimeZone(identifier: "UTC")!
     return formatter
 }()
 
@@ -1489,9 +1492,9 @@ func summarize(_ heading: String, _ enpa: DataFrame, categories: Int) -> [String
         return [heading] + ntTrends
     }
     let output = [heading, showTrend(ntPerKu)] + ntTrends
-    if enpa.hasColumn("est users"), enpa.requireColumn("est users", Int.self), enpa.requireColumn("ENPA %", Double.self) {
-        let users = enpa["est users", Int.self]
-        let adoption = enpa["ENPA %", Double.self]
+    if enpa.hasColumn("est users from vc"), enpa.requireColumn("est users from vc", Int.self), enpa.requireColumn("vc ENPA %", Double.self) {
+        let users = enpa["est users from vc", Int.self]
+        let adoption = enpa["vc ENPA %", Double.self]
         if let lastUsers = users.last, let lastAdoption = adoption.last,
            let unwrappedLastUsers = lastUsers, let unwrappedLastAdoption = lastAdoption
         {

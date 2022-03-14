@@ -11,7 +11,7 @@ let urlSession = URLSession(configuration: .ephemeral)
 
 public func getStat(metric: String, configuration: Configuration) -> NSDictionary {
     let sDate: String
-    if let startDate = configuration.startDate {
+    if let startDate = configuration.prefetchStart {
         sDate = dayFormatter.string(from: startDate)
     } else {
         sDate = "2021-01-01"

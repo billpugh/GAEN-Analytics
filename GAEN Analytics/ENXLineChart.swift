@@ -63,6 +63,7 @@ class PercentAxisValueFormatter: NSObject, AxisValueFormatter {
 class DateAxisFormatter: NSObject, AxisValueFormatter {
     let formatter: DateFormatter = {
         let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")!
         let dateFormatString = DateFormatter.dateFormat(fromTemplate: "M/d", options: 0, locale: Locale.current)!
         dateFormatter.dateFormat = dateFormatString
         return dateFormatter
@@ -83,8 +84,10 @@ let darkYellow = UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 1)
 struct LineChart: UIViewRepresentable {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
-    init(data: DataFrame.Slice, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
-        self.data = data
+    init(data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
+        let emptyPrefix = data.emptyPrefix(columns)
+
+        self.data = data.suffix(data.rows.count - emptyPrefix)
         self.columns = columns
 
         let allColors: [UIColor] = [.blue, .red, .green, darkYellow, .purple, .cyan, .magenta, .orange]

@@ -210,7 +210,7 @@ struct ExportView: View {
             } // Section
 
             Section(header: Text("ENCV").font(.title).padding(.top)) {
-                ExportItem(title: "ENCV data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
+                ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
                 ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
 
                 // Text("System health")

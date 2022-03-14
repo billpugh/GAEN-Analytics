@@ -159,7 +159,6 @@ class AnalysisState: NSObject, ObservableObject {
         guard let url = urlForComposite, FileManager.default.fileExists(atPath: url.path), let data = try? Data(contentsOf: url) else {
             return
         }
-        print("Loading composite from \(url)")
         do {
             let composite = try DataFrame(csvData: data, options: readingOptions)
             logger.log("Loaded composite, got \(composite.rows.count, privacy: .public) rows")
@@ -343,8 +342,6 @@ class AnalysisState: NSObject, ObservableObject {
 
     func makeENPACharts() {
         if let enpa = combinedENPA, let config = config {
-            print("enpa columns: ")
-            print("\(enpa.columns.count) enpa Columns: \(enpa.columns.map(\.name))")
             let maybeCharts = [
                 notificationsPerUpload(enpa: enpa, config: config),
                 notificationsPer100K(enpa: enpa, config: config),
@@ -451,7 +448,7 @@ actor AnalysisTask {
                              "notificationInteractions",
                              "codeVerified",
                              "keysUploaded",
-                             "dateExposure", "secondaryAttack14d"]
+                             "dateExposure"]
             for m in readThese {
                 await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
@@ -601,9 +598,8 @@ actor AnalysisTask {
 }
 
 struct ChartOptions: Identifiable {
-    let days = 60
     let title: String
-    let data: DataFrame.Slice
+    let data: DataFrame
     let columns: [String]
     let maxBound: Double?
     var id: String {
@@ -630,8 +626,10 @@ struct ChartOptions: Identifiable {
                 logger.error("Column \(c, privacy: .public) doesn't exist")
             }
         }
-        let rows = max(7, data.rows.count - 6)
-        self.data = data.suffix(rows).selecting(columnNames: ["date"] + columns)
+
+        self.data = data.selecting(columnNames: ["date"] + columns)
+        let dates = self.data["date", Date.self]
+        print("\(dates.first!!)")
         self.columns = columns
         self.maxBound = maxBound
     }

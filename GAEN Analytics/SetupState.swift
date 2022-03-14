@@ -11,6 +11,7 @@ import Foundation
 let dateFormatter: DateFormatter = {
     let df = DateFormatter()
     df.dateFormat = "yyyy-MM-dd"
+    df.timeZone = TimeZone(identifier: "UTC")!
     return df
 }()
 
@@ -61,8 +62,19 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let daysRollupKey = "daysRollupKey"
     static let debuggingKey = "debuggingKey"
 
+    func convertToUTCDay(_ date: Date) -> Date {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        let s = df.string(from: date)
+        print(s)
+        df.timeZone = TimeZone(identifier: "UTC")!
+        let ss = df.date(from: s)!
+        print(ss)
+        return ss
+    }
+
     var config: Configuration {
-        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: startDate, configStart: configStartDate, useTestServers: useTestServers)
+        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate), configStart: configStartDate, useTestServers: useTestServers)
     }
 
     @Published var region: String = "" {
@@ -104,8 +116,13 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
     }
 
+    // Note: in local time zone
     @Published var startDate: Date = defaultStart {
         didSet {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .full
+            dateFormatter.timeStyle = .full
+            print("Setting start date to \(dateFormatter.string(from: startDate))")
             UserDefaults.standard.set(startDate.timeIntervalSince1970, forKey: Self.startKey)
         }
     }

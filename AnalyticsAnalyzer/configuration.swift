@@ -27,6 +27,14 @@ public struct Configuration: @unchecked Sendable {
         return result
     }
 
+    var prefetchStart: Date? {
+        guard let startDate = startDate else {
+            return nil
+        }
+        let prefetchDate = startDate.advanced(by: -Double((numDays - 1) * 24 * 60 * 60))
+        return prefetchDate
+    }
+
     init(daysSinceExposureThreshold: Int = 10,
          numDays: Int = 7,
          numCategories: Int = 1,
