@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */ = {isa = PBXBuildFile; fileRef = 161A123427DA3CE50026C53D /* Secondary attack rate.md */; };
+		163CCB7B27DE462000355180 /* Appendix.md in Resources */ = {isa = PBXBuildFile; fileRef = 163CCB7A27DE45B000355180 /* Appendix.md */; };
 		163EF28627C91FA800D3C19D /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF28527C91FA800D3C19D /* TopicView.swift */; };
 		163EF28A27C921FA00D3C19D /* Test.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28727C9216800D3C19D /* Test.md */; };
 		163EF28B27C921FE00D3C19D /* ENCV.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28827C9218A00D3C19D /* ENCV.md */; };
@@ -157,6 +159,8 @@
 /* Begin PBXFileReference section */
 		1609485725C3632A001705A6 /* AnalyticsAnalyzer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsAnalyzer; sourceTree = BUILT_PRODUCTS_DIR; };
 		1609485A25C3632A001705A6 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		161A123427DA3CE50026C53D /* Secondary attack rate.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate.md"; sourceTree = "<group>"; };
+		163CCB7A27DE45B000355180 /* Appendix.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Appendix.md; sourceTree = "<group>"; };
 		163EF28527C91FA800D3C19D /* TopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicView.swift; sourceTree = "<group>"; };
 		163EF28727C9216800D3C19D /* Test.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Test.md; sourceTree = "<group>"; };
 		163EF28827C9218A00D3C19D /* ENCV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ENCV.md; sourceTree = "<group>"; };
@@ -375,6 +379,7 @@
 				16B2B5E427D5070D000F763A /* Exports */,
 				163EF28827C9218A00D3C19D /* ENCV.md */,
 				163EF28927C9219E00D3C19D /* ENPA.md */,
+				163CCB7A27DE45B000355180 /* Appendix.md */,
 			);
 			path = docs;
 			sourceTree = "<group>";
@@ -424,6 +429,7 @@
 				16856E6327BC01D100F44960 /* Notifications arriving promptly.md */,
 				16856E6427BC01E700F44960 /* Estimated users.md */,
 				16856E6527BC01FC00F44960 /* ENPA opt in.md */,
+				161A123427DA3CE50026C53D /* Secondary attack rate.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -679,9 +685,11 @@
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
+				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
+				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,

@@ -95,7 +95,7 @@ struct ENXChartView: View {
             }.padding(.top).font(.headline) // HStack
         ) {
             if showingPopover {
-                Text(markdown(file: title)).transition(.scale)
+                Text(markdown(file: title)).transition(.scale).fixedSize(horizontal: false, vertical: true)
             }
             // TestView()
 

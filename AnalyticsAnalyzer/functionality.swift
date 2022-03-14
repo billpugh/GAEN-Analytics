@@ -8,6 +8,7 @@
 import Foundation
 import os.log
 import TabularData
+
 // import ZIPFoundation
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "functionality")
 
@@ -213,9 +214,9 @@ struct FixedLengthAccumulator {
         return "\(per100K(std)),\(total)," + per100KNoSTD(range: range)
     }
 
-    func per100KNoTotal(range: ClosedRange<Int>) -> String {
+    func per100KNoTotal(range: ClosedRange<Int>, scale: Double = 1.0) -> String {
         // let show = sums[range].map { "\(per100K($0))"}
-        "\(per100K(std))," + per100KNoSTD(range: range)
+        "\(per100K(std * scale))," + per100KNoSTD(range: range, scale: scale)
     }
 
     func cumulativeDistribution(range: ClosedRange<Int>) -> String {
@@ -233,8 +234,8 @@ struct FixedLengthAccumulator {
         [Int](0 ..< categories).map { cumulativeDistribution(range: $0 * 4 ... $0 * 4 + 3) }.joined(separator: ",")
     }
 
-    func per100KNoSTD(range: ClosedRange<Int>) -> String {
-        sums[range].map { "\(per100K($0))" }.joined(separator: ",")
+    func per100KNoSTD(range: ClosedRange<Int>, scale: Double = 1.0) -> String {
+        sums[range].map { "\(per100K($0 * scale))" }.joined(separator: ",")
     }
 
     func per100KValues(range: ClosedRange<Int>) -> [Double] {
@@ -251,6 +252,18 @@ struct FixedLengthAccumulator {
     func perDay(range: ClosedRange<Int>) -> String {
         let show = sums[range].map { "\($0 / rollupSize)" }
         return show.joined(separator: ",")
+    }
+}
+
+struct DelayedNotificationCounts {
+    let daysDelay: Int
+    var delayedValues: [[Double]] = []
+    mutating func update(_ newValues: [Double]) -> [Double]? {
+        delayedValues.append(newValues)
+        if delayedValues.count > daysDelay {
+            return delayedValues.removeFirst()
+        }
+        return nil
     }
 }
 
@@ -284,6 +297,9 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
+        #if computeSecondaryAttack14D
+            secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
+        #endif
     }
 
     var verifiedCount: FixedLengthAccumulator
@@ -292,7 +308,11 @@ struct Accumulators {
     var interactionCount: FixedLengthAccumulator
     var dateExposureCount: FixedLengthAccumulator
     var notificationsShown: NotificationShown
+    #if computeSecondaryAttack14D
+        var secondaryAttack14D: FixedLengthAccumulator
+    #endif
     var excessSecondaryAttack: FixedLengthAccumulator
+    var delayedNotifications = DelayedNotificationCounts(daysDelay: 5)
 
     func secondaryAttacks(codesVerified: Double, verifiedWithNotification: Double, percentShowingNotification: Double) -> Double {
         // true secondary attacks = (s-c*e)/(1-e).
@@ -338,6 +358,12 @@ struct Accumulators {
             if let ic = m.interactions.clientsByDay[d], let ics = m.interactions.sumByDay[d] {
                 interactionCount.addLikely(sum: ics, count: ic, scale: scale)
             }
+            #if computeSecondaryAttack14D
+                let sa14d = m.secondaryAttack14D
+                if let sa = sa14d.clientsByDay[d], let sas = sa14d.sumByDay[d] {
+                    secondaryAttack14D.addLikely(sum: sas, count: sa, scale: 1.0)
+                }
+            #endif
         }
     }
 
@@ -361,29 +387,47 @@ struct Accumulators {
 
         let cvPrint = verifiedCount.per100K(range: 1 ... 1 + numCategories)
         let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 1)
+        let cvSTD = verifiedCount.per100K(verifiedCount.std)
         let kuPrint = uploadedCount.per100K(range: 1 ... 1 + numCategories)
         let unPrint = notifiedCount.per100K(range: 1 ... numCategories)
         let ku = uploadedCount.per100KValues(range: 1 ... 1 + numCategories).reduce(0,+)
         let unValues: [Double] = notifiedCount.per100KValues(range: 1 ... numCategories)
+        let delayedUnValues = delayedNotifications.update(unValues)
         let un = unValues.reduce(0,+)
         let unPercentage = unValues.map { "\($0 / un)" }.joined(separator: ",")
         let ntPerKy = "\(un / ku)," + notifiedCount.per100KValues(range: 1 ... numCategories).map { "\($0 / ku)" }.joined(separator: ",")
         let icPrint = interactionCount.per100K(range1: 1 ... numCategories, range2: 5 ... 4 + numCategories)
         let saPrint = excessSecondaryAttack.per100KNoSTD(range: 0 ... numCategories - 1)
         let xsa: [Double] = excessSecondaryAttack.per100KValues(range: 0 ... numCategories - 1)
-        let sarPrint = zip(saValues, unValues).map {
-            if let ar = sar($0, $1) {
-                return "\(ar)"
+        let sarPrint: String
+        let sarStdPrint: String
+        let xsarPrint: String
+        if let delayedUnValues = delayedUnValues {
+            sarPrint = zip(saValues, delayedUnValues).map {
+                if let ar = sar($0, $1, std: cvSTD) {
+                    return "\(ar)"
+                }
+                return ""
+            }.joined(separator: ",")
+            sarStdPrint = zip(saValues, delayedUnValues).map {
+                if let ar = sar(cvSTD, $1, std: 0) {
+                    return "\(ar)"
+                }
+                return ""
+            }.joined(separator: ",")
+            xsarPrint = zip(xsa, delayedUnValues).map({
+                if let ar = sar($0, $1, std: cvSTD) {
+                    return "\(ar)"
+                }
+                return ""
             }
-            return ""
-        }.joined(separator: ",")
-        let xsarPrint = zip(xsa, unValues).map({
-            if let ar = sar($0, $1) {
-                return "\(ar)"
-            }
-            return ""
+            ).joined(separator: ",")
+        } else {
+            let noData = String(repeating: ",", count: numCategories - 1)
+            sarPrint = noData
+            sarStdPrint = noData
+            xsarPrint = noData
         }
-        ).joined(separator: ",")
         let dePrint: String
         let nsPrint: String
 
@@ -396,8 +440,21 @@ struct Accumulators {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
+        #if computeSecondaryAttack14D
+            let sa14Print: String
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint)")
+            if secondaryAttack14D.updated {
+                // numCategories = 2
+                // x, x, x,   x, x,   x, x
+                sa14Print = "\(secondaryAttack14D.countPerDay)," + secondaryAttack14D.per100KNoTotal(range: 0 ... numCategories - 1, scale: 1 / 14.0) + "," + secondaryAttack14D.per100KNoSTD(range: 8 ... 8 + numCategories - 1, scale: 1 / 14.0)
+            } else {
+                sa14Print = String(repeating: ",", count: 1 + 2 * numCategories)
+            }
+        #else
+            let sa14Print = ""
+        #endif
+
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -406,6 +463,9 @@ struct Accumulators {
         dateExposureCount.advance()
         notificationsShown.advance()
         excessSecondaryAttack.advance()
+        #if computeSecondaryAttack14D
+            secondaryAttack14D.advance()
+        #endif
     }
 
     func printHeader() {
@@ -414,11 +474,18 @@ struct Accumulators {
         let kuHeader = "ku std,ku,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
         let esHeader = range.map { "nts\($0)%," }.joined()
-        let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
+        let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0) stdev%," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
+
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
-        let deHeader = "de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
+        let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)dec count,\(deHeader)")
+        #if computeSecondaryAttack14D
+            let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
+        #else
+            let sa14Header = ""
+        #endif
+
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header)")
     }
 }
 
@@ -440,6 +507,9 @@ struct MetricSet {
     let dateExposure: Metric
     let userRisk: Metric?
     let interactions: Metric
+    #if computeSecondaryAttack14D
+        let secondaryAttack14D: Metric
+    #endif
 
     init(forIOS metrics: [String: Metric]) {
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -448,6 +518,9 @@ struct MetricSet {
         dateExposure = getMetric(metrics, "com.apple.EN.DateExposure")
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
+        #if computeSecondaryAttack14D
+            secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
+        #endif
     }
 
     init(forAndroid metrics: [String: Metric]) {
@@ -456,6 +529,9 @@ struct MetricSet {
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
         dateExposure = getMetric(metrics, "DateExposure")
         interactions = getMetric(metrics, "PeriodicExposureNotificationInteraction")
+        #if computeSecondaryAttack14D
+            secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
+        #endif
         userRisk = nil
     }
 }
@@ -595,12 +671,12 @@ struct RawMetrics {
         self.configuration = configuration
     }
 
-    func createTempDirectory() -> URL? {
+    func createTempDirectory(_ component: String) -> URL? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd-HHmm"
         let now = dateFormatter.string(from: Date())
         guard let region = configuration.region else { return nil }
-        guard let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(region)-\(now)") else {
+        guard let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(region)-\(component)-\(now)") else {
             return nil
         }
 
@@ -1346,11 +1422,14 @@ func percentage(_ x: Double, _ y: Double) -> Double? {
     return x / y
 }
 
-func sar(_ sa: Double, _ cv: Double) -> Double? {
-    if cv <= 5 {
+func sar(_ sa: Double, _ nt: Double, std: Double) -> Double? {
+    if nt <= 5 {
         return nil
     }
-    return sa / cv
+    if sa < std {
+        return nil
+    }
+    return sa / nt
 }
 
 func round4(_ x: Double) -> Double {
@@ -1402,7 +1481,7 @@ func summarize(_ heading: String, _ enpa: DataFrame, categories: Int) -> [String
     let ntPerKu = enpa["nt/ku", Double.self]
     var ntNames = ["nt"]
     if categories > 1 {
-        ntNames.append(contentsOf: (1 ... categories).map { "nt\($0)%" })
+        ntNames.append(contentsOf: (1 ... categories - 1).map { "nt\($0)%" })
     }
     let nt = ntNames.map { enpa[$0, Double.self] }
     let ntTrends = nt.map { showTrend($0) }

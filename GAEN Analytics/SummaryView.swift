@@ -11,7 +11,8 @@ private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", ca
 
 struct SummaryView: View {
     @ObservedObject var state = SetupState.shared
-
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var viewShown: String?
     @ObservedObject var analysisState = AnalysisState.shared
     var body: some View {
         List {
@@ -20,9 +21,10 @@ struct SummaryView: View {
                 AnalysisProgressView()
                 if analysisState.available {
                     Button(action: { Task(priority: .userInitiated) {
+                        print("start analytics")
                         await AnalysisTask().analyze(config: state.config, result: analysisState)
                     }
-                    }) { Text("Update analytics").font(.headline)
+                    }) { Text("Update analytics").font(.headline).padding()
                     }
                 }
             }.textCase(.none)
@@ -37,6 +39,8 @@ struct SummaryView: View {
                     .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
+            Section(header: TopicView(topic: "Appendix").padding(.top)) {}
+            ENXChartsView(charts: analysisState.appendixCharts)
         }.listStyle(GroupedListStyle())
             .onAppear {
                 if !state.setupNeeded && !analysisState.inProgress && !analysisState.available {
@@ -61,7 +65,8 @@ struct SummaryView: View {
 }
 
 struct SummaryView_Previews: PreviewProvider {
+    @State static var viewShown: String?
     static var previews: some View {
-        SummaryView()
+        SummaryView(viewShown: $viewShown)
     }
 }

@@ -57,6 +57,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var worksheet: DataFrame?
     @Published var rollingAvg: DataFrame?
     @Published var enpaCharts: [ChartOptions] = []
+    @Published var appendixCharts: [ChartOptions] = []
     @Published var encvCharts: [ChartOptions] = []
     @Published var enpaSummary: String = ""
     @Published var encvSummary: String = ""
@@ -155,22 +156,38 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     func loadComposite() {
-        guard let path = urlForComposite else {
+        guard let url = urlForComposite, FileManager.default.fileExists(atPath: url.path), let data = try? Data(contentsOf: url) else {
             return
         }
-        if FileManager.default.fileExists(atPath: path.path) {
-            loadComposite(path)
-        } else {
-            logger.info("No stored composite.csv")
+        print("Loading composite from \(url)")
+        do {
+            let composite = try DataFrame(csvData: data, options: readingOptions)
+            logger.log("Loaded composite, got \(composite.rows.count, privacy: .public) rows")
+            encvComposite = composite
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
         }
     }
 
     func loadComposite(_ url: URL) {
         do {
-            let data = try Data(contentsOf: url)
+            guard url.startAccessingSecurityScopedResource() else {
+                logger.error("No permission to access \(url)")
+
+                return
+            }
+            guard FileManager.default.fileExists(atPath: url.path),
+                  let data = try? Data(contentsOf: url)
+            else {
+                url.stopAccessingSecurityScopedResource()
+                logger.error("Could access \(url)")
+                return
+            }
+            url.stopAccessingSecurityScopedResource()
             let composite = try DataFrame(csvData: data, options: readingOptions)
             logger.log("Loaded composite, got \(composite.rows.count, privacy: .public) rows")
             encvComposite = composite
+            saveComposite()
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
         }
@@ -188,7 +205,9 @@ class AnalysisState: NSObject, ObservableObject {
                 return
             }
             try csv.write(to: path, options: .atomicWrite)
-            print("wrote to \(path)")
+            let dates = encvComposite["date", Date.self]
+            print("wrote composites to \(path), first date \(dateFormatter.string(from: dates.first!!))")
+
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
         }
@@ -329,11 +348,12 @@ class AnalysisState: NSObject, ObservableObject {
             let maybeCharts = [
                 notificationsPerUpload(enpa: enpa, config: config),
                 notificationsPer100K(enpa: enpa, config: config),
+                secondaryAttackRate(enpa: enpa, config: config),
                 arrivingPromptly(enpa: enpa, config: config),
                 estimatedUsers(enpa: enpa, config: config),
                 enpaOptIn(enpa: enpa, config: config),
             ]
-            enpaCharts = Array(maybeCharts.filter { $0 != nil }) as! [ChartOptions]
+            enpaCharts = maybeCharts.compactMap { $0 }
 
         } else {
             enpaCharts = []
@@ -348,20 +368,20 @@ class AnalysisState: NSObject, ObservableObject {
             let hasUserReports = encv.indexOfColumn("user reports claim rate") != nil
 
             let hasSMSerrors = encv.indexOfColumn("sms error rate") != nil
-            let maybeCharts: [ChartOptions?] = [
+
+            encvCharts = [
                 claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
                 userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
                 tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
+                systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
+            ].compactMap { $0 }
+
+            appendixCharts = [
                 timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
                 onsetToUpload(encv: encv, hasUserReports: hasUserReports, config: config),
+                publishRequests(encv: encv, config: config),
+            ].compactMap { $0 }
 
-                // publishRequests(encv: encv, config: config),
-                systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
-            ]
-
-            encvCharts = Array(maybeCharts.filter { $0 != nil }) as! [ChartOptions]
-
-            if hasUserReports {}
         } else {
             encvCharts = []
         }
@@ -431,7 +451,7 @@ actor AnalysisTask {
                              "notificationInteractions",
                              "codeVerified",
                              "keysUploaded",
-                             "dateExposure"]
+                             "dateExposure", "secondaryAttack14d"]
             for m in readThese {
                 await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
@@ -502,7 +522,8 @@ actor AnalysisTask {
             await result.log(enpa: all)
 
         } catch {
-            await result.log(enpa: ["\(error)"])
+            print("\(error.localizedDescription)")
+            await result.log(enpa: ["\(error.localizedDescription)"])
         }
     }
 
@@ -522,15 +543,20 @@ actor AnalysisTask {
         let composite: DataFrame
         if let existingComposite = await result.encvComposite {
             composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
+            for d in composite["date", Date.self] {
+                print(dateFormatter.string(from: d!))
+            }
         } else {
             composite = newComposite
         }
 
         logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
+
         await result.update(encv: "Fetching sms errors")
         let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
         await result.update(encv: "Analyzing encv")
-        let analysis = analyzeENCV(composite: composite, smsData: smsData)
+        let analysis = analyzeENCV(config: config, composite: composite, smsData: smsData)
+
         await result.gotENCV(composite: composite)
         await result.gotRollingAvg(rollingAvg: analysis.average)
         await result.log(encv: analysis.log)
@@ -635,6 +661,12 @@ func notificationsPer100K(enpa: DataFrame, config: Configuration) -> ChartOption
     return ChartOptions(title: "Notifications per 100K", data: enpa, columns: columns)
 }
 
+func secondaryAttackRate(enpa: DataFrame, config: Configuration) -> ChartOptions {
+    let columns = Array((1 ... config.numCategories).map { ["sar\($0)%", "sar\($0) stdev%"] }.joined())
+
+    return ChartOptions(title: "Secondary attack rate", data: enpa, columns: columns, maxBound: 0.15)
+}
+
 func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
     let columns = Array((1 ... config.numCategories).map { ["nt\($0) 0-3 days %", "nt\($0) 0-6 days %"] }.joined())
 
@@ -668,7 +700,7 @@ func userReportRate(encv: DataFrame, hasUserReports: Bool, config _: Configurati
     if !hasUserReports {
         return nil
     }
-    return ChartOptions(title: "User report %", data: encv, columns: "user reports percentage,user reports revision rate".components(separatedBy: ","))
+    return ChartOptions(title: "User report %", data: encv, columns: "user reports %,user reports revision rate".components(separatedBy: ","))
 }
 
 func tokensClaimed(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {

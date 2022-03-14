@@ -15,8 +15,10 @@ import Foundation
 //
 
 import Charts
+import os.log
 import SwiftUI
 import TabularData
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "Charts")
 
 func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
     var value = v
@@ -50,7 +52,11 @@ class RoundedAxisValueFormatter: NSObject, AxisValueFormatter {
 
 class PercentAxisValueFormatter: NSObject, AxisValueFormatter {
     public func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
-        "\(Int((value * 100).rounded()))%"
+        let percent = value * 100
+        if percent >= 10 {
+            return "\(Int((value * 100).rounded()))%"
+        }
+        return String(format: "%.1f%%", percent)
     }
 }
 
@@ -77,7 +83,7 @@ let darkYellow = UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 1)
 struct LineChart: UIViewRepresentable {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
-    init(data: DataFrame.Slice, columns: [String], maxBound: Double? = nil) {
+    init(data: DataFrame.Slice, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
         self.data = data
         self.columns = columns
 
@@ -91,6 +97,7 @@ struct LineChart: UIViewRepresentable {
         colors = c
 
         self.maxBound = maxBound
+        self.minBound = minBound
 
         lastDay = Double(day(date: data["date", Date.self].last!!))
     }
@@ -99,6 +106,7 @@ struct LineChart: UIViewRepresentable {
     var lastDay: Double
 
     let maxBound: Double?
+    let minBound: Double?
     let columns: [String]
     let colors: [String: UIColor]
 
@@ -122,44 +130,75 @@ struct LineChart: UIViewRepresentable {
     }
 
     func makeDataEntry(_ date: Date?, _ y: Double?) -> ChartDataEntry? {
-        guard let date = date, let y = y else {
+        guard let date = date else {
             return nil
+        }
+        guard let y = y else {
+            return ChartDataEntry(x: date.timeIntervalSince1970, y: 0)
+        }
+
+        return ChartDataEntry(x: date.timeIntervalSince1970, y: y)
+    }
+
+    func makeDataEntry(_ date: Date?, _ s: String?) -> ChartDataEntry? {
+        guard let date = date else {
+            return nil
+        }
+        guard let s = s, s.count > 0, let y = Double(s) else {
+            return ChartDataEntry(x: date.timeIntervalSince1970, y: 0)
         }
 
         return ChartDataEntry(x: date.timeIntervalSince1970, y: y)
     }
 
     func makeDataEntry(_ date: Date?, _ y: Int?) -> ChartDataEntry? {
-        guard let date = date, let y = y else {
+        guard let date = date else {
             return nil
+        }
+        guard let y = y else {
+            return ChartDataEntry(x: date.timeIntervalSince1970, y: 0)
         }
 
         return ChartDataEntry(x: date.timeIntervalSince1970, y: Double(y))
     }
 
-    func makeDateSet(column: String) -> LineChartDataSet {
+    func makeDateSet(column: String) -> LineChartDataSet? {
         let days = data["date", Date.self]
         let chartData: [ChartDataEntry]
         let cc = data[column]
         if cc.wrappedElementType == Double.self {
             let c = data[column, Double.self]
             chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
-        } else {
+        } else if cc.wrappedElementType == Int.self {
             let c = data[column, Int.self]
             chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
+        } else if cc.wrappedElementType == String.self {
+            print("Column \(column) has type String")
+            let c = data[column, String.self]
+            chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
+
+        } else {
+            logger.error("Column \(column) has unexpected type \(cc.wrappedElementType)")
+            chartData = []
+        }
+        if chartData.isEmpty {
+            return nil
         }
 
         let dataSet = LineChartDataSet(entries: chartData)
+        if dataSet.yMax == 0 {
+            return nil
+        }
+
         formatDataSet(dataSet: dataSet, label: column, color: colors[column]!)
 
         return dataSet
     }
 
     func setChartData(_ lineChart: LineChartView) -> Double {
-        let dataSets = columns.map { makeDateSet(column: $0) }
+        let dataSets = columns.compactMap { makeDateSet(column: $0) }
 
         let yMax = dataSets.map(\.yMax).reduce(-Double.infinity, max)
-
         let lineChartData = LineChartData(dataSets: dataSets)
         lineChart.data = lineChartData
         if yMax > 100 {
@@ -186,12 +225,19 @@ struct LineChart: UIViewRepresentable {
         dataSet.label = "\(label)  "
         dataSet.colors = [color]
         dataSet.valueColors = [color]
-        dataSet.drawCirclesEnabled = false
+
         dataSet.circleColors = [color]
+        if label.hasPrefix("sar"), label.count == 5 {
+            dataSet.drawCirclesEnabled = true
+            dataSet.circleRadius = 4
+            dataSet.lineWidth = 0
+        } else {
+            dataSet.lineWidth = 4
+            dataSet.drawCirclesEnabled = false
+        }
         // dataSet.circleRadius = 0
-        // dataSet.circleHoleRadius = 0
+        dataSet.circleHoleRadius = 0
         dataSet.mode = .linear
-        dataSet.lineWidth = 4
         // dataSet.lineDashLengths = [4]
         dataSet.drawValuesEnabled = false
         dataSet.drawIconsEnabled = false

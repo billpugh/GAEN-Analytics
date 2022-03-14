@@ -54,6 +54,15 @@ struct SetupView: View {
                         }
                     }
                 }
+                HStack {
+                    Text("# of days for rolling averages")
+                    Spacer()
+                    Picker("", selection: $state.daysRollup) {
+                        ForEach([1, 4, 7, 14], id: \.self) {
+                            Text("\($0)")
+                        }
+                    }
+                }
                 DatePicker(
                     "Start Date",
                     selection: $state.startDate,

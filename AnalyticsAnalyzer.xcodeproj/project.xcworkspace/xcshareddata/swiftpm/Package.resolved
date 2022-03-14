@@ -1,59 +1,61 @@
 {
-  "pins" : [
-    {
-      "identity" : "charts",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/danielgindi/Charts.git",
-      "state" : {
-        "revision" : "8d134a78bb2cb9e7a0f05ecbd5880bb05cd02863",
-        "version" : "4.0.1"
+  "object": {
+    "pins": [
+      {
+        "package": "Charts",
+        "repositoryURL": "https://github.com/danielgindi/Charts.git",
+        "state": {
+          "branch": null,
+          "revision": "8d134a78bb2cb9e7a0f05ecbd5880bb05cd02863",
+          "version": "4.0.1"
+        }
+      },
+      {
+        "package": "CSV.swift",
+        "repositoryURL": "https://github.com/yaslab/CSV.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "81d2874c51db364d7e1d71b0d99018a294c87ac1",
+          "version": "2.4.3"
+        }
+      },
+      {
+        "package": "swift-algorithms",
+        "repositoryURL": "https://github.com/apple/swift-algorithms",
+        "state": {
+          "branch": null,
+          "revision": "2327673b0e9c7e90e6b1826376526ec3627210e4",
+          "version": "0.2.1"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "e394bf350e38cb100b6bc4172834770ede1b7232",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "swift-numerics",
+        "repositoryURL": "https://github.com/apple/swift-numerics",
+        "state": {
+          "branch": null,
+          "revision": "6583ac70c326c3ee080c1d42d9ca3361dca816cd",
+          "version": "0.1.0"
+        }
+      },
+      {
+        "package": "ZIPFoundation",
+        "repositoryURL": "https://github.com/weichsel/ZIPFoundation.git",
+        "state": {
+          "branch": null,
+          "revision": "7254c74b49cec2cb81520523ba993c671f71b066",
+          "version": "0.9.14"
+        }
       }
-    },
-    {
-      "identity" : "csv.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/yaslab/CSV.swift.git",
-      "state" : {
-        "revision" : "81d2874c51db364d7e1d71b0d99018a294c87ac1",
-        "version" : "2.4.3"
-      }
-    },
-    {
-      "identity" : "swift-algorithms",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-algorithms",
-      "state" : {
-        "revision" : "2327673b0e9c7e90e6b1826376526ec3627210e4",
-        "version" : "0.2.1"
-      }
-    },
-    {
-      "identity" : "swift-argument-parser",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser",
-      "state" : {
-        "revision" : "e394bf350e38cb100b6bc4172834770ede1b7232",
-        "version" : "1.0.3"
-      }
-    },
-    {
-      "identity" : "swift-numerics",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics",
-      "state" : {
-        "revision" : "6583ac70c326c3ee080c1d42d9ca3361dca816cd",
-        "version" : "0.1.0"
-      }
-    },
-    {
-      "identity" : "zipfoundation",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/weichsel/ZIPFoundation.git",
-      "state" : {
-        "revision" : "7254c74b49cec2cb81520523ba993c671f71b066",
-        "version" : "0.9.14"
-      }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

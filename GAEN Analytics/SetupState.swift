@@ -58,10 +58,11 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let notificationsKey = "notificationsKey"
     static let configStartKey = "configStartKey"
     static let testServerKey = "testServerKey"
+    static let daysRollupKey = "daysRollupKey"
     static let debuggingKey = "debuggingKey"
 
     var config: Configuration {
-        Configuration(daysSinceExposureThreshold: 10, numDays: 7, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: startDate, configStart: configStartDate, useTestServers: useTestServers)
+        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: startDate, configStart: configStartDate, useTestServers: useTestServers)
     }
 
     @Published var region: String = "" {
@@ -79,6 +80,12 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     @Published var notifications: Int = 1 {
         didSet {
             UserDefaults.standard.set(notifications, forKey: Self.notificationsKey)
+        }
+    }
+
+    @Published var daysRollup: Int = 7 {
+        didSet {
+            UserDefaults.standard.set(daysRollup, forKey: Self.daysRollupKey)
         }
     }
 
@@ -158,6 +165,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
                 enpaKey = testEnpaKey
                 useTestServers = true
                 notifications = 1
+                daysRollup = 7
                 startDate = defaultStart
                 useTestServers = true
             }
@@ -175,6 +183,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         startDate = defaultStart
         configStartDate = nil // defaultStart
         notifications = 1
+        daysRollup = 7
         useFaceID = false
         useTestServers = false
         AnalysisState.shared.clear()
@@ -188,6 +197,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         useFaceID = false
         notifications = testConfigWithNotifications
         useTestServers = true
+        daysRollup = 7
         region = "US-EV"
         if let testConfig = getTestServers() {
             testEncvKey = testConfig["testEncvKey"] as! String
@@ -211,6 +221,8 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             region = data
         }
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
+        let dr = UserDefaults.standard.integer(forKey: Self.daysRollupKey)
+        daysRollup = dr == 0 ? 7 : dr
 
         debuggingFeatures = UserDefaults.standard.bool(forKey: Self.debuggingKey)
         if let data = UserDefaults.standard.string(forKey: Self.encvKeyKey) {

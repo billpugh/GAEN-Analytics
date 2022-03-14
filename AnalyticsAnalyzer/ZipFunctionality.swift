@@ -15,7 +15,7 @@ private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", ca
 
 extension RawMetrics {
     func writeMetrics() -> URL? {
-        guard let url = createTempDirectory() else { return nil }
+        guard let url = createTempDirectory("rawENPA") else { return nil }
 
         do {
             for (name, metric) in metrics {

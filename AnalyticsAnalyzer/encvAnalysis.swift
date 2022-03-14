@@ -100,7 +100,11 @@ struct ENCVAnalysis {
     let log: [String]
 }
 
-func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
+func date(_ r: DataFrame.Row) -> Date {
+    r["date"] as! Date
+}
+
+func analyzeENCV(config: Configuration, composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     logger.log("analyzing encv")
     guard composite.hasColumn("codes_issued") else {
         return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV data"])
@@ -148,7 +152,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
         tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
     }
     tmp.checkUniqueColumnNames()
-    var rollingAvg = tmp.rollingAvg(days: 7)
+    var rollingAvg = DataFrame(tmp.rollingAvg(days: config.numDays).filter { date($0) >= config.startDate! })
     rollingAvg.checkUniqueColumnNames()
     logger.log("computed rolling average")
     if hasKeyServerStats {
@@ -167,7 +171,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     rollingAvg.addColumnPercentage("confirmed_test_tokens_claimed", "confirmed_test_claimed", giving: "confirmed_test_consent_rate")
     if hasUserReports {
         rollingAvg.addColumnPercentage("unused_tokens", "tokens_claimed", giving: "publish_failure_rate")
-        rollingAvg.addColumnPercentage("user_report_tokens_claimed", "tokens_claimed", giving: "user_reports_percentage")
+        rollingAvg.addColumnPercentage("user_report_tokens_claimed", "tokens_claimed", giving: "user_reports_%")
         if hasRevisions {
             rollingAvg.addColumnPercentage("requests_with_revisions", "tokens_claimed", giving: "user_reports_revision_rate")
         }
@@ -176,10 +180,10 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
     if hasKeyServerStats {
         rollingAvg.addColumnPercentage("publish_requests_android", "publish_requests", giving: "android_publish_share")
-        //rollingAvg.addColumnPercentage("publish_requests_ios", "publish_requests_android", giving: "ios_scaling_factor")
+        // rollingAvg.addColumnPercentage("publish_requests_ios", "publish_requests_android", giving: "ios_scaling_factor")
 
-        //rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
-        //rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
+        // rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
+        // rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
     }
     rollingAvg.checkUniqueColumnNames()
     if smsData != nil {
@@ -224,7 +228,7 @@ func analyzeENCV(composite: DataFrame, smsData: DataFrame?) -> ENCVAnalysis {
     }
 
     if hasUserReports {
-        columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user reports percentage"])
+        columnNamesDouble.append(contentsOf: ["user reports claim rate", "user reports consent rate", "user reports %"])
         if hasRevisions {
             columnNamesDouble.append("user reports revision rate")
         }

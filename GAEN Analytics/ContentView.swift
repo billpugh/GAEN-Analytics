@@ -101,7 +101,7 @@ struct ContentView: View {
                         }
                     }
 
-                    NavigationLink(destination: SummaryView(), tag: "summary", selection: $viewShown) {
+                    NavigationLink(destination: SummaryView(viewShown: $viewShown), tag: "summary", selection: $viewShown) {
                         Text(analysisState.available ? "View analysis summary" : "Fetch analytics"
                         ).font(.headline).padding()
                     }.disabled(state.setupNeeded)
