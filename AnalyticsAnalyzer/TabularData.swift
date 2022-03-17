@@ -315,6 +315,21 @@ extension DataFrame {
         logger.info("added column \(giving, privacy: .public)")
     }
 
+    mutating func addColumnDifferenceDouble(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
+            return
+        }
+        let column1 = self[name1, Double.self]
+        let column2 = self[name2, Double.self]
+        var result = column1 - column2
+        result.name = giving
+        removeIfPresent(giving)
+        // calculated.append(giving)
+        append(column: result)
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
     mutating func removeIfPresent(_ name: String) {
         if hasColumn(name) {
             removeColumn(name)
@@ -340,6 +355,21 @@ extension DataFrame {
         }
         let column1 = self[name1, Int.self]
         let column2 = self[name2, Int.self]
+        var result = column1 + column2
+        removeIfPresent(giving)
+        result.name = giving
+        // calculated.append(giving)
+        append(column: result)
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
+    mutating func addColumnSumDouble(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
+            return
+        }
+        let column1 = self[name1, Double.self]
+        let column2 = self[name2, Double.self]
         var result = column1 + column2
         removeIfPresent(giving)
         result.name = giving

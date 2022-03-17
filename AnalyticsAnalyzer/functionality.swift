@@ -312,7 +312,7 @@ struct Accumulators {
         var secondaryAttack14D: FixedLengthAccumulator
     #endif
     var excessSecondaryAttack: FixedLengthAccumulator
-    var delayedNotifications = DelayedNotificationCounts(daysDelay: 5)
+    var delayedNotifications = DelayedNotificationCounts(daysDelay: 7)
 
     func secondaryAttacks(codesVerified: Double, verifiedWithNotification: Double, percentShowingNotification: Double) -> Double {
         // true secondary attacks = (s-c*e)/(1-e).
@@ -623,6 +623,8 @@ func getRollingAverageAndroidMetrics(_ metrics: [String: Metric], options: Confi
 
 let androidStartTime = dateParser.date(from: "2021-11-20 00:00:00")!
 
+let iOSStartTime = dateParser.date(from: "2021-02-24 00:00:00")!
+
 // "id": "sum-apple-com.apple.EN.UserNotification-us-ev-a31dc1d420e6fd3488f7a867a9268d5e31458108b6de0dcfeaa0fa7b5d96317b-202112160000-202112160800",
 //  "sum": [
 //    64487,
@@ -735,6 +737,8 @@ struct RawMetrics {
         }
 
         if startTime < androidStartTime, !id.hasPrefix("com.apple") {
+            return
+        } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
             return
         }
 
@@ -1425,13 +1429,11 @@ func percentage(_ x: Double, _ y: Double) -> Double? {
     return x / y
 }
 
-func sar(_ sa: Double, _ nt: Double, std: Double) -> Double? {
-    if nt <= 5 {
+func sar(_ sa: Double, _ nt: Double, std _: Double) -> Double? {
+    if nt <= 1 {
         return nil
     }
-    if sa < std {
-        return nil
-    }
+
     return sa / nt
 }
 

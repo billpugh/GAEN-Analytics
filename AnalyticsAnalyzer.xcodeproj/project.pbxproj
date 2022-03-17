@@ -76,6 +76,7 @@
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
 		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
+		16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB127E39D59000B1529 /* Users with notifications.md */; };
 		16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D027D3C269000F763A /* codes claimed within hour %.md */; };
 		16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D227D3C66D000F763A /* avg days onset to upload.md */; };
 		16B2B5D927D40DC3000F763A /* Combined ENPA.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D827D40DB9000F763A /* Combined ENPA.md */; };
@@ -84,6 +85,10 @@
 		16B2B5E127D40F80000F763A /* ENCV data.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DC27D40F1B000F763A /* ENCV data.md */; };
 		16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DD27D40F51000F763A /* ENCV analysis.md */; };
 		16B2B5E327D40F86000F763A /* combined analysis.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DE27D40F74000F763A /* combined analysis.md */; };
+		16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D527E220730008863F /* Secondary attack rate 1.md */; };
+		16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D727E221A50008863F /* Secondary attack rate 2.md */; };
+		16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D827E221B60008863F /* Secondary attack rate 3.md */; };
+		16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D927E221C20008863F /* Secondary attack rate 4.md */; };
 		16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D427C672A3007527FC /* ZIPFoundation */; };
 		16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D627C6741B007527FC /* ZIPFoundation */; };
 		16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4D827C689CD007527FC /* RawExportView.swift */; };
@@ -204,6 +209,7 @@
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16AF2DB127E39D59000B1529 /* Users with notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Users with notifications.md"; sourceTree = "<group>"; };
 		16B2B5D027D3C269000F763A /* codes claimed within hour %.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "codes claimed within hour %.md"; sourceTree = "<group>"; };
 		16B2B5D227D3C66D000F763A /* avg days onset to upload.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "avg days onset to upload.md"; sourceTree = "<group>"; };
 		16B2B5D827D40DB9000F763A /* Combined ENPA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Combined ENPA.md"; sourceTree = "<group>"; };
@@ -212,6 +218,10 @@
 		16B2B5DC27D40F1B000F763A /* ENCV data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV data.md"; sourceTree = "<group>"; };
 		16B2B5DD27D40F51000F763A /* ENCV analysis.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV analysis.md"; sourceTree = "<group>"; };
 		16B2B5DE27D40F74000F763A /* combined analysis.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "combined analysis.md"; sourceTree = "<group>"; };
+		16C381D527E220730008863F /* Secondary attack rate 1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 1.md"; sourceTree = "<group>"; };
+		16C381D727E221A50008863F /* Secondary attack rate 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 2.md"; sourceTree = "<group>"; };
+		16C381D827E221B60008863F /* Secondary attack rate 3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 3.md"; sourceTree = "<group>"; };
+		16C381D927E221C20008863F /* Secondary attack rate 4.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 4.md"; sourceTree = "<group>"; };
 		16C5E4D827C689CD007527FC /* RawExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawExportView.swift; sourceTree = "<group>"; };
 		16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipFunctionality.swift; sourceTree = "<group>"; };
 		16D7B5DF26237CEE00D09126 /* CheckUserRisk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CheckUserRisk; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -430,6 +440,11 @@
 				16856E6427BC01E700F44960 /* Estimated users.md */,
 				16856E6527BC01FC00F44960 /* ENPA opt in.md */,
 				161A123427DA3CE50026C53D /* Secondary attack rate.md */,
+				16C381D527E220730008863F /* Secondary attack rate 1.md */,
+				16C381D727E221A50008863F /* Secondary attack rate 2.md */,
+				16C381D827E221B60008863F /* Secondary attack rate 3.md */,
+				16C381D927E221C20008863F /* Secondary attack rate 4.md */,
+				16AF2DB127E39D59000B1529 /* Users with notifications.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -681,6 +696,7 @@
 				1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */,
 				16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */,
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
+				16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */,
 				16856E6927BC021C00F44960 /* System health.md in Resources */,
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
@@ -688,6 +704,7 @@
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
+				16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
 				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
@@ -695,6 +712,8 @@
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
 				16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */,
 				163EF28F27C933C600D3C19D /* User report %.md in Resources */,
+				16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */,
+				16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */,
 				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
 				163EF28A27C921FA00D3C19D /* Test.md in Resources */,
 				16B2B5D927D40DC3000F763A /* Combined ENPA.md in Resources */,
@@ -702,6 +721,7 @@
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
 				16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */,
+				16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */,
 				16856E5A27BBF40700F44960 /* about.md in Resources */,
 				16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */,
 			);

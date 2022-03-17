@@ -58,6 +58,8 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var rollingAvg: DataFrame?
     @Published var enpaCharts: [ChartOptions] = []
     @Published var appendixCharts: [ChartOptions] = []
+    @Published var appendixENPACharts: [ChartOptions] = []
+
     @Published var encvCharts: [ChartOptions] = []
     @Published var enpaSummary: String = ""
     @Published var encvSummary: String = ""
@@ -342,15 +344,21 @@ class AnalysisState: NSObject, ObservableObject {
 
     func makeENPACharts() {
         if let enpa = combinedENPA, let config = config {
-            let maybeCharts = [
+            let maybeCharts: [ChartOptions?] = [
                 notificationsPerUpload(enpa: enpa, config: config),
                 notificationsPer100K(enpa: enpa, config: config),
-                secondaryAttackRate(enpa: enpa, config: config),
-                arrivingPromptly(enpa: enpa, config: config),
-                estimatedUsers(enpa: enpa, config: config),
-                enpaOptIn(enpa: enpa, config: config),
             ]
+                + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
+                + [
+                    arrivingPromptly(enpa: enpa, config: config),
+                    estimatedUsers(enpa: enpa, config: config),
+                    enpaOptIn(enpa: enpa, config: config),
+                ]
             enpaCharts = maybeCharts.compactMap { $0 }
+            let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config)]
+                + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
+
+            appendixENPACharts = maybeAppendixENPACharts.compactMap { $0 }
 
         } else {
             enpaCharts = []
@@ -662,7 +670,31 @@ func notificationsPer100K(enpa: DataFrame, config: Configuration) -> ChartOption
 func secondaryAttackRate(enpa: DataFrame, config: Configuration) -> ChartOptions {
     let columns = Array((1 ... config.numCategories).map { ["sar\($0)%", "sar\($0) stdev%"] }.joined())
 
-    return ChartOptions(title: "Secondary attack rate", data: enpa, columns: columns, maxBound: 0.15)
+    return ChartOptions(title: "Secondary attack rate", data: enpa, columns: columns, maxBound: 0.2)
+}
+
+func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
+    let sar = "sar\(notification)%"
+    let stdev = "sar\(notification) stdev%"
+    let sarplus = "+1 stdev"
+    let sarminus = "-1 stdev"
+    var data = enpa.selecting(columnNames: ["date", sar, stdev])
+    data.addColumnSumDouble(sar, stdev, giving: sarplus)
+    data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    // data.printColumnNames()
+    return ChartOptions(title: "Secondary attack rate \(notification)", data: data, columns: [sar, sarplus, sarminus])
+}
+
+func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
+    let sar = "xsar\(notification)%"
+    let stdev = "sar\(notification) stdev%"
+    let sarplus = "+1 stdev"
+    let sarminus = "-1 stdev"
+    var data = enpa.selecting(columnNames: ["date", sar, stdev])
+    data.addColumnSumDouble(sar, stdev, giving: sarplus)
+    data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    // data.printColumnNames()
+    return ChartOptions(title: "Excess secondary attack rate \(notification)", data: data, columns: [sar, sarplus, sarminus])
 }
 
 func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
@@ -675,6 +707,12 @@ func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
     ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users from vc"])
+}
+
+func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOptions? {
+    let columns = Array((1 ... config.numCategories).map { "nts\($0)%" })
+
+    return ChartOptions.maybe(title: "Users with notifications", data: enpa, columns: columns)
 }
 
 // est. users

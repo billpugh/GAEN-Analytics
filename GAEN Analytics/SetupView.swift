@@ -58,7 +58,7 @@ struct SetupView: View {
                     Text("# of days for rolling averages")
                     Spacer()
                     Picker("", selection: $state.daysRollup) {
-                        ForEach([1, 4, 7, 14], id: \.self) {
+                        ForEach([1, 4, 7, 14, 28], id: \.self) {
                             Text("\($0)")
                         }
                     }

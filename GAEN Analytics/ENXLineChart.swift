@@ -23,7 +23,21 @@ private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", ca
 func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
     var value = v
     var multiplier = 1.0
+    while value < 10 {
+        value = value * 10
+        multiplier /= 10
+    }
     while value > 100 {
+        value /= 10
+        multiplier *= 10
+    }
+    return value.rounded(.up) * multiplier
+}
+
+func oneDigitsPrecisionCeiling(_ v: Double) -> Double {
+    var value = v
+    var multiplier = 1.0
+    while value > 10 {
         value /= 10
         multiplier *= 10
     }
@@ -198,15 +212,33 @@ struct LineChart: UIViewRepresentable {
         return dataSet
     }
 
+    func isSar(_ label: String) -> Bool {
+        if label.hasPrefix("sar"), label.count == 5 {
+            return true
+        }
+        if label.hasPrefix("xsar"), label.count == 6 {
+            return true
+        }
+        return false
+    }
+
     func setChartData(_ lineChart: LineChartView) -> Double {
         let dataSets = columns.compactMap { makeDateSet(column: $0) }
 
-        let yMax = dataSets.map(\.yMax).reduce(-Double.infinity, max)
+        let yMaxAll = dataSets.map(\.yMax).reduce(-Double.infinity, max)
+
+        let yMax: Double
+        let firstLabel = columns[0]
+        if columns.count == 3, isSar(firstLabel) {
+            let yMaxSar = dataSets[0].yMax
+            let yMaxSarMinus = dataSets[2].yMax
+            yMax = oneDigitsPrecisionCeiling(max(0.06, min(0.2, yMaxSar, 1.5 * yMaxSarMinus)) * 100.0) / 100.0
+        } else {
+            yMax = twoDigitsPrecisionCeiling(yMaxAll)
+        }
         let lineChartData = LineChartData(dataSets: dataSets)
         lineChart.data = lineChartData
-        if yMax > 100 {
-            return twoDigitsPrecisionCeiling(yMax)
-        }
+
         return yMax
     }
 
@@ -230,10 +262,13 @@ struct LineChart: UIViewRepresentable {
         dataSet.valueColors = [color]
 
         dataSet.circleColors = [color]
-        if label.hasPrefix("sar"), label.count == 5 {
+        if label.hasPrefix("sar"), label.count == 5, false {
             dataSet.drawCirclesEnabled = true
             dataSet.circleRadius = 4
             dataSet.lineWidth = 0
+        } else if label.hasSuffix("stdev") { dataSet.lineWidth = 4
+            dataSet.lineWidth = 2
+            dataSet.drawCirclesEnabled = false
         } else {
             dataSet.lineWidth = 4
             dataSet.drawCirclesEnabled = false
