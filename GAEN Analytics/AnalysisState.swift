@@ -635,6 +635,7 @@ struct ChartOptions: Identifiable {
         for c in columns {
             if data.indexOfColumn(c) == nil {
                 logger.error("Column \(c, privacy: .public) doesn't exist")
+                data.printColumnNames()
             }
         }
 
@@ -686,26 +687,32 @@ func secondaryAttackRate(enpa: DataFrame, config: Configuration) -> ChartOptions
     return ChartOptions(title: "Secondary attack rate", data: enpa, columns: columns, maxBound: 0.2)
 }
 
-func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
+func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions? {
     let sar = "sar\(notification)%"
     let stdev = "sar\(notification) stdev%"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
-    data.addColumnSumDouble(sar, stdev, giving: sarplus)
-    data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    guard data.addColumnSumDouble(sar, stdev, giving: sarplus),
+          data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    else {
+        return nil
+    }
     // data.printColumnNames()
     return ChartOptions(title: "Secondary attack rate \(notification)", data: data, columns: [sar, sarplus, sarminus])
 }
 
-func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
+func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions? {
     let sar = "xsar\(notification)%"
     let stdev = "sar\(notification) stdev%"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
-    data.addColumnSumDouble(sar, stdev, giving: sarplus)
-    data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    guard data.addColumnSumDouble(sar, stdev, giving: sarplus),
+          data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
+    else {
+        return nil
+    }
     // data.printColumnNames()
     return ChartOptions(title: "Excess secondary attack rate \(notification)", data: data, columns: [sar, sarplus, sarminus])
 }

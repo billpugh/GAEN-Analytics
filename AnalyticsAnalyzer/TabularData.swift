@@ -315,10 +315,10 @@ extension DataFrame {
         logger.info("added column \(giving, privacy: .public)")
     }
 
-    mutating func addColumnDifferenceDouble(_ name1: String, _ name2: String, giving: String) {
+    mutating func addColumnDifferenceDouble(_ name1: String, _ name2: String, giving: String) -> Bool {
         logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
-            return
+            return false
         }
         let column1 = self[name1, Double.self]
         let column2 = self[name2, Double.self]
@@ -328,6 +328,7 @@ extension DataFrame {
         // calculated.append(giving)
         append(column: result)
         logger.info("added column \(giving, privacy: .public)")
+        return true
     }
 
     mutating func removeIfPresent(_ name: String) {
@@ -363,10 +364,10 @@ extension DataFrame {
         logger.info("added column \(giving, privacy: .public)")
     }
 
-    mutating func addColumnSumDouble(_ name1: String, _ name2: String, giving: String) {
+    mutating func addColumnSumDouble(_ name1: String, _ name2: String, giving: String) -> Bool {
         logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
-            return
+            return false
         }
         let column1 = self[name1, Double.self]
         let column2 = self[name2, Double.self]
@@ -376,6 +377,7 @@ extension DataFrame {
         // calculated.append(giving)
         append(column: result)
         logger.info("added column \(giving, privacy: .public)")
+        return true
     }
 
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
