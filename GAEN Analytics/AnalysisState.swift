@@ -345,9 +345,9 @@ class AnalysisState: NSObject, ObservableObject {
     func makeENPACharts() {
         if let enpa = combinedENPA, let config = config {
             let maybeCharts: [ChartOptions?] = [
-                notificationsPerUpload(enpa: enpa, config: config),
                 notificationsPer100K(enpa: enpa, config: config),
                 notificationsShare(enpa: enpa, config: config),
+                notificationsPerUpload(enpa: enpa, config: config),
             ]
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
