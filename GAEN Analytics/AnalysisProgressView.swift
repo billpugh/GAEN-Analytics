@@ -18,7 +18,9 @@ struct AnalysisProgressView: View {
         } else if state.available {
             VStack(alignment: .leading) {
                 Text("Fetched at \(state.availableAtMessage)")
-                Text(setup.daysRollup == 1 ? "Data for individual days" : "Rolling \(setup.daysRollup) day averages")
+                if let config = state.config {
+                    Text(config.numDays == 1 ? "Data for individual days" : "Rolling \(config.numDays) day averages")
+                }
             }
         }
     }

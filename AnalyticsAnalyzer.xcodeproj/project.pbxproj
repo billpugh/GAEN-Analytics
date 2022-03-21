@@ -77,6 +77,7 @@
 		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
 		16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB127E39D59000B1529 /* Users with notifications.md */; };
+		16AF2DB427E6167B000B1529 /* Notification share.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB327E61672000B1529 /* Notification share.md */; };
 		16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D027D3C269000F763A /* codes claimed within hour %.md */; };
 		16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D227D3C66D000F763A /* avg days onset to upload.md */; };
 		16B2B5D927D40DC3000F763A /* Combined ENPA.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5D827D40DB9000F763A /* Combined ENPA.md */; };
@@ -210,6 +211,7 @@
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16AF2DB127E39D59000B1529 /* Users with notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Users with notifications.md"; sourceTree = "<group>"; };
+		16AF2DB327E61672000B1529 /* Notification share.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notification share.md"; sourceTree = "<group>"; };
 		16B2B5D027D3C269000F763A /* codes claimed within hour %.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "codes claimed within hour %.md"; sourceTree = "<group>"; };
 		16B2B5D227D3C66D000F763A /* avg days onset to upload.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "avg days onset to upload.md"; sourceTree = "<group>"; };
 		16B2B5D827D40DB9000F763A /* Combined ENPA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Combined ENPA.md"; sourceTree = "<group>"; };
@@ -435,6 +437,7 @@
 			isa = PBXGroup;
 			children = (
 				16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */,
+				16AF2DB327E61672000B1529 /* Notification share.md */,
 				16856E6227BC01BB00F44960 /* Notifications per key upload.md */,
 				16856E6327BC01D100F44960 /* Notifications arriving promptly.md */,
 				16856E6427BC01E700F44960 /* Estimated users.md */,
@@ -707,6 +710,7 @@
 				16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
 				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
+				16AF2DB427E6167B000B1529 /* Notification share.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
@@ -1049,7 +1053,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.10;
+				MARKETING_VERSION = 0.2.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1088,7 +1092,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.10;
+				MARKETING_VERSION = 0.2.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

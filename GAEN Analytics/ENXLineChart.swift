@@ -229,7 +229,7 @@ struct LineChart: UIViewRepresentable {
 
         let yMax: Double
         let firstLabel = columns[0]
-        if columns.count == 3, isSar(firstLabel) {
+        if dataSets.count == 3, isSar(firstLabel) {
             let yMaxSar = dataSets[0].yMax
             let yMaxSarMinus = dataSets[2].yMax
             yMax = oneDigitsPrecisionCeiling(max(0.06, min(0.2, yMaxSar, 1.5 * yMaxSarMinus)) * 100.0) / 100.0

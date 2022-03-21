@@ -347,6 +347,7 @@ class AnalysisState: NSObject, ObservableObject {
             let maybeCharts: [ChartOptions?] = [
                 notificationsPerUpload(enpa: enpa, config: config),
                 notificationsPer100K(enpa: enpa, config: config),
+                notificationsShare(enpa: enpa, config: config),
             ]
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
@@ -362,6 +363,7 @@ class AnalysisState: NSObject, ObservableObject {
 
         } else {
             enpaCharts = []
+            appendixENPACharts = []
         }
     }
 
@@ -389,6 +391,7 @@ class AnalysisState: NSObject, ObservableObject {
 
         } else {
             encvCharts = []
+            appendixCharts = []
         }
     }
 }
@@ -665,6 +668,16 @@ func notificationsPer100K(enpa: DataFrame, config: Configuration) -> ChartOption
         columns = ["nt"] + (1 ... config.numCategories).map { "nt\($0)" }
     }
     return ChartOptions(title: "Notifications per 100K", data: enpa, columns: columns)
+}
+
+func notificationsShare(enpa: DataFrame, config: Configuration) -> ChartOptions? {
+    if config.numCategories == 1 {
+        return nil
+    }
+
+    let columns = (1 ... config.numCategories).map { "nt\($0)%" }
+
+    return ChartOptions(title: "Notification share", data: enpa, columns: columns, maxBound: 1.0)
 }
 
 func secondaryAttackRate(enpa: DataFrame, config: Configuration) -> ChartOptions {

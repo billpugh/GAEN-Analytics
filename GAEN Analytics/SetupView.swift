@@ -41,7 +41,7 @@ struct SetupView: View {
                     Text("Region")
                     TextField("e.g, US-HT", text: Binding(get: { self.state.region },
                                                           set: {
-                                                              self.state.region = trim($0)
+                                                              self.state.region = trim($0.uppercased())
                                                           })).disabled(state.isUsingTestData)
                 }
 

@@ -16,7 +16,7 @@ struct SummaryView: View {
     @ObservedObject var analysisState = AnalysisState.shared
     var body: some View {
         List {
-            Section(header: Text("GAEN Analytics for\u{00a0}\(state.region)"
+            Section(header: Text("GAEN Analytics for\u{00a0}\(analysisState.region)"
             ).font(.title)) {
                 AnalysisProgressView()
                 if analysisState.available {

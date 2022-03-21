@@ -380,7 +380,6 @@ struct Accumulators {
 
     mutating func printMe(date: Date, scale: Double) {
         guard verifiedCount.updated else {
-            printFunction("\(dayFormatter.string(from: date)),")
             return
         }
         let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
@@ -1007,11 +1006,11 @@ public class Metric: @unchecked Sendable {
             let likelyValues = sumBy.map { getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0)) }
             let likely = likelyValues.map { "\(round2($0))" }
                 .joined(separator: ",")
-            let likelySum = likelyValues.reduce(0.0,+)
+
             let sums = sumBy.map { "\($0)" }
                 .joined(separator: ",")
             let stdev = round2(getStandardDeviation(totalCount: count))
-            buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely),\(likelySum),\(sums)")
+            buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely),\(sums)")
         }
         return buf.all
     }
@@ -1430,7 +1429,7 @@ func percentage(_ x: Double, _ y: Double) -> Double? {
 }
 
 func sar(_ sa: Double, _ nt: Double, std _: Double) -> Double? {
-    if nt <= 1 {
+    if nt <= 10 {
         return nil
     }
 
