@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1615FA4C27EE041F0089F0B6 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 1615FA4B27EE041F0089F0B6 /* Charts */; };
+		1615FA4F27EE04390089F0B6 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 1615FA4E27EE04390089F0B6 /* ZIPFoundation */; };
+		1615FA5127EE092F0089F0B6 /* Publish requests.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5027EE092F0089F0B6 /* Publish requests.md */; };
+		1615FA5427EE09810089F0B6 /* Excess secondary attack rate 1.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5327EE09810089F0B6 /* Excess secondary attack rate 1.md */; };
+		1615FA5727EE09B10089F0B6 /* Excess secondary attack rate 3.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5627EE09B10089F0B6 /* Excess secondary attack rate 3.md */; };
+		1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */; };
+		1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5527EE09990089F0B6 /* Excess secondary attack rate 2.md */; };
 		161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */ = {isa = PBXBuildFile; fileRef = 161A123427DA3CE50026C53D /* Secondary attack rate.md */; };
 		163CCB7B27DE462000355180 /* Appendix.md in Resources */ = {isa = PBXBuildFile; fileRef = 163CCB7A27DE45B000355180 /* Appendix.md */; };
 		163EF28627C91FA800D3C19D /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF28527C91FA800D3C19D /* TopicView.swift */; };
@@ -90,15 +97,12 @@
 		16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D727E221A50008863F /* Secondary attack rate 2.md */; };
 		16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D827E221B60008863F /* Secondary attack rate 3.md */; };
 		16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D927E221C20008863F /* Secondary attack rate 4.md */; };
-		16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D427C672A3007527FC /* ZIPFoundation */; };
-		16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 16C5E4D627C6741B007527FC /* ZIPFoundation */; };
 		16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4D827C689CD007527FC /* RawExportView.swift */; };
 		16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
 		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
-		16DEAB3B27D64F9400069680 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 16DEAB3A27D64F9400069680 /* Charts */; };
 		16DEAB4127D65A4600069680 /* testServers.json in Resources */ = {isa = PBXBuildFile; fileRef = 16DEAB3F27D6537300069680 /* testServers.json */; };
 		16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
@@ -165,6 +169,11 @@
 /* Begin PBXFileReference section */
 		1609485725C3632A001705A6 /* AnalyticsAnalyzer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsAnalyzer; sourceTree = BUILT_PRODUCTS_DIR; };
 		1609485A25C3632A001705A6 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		1615FA5027EE092F0089F0B6 /* Publish requests.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Publish requests.md"; sourceTree = "<group>"; };
+		1615FA5327EE09810089F0B6 /* Excess secondary attack rate 1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 1.md"; sourceTree = "<group>"; };
+		1615FA5527EE09990089F0B6 /* Excess secondary attack rate 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 2.md"; sourceTree = "<group>"; };
+		1615FA5627EE09B10089F0B6 /* Excess secondary attack rate 3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 3.md"; sourceTree = "<group>"; };
+		1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 4.md"; sourceTree = "<group>"; };
 		161A123427DA3CE50026C53D /* Secondary attack rate.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate.md"; sourceTree = "<group>"; };
 		163CCB7A27DE45B000355180 /* Appendix.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Appendix.md; sourceTree = "<group>"; };
 		163EF28527C91FA800D3C19D /* TopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicView.swift; sourceTree = "<group>"; };
@@ -238,7 +247,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16C5E4D527C672A3007527FC /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,8 +262,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16C5E4D727C6741B007527FC /* ZIPFoundation in Frameworks */,
-				16DEAB3B27D64F9400069680 /* Charts in Frameworks */,
+				1615FA4C27EE041F0089F0B6 /* Charts in Frameworks */,
+				1615FA4F27EE04390089F0B6 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +437,7 @@
 				16B2B5D027D3C269000F763A /* codes claimed within hour %.md */,
 				16B2B5D227D3C66D000F763A /* avg days onset to upload.md */,
 				16856E6127BC01A300F44960 /* System health.md */,
+				1615FA5027EE092F0089F0B6 /* Publish requests.md */,
 			);
 			path = "ENCV charts";
 			sourceTree = "<group>";
@@ -447,6 +456,10 @@
 				16C381D727E221A50008863F /* Secondary attack rate 2.md */,
 				16C381D827E221B60008863F /* Secondary attack rate 3.md */,
 				16C381D927E221C20008863F /* Secondary attack rate 4.md */,
+				1615FA5327EE09810089F0B6 /* Excess secondary attack rate 1.md */,
+				1615FA5527EE09990089F0B6 /* Excess secondary attack rate 2.md */,
+				1615FA5627EE09B10089F0B6 /* Excess secondary attack rate 3.md */,
+				1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */,
 				16AF2DB127E39D59000B1529 /* Users with notifications.md */,
 			);
 			path = "ENPA charts";
@@ -505,7 +518,6 @@
 			);
 			name = AnalyticsAnalyzer;
 			packageProductDependencies = (
-				16C5E4D427C672A3007527FC /* ZIPFoundation */,
 			);
 			productName = AnalyticsAnalyzer;
 			productReference = 1609485725C3632A001705A6 /* AnalyticsAnalyzer */;
@@ -545,8 +557,8 @@
 			);
 			name = "GAEN Analytics";
 			packageProductDependencies = (
-				16C5E4D627C6741B007527FC /* ZIPFoundation */,
-				16DEAB3A27D64F9400069680 /* Charts */,
+				1615FA4B27EE041F0089F0B6 /* Charts */,
+				1615FA4E27EE04390089F0B6 /* ZIPFoundation */,
 			);
 			productName = "GAEN Analytics";
 			productReference = 1673F54827B07F710037D340 /* GAEN Analytics.app */;
@@ -673,8 +685,8 @@
 			packageReferences = (
 				1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */,
 				16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
-				16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */,
-				16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				1615FA4A27EE041F0089F0B6 /* XCRemoteSwiftPackageReference "Charts" */,
+				1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 1609485825C3632A001705A6 /* Products */;
 			projectDirPath = "";
@@ -701,6 +713,7 @@
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
 				16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */,
 				16856E6927BC021C00F44960 /* System health.md in Resources */,
+				1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */,
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
@@ -720,12 +733,16 @@
 				16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */,
 				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
 				163EF28A27C921FA00D3C19D /* Test.md in Resources */,
+				1615FA5127EE092F0089F0B6 /* Publish requests.md in Resources */,
+				1615FA5727EE09B10089F0B6 /* Excess secondary attack rate 3.md in Resources */,
 				16B2B5D927D40DC3000F763A /* Combined ENPA.md in Resources */,
 				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
 				16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */,
+				1615FA5427EE09810089F0B6 /* Excess secondary attack rate 1.md in Resources */,
 				16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */,
+				1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */,
 				16856E5A27BBF40700F44960 /* about.md in Resources */,
 				16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */,
 			);
@@ -1033,7 +1050,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1053,7 +1070,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.11;
+				MARKETING_VERSION = 0.2.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1072,7 +1089,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1092,7 +1109,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.11;
+				MARKETING_VERSION = 0.2.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1302,12 +1319,20 @@
 				minimumVersion = 2.4.3;
 			};
 		};
-		16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */ = {
+		1615FA4A27EE041F0089F0B6 /* XCRemoteSwiftPackageReference "Charts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/danielgindi/Charts.git";
 			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
+			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
+				minimumVersion = 0.9.9;
 			};
 		};
 		16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
@@ -1318,17 +1343,19 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.9;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1615FA4B27EE041F0089F0B6 /* Charts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1615FA4A27EE041F0089F0B6 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = Charts;
+		};
+		1615FA4E27EE04390089F0B6 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
 		164945AF27B6B17700C0F5F0 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
@@ -1349,25 +1376,10 @@
 			package = 16AA115F2625CCA5007CA1A7 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
 			productName = ArgumentParser;
 		};
-		16C5E4D427C672A3007527FC /* ZIPFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
-			productName = ZIPFoundation;
-		};
-		16C5E4D627C6741B007527FC /* ZIPFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 16C5E4D327C672A3007527FC /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
-			productName = ZIPFoundation;
-		};
 		16DC0F04262391EF0023AF49 /* CSV */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */;
 			productName = CSV;
-		};
-		16DEAB3A27D64F9400069680 /* Charts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 16856E3E27B98A4F00F44960 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = Charts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

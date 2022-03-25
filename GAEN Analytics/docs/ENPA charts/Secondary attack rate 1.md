@@ -1,7 +1,7 @@
 This chart shows the secondary attack rate (sar%) fpr category 1 notifications, calculated as
 
 secondary attacks = people who verify a code and had received an exposure notification 1 that was still being shown on their phone
-secondary attack rate = secondary attacks / number of notifications category 1 received 7 days ago
+secondary attack rate = secondary attacks / number of notifications 
 
 The graph shows the calculated sar%, along with one standard deviation above and below that line. 
 

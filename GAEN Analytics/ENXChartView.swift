@@ -85,8 +85,10 @@ struct ENXChartView: View {
                     #if targetEnvironment(macCatalyst)
                         analysisState.export(csvFile: csvDocument)
                     #else
-                        // print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
+                         print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
 
+                    shareURL = AnalysisState.exportToURL(csvFile: csvDocument)
+                    shareTitle = csvDocument.name
                         showingShare = true
                     #endif
                 }) {
@@ -102,6 +104,13 @@ struct ENXChartView: View {
             lineChart.frame(height: 300)
 
         }.textCase(nil)
+            .sheet(isPresented: self.$showingShare, onDismiss: { print("share sheet dismissed") },
+                   content: {
+                       ActivityView(activityItems: [
+                           CSVItem(url: shareURL,
+                                   title: shareTitle),
+                       ] as [Any], applicationActivities: nil, isPresented: self.$showingShare)
+                   })
     }
 }
 

@@ -391,7 +391,6 @@ struct Accumulators {
         let unPrint = notifiedCount.per100K(range: 1 ... numCategories)
         let ku = uploadedCount.per100KValues(range: 1 ... 1 + numCategories).reduce(0,+)
         let unValues: [Double] = notifiedCount.per100KValues(range: 1 ... numCategories)
-        let delayedUnValues = delayedNotifications.update(unValues)
         let un = unValues.reduce(0,+)
         let unPercentage = unValues.map { "\($0 / un)" }.joined(separator: ",")
         let ntPerKy = "\(un / ku)," + notifiedCount.per100KValues(range: 1 ... numCategories).map { "\($0 / ku)" }.joined(separator: ",")
@@ -401,32 +400,27 @@ struct Accumulators {
         let sarPrint: String
         let sarStdPrint: String
         let xsarPrint: String
-        if let delayedUnValues = delayedUnValues {
-            sarPrint = zip(saValues, delayedUnValues).map {
+        
+            sarPrint = zip(saValues, unValues).map {
                 if let ar = sar($0, $1, std: cvSTD) {
                     return "\(ar)"
                 }
                 return ""
             }.joined(separator: ",")
-            sarStdPrint = zip(saValues, delayedUnValues).map {
+            sarStdPrint = zip(saValues, unValues).map {
                 if let ar = sar(cvSTD, $1, std: 0) {
                     return "\(ar)"
                 }
                 return ""
             }.joined(separator: ",")
-            xsarPrint = zip(xsa, delayedUnValues).map({
+            xsarPrint = zip(xsa, unValues).map({
                 if let ar = sar($0, $1, std: cvSTD) {
                     return "\(ar)"
                 }
                 return ""
             }
             ).joined(separator: ",")
-        } else {
-            let noData = String(repeating: ",", count: numCategories - 1)
-            sarPrint = noData
-            sarStdPrint = noData
-            xsarPrint = noData
-        }
+        
         let dePrint: String
         let nsPrint: String
 

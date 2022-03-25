@@ -85,6 +85,24 @@ class AnalysisState: NSObject, ObservableObject {
         csvExport = csvFile
         csvExportReady = true
     }
+    static func exportToURL(csvFile: CSVFile) -> URL? {
+        logger.log("exporting \(csvFile.name, privacy: .public)")
+        do {
+            let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
+                                            isDirectory: true)
+
+            let n = csvFile.name.replacingOccurrences(of: "/", with: "%2F")
+
+            let path = temporaryDirectoryURL.appendingPathComponent(n)
+
+            try csvFile.data.write(to: path, options: .atomicWrite)
+            return path
+        } catch {
+            logger.error("\(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+    
 
     static func exportToURL(name: String, dataframe: DataFrame) -> URL? {
         logger.log("Exporting \(name, privacy: .public) to URL")

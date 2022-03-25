@@ -68,8 +68,21 @@ extension DataFrame {
         return c.count
     }
 
+    func emptySuffix(_ name: String) -> Int {
+        let c: AnyColumn = self[name]
+        for (i, v) in c.enumerated().reversed() {
+            if v != nil {
+                return c.count - i - 1
+            }
+        }
+        return c.count
+    }
     func emptyPrefix(_ names: [String]) -> Int {
         names.map { emptyPrefix($0) }.min()!
+    }
+
+    func emptySuffix(_ names: [String]) -> Int {
+        names.map { emptySuffix($0) }.min()!
     }
 
     @discardableResult func requireColumn(_ name: String, _ type: Any.Type) -> Bool {
