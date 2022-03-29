@@ -78,12 +78,7 @@ struct CheckView: View, Identifiable {
 struct RawExportView: View {
     @ObservedObject var analysisState = AnalysisState.shared
     @ObservedObject var state = SetupState.shared
-    let additionalMetrics = ["riskParameters",
-                             "beaconCount",
-                             "dateExposure14d",
-                             "keysUploadedWithReportType14d",
-                             "periodicExposureNotification14d",
-                             "secondaryAttack14d"]
+  
     func exportRawENPA() {
         guard let raw = analysisState.rawENPA, let url = raw.writeMetrics() else { return }
         let name = url.lastPathComponent
@@ -116,6 +111,7 @@ struct RawExportView: View {
                 CheckView(id: "beaconCount")
             }
             Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {
+                CheckView(id: "codeVerifiedWithReportType14d")
                 CheckView(id: "keysUploadedWithReportType14d")
                 CheckView(id: "periodicExposureNotification14d")
                 CheckView(id: "secondaryAttack14d")
