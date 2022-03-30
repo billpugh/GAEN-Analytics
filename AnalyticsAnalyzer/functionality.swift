@@ -297,9 +297,11 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
-        #endif
+        verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
+        uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
+   
     }
 
     var verifiedCount: FixedLengthAccumulator
@@ -308,9 +310,13 @@ struct Accumulators {
     var interactionCount: FixedLengthAccumulator
     var dateExposureCount: FixedLengthAccumulator
     var notificationsShown: NotificationShown
-    #if computeSecondaryAttack14D
+
         var secondaryAttack14D: FixedLengthAccumulator
-    #endif
+    var verified14DCount: FixedLengthAccumulator
+    var uploaded14Count: FixedLengthAccumulator
+   
+    
+
     var excessSecondaryAttack: FixedLengthAccumulator
     var delayedNotifications = DelayedNotificationCounts(daysDelay: 7)
 
@@ -358,12 +364,20 @@ struct Accumulators {
             if let ic = m.interactions.clientsByDay[d], let ics = m.interactions.sumByDay[d] {
                 interactionCount.addLikely(sum: ics, count: ic, scale: scale)
             }
-            #if computeSecondaryAttack14D
+            
                 let sa14d = m.secondaryAttack14D
                 if let sa = sa14d.clientsByDay[d], let sas = sa14d.sumByDay[d] {
-                    secondaryAttack14D.addLikely(sum: sas, count: sa, scale: 1.0)
+                    secondaryAttack14D.addLikely(sum: sas, count: sa, scale: 1.0/14.0)
                 }
-            #endif
+            let cv14D = m.codeVerified14D
+            if let cv = cv14D.clientsByDay[d], let cvs = cv14D.sumByDay[d] {
+                verified14DCount.addLikely(sum: cvs, count: cv, scale: 1.0/14.0)
+            }
+            let ku14D = m.keysUploaded14D
+            if let ku = ku14D.clientsByDay[d], let kus = ku14D.sumByDay[d] {
+                uploaded14Count.addLikely(sum: kus, count: ku, scale: 1.0/14.0)
+            }
+            
         }
     }
 
@@ -433,8 +447,7 @@ struct Accumulators {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
-        #if computeSecondaryAttack14D
-            let sa14Print: String
+             let sa14Print: String
 
             if secondaryAttack14D.updated {
                 // numCategories = 2
@@ -443,11 +456,22 @@ struct Accumulators {
             } else {
                 sa14Print = String(repeating: ",", count: 1 + 2 * numCategories)
             }
-        #else
-            let sa14Print = ""
-        #endif
+        let vc14Print: String
+        if verified14DCount.updated {
+            let values = verified14DCount.per100KValues(range: 0...5)
+            vc14Print = "\(verified14DCount.countPerDay),\(verified14DCount.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+        } else {
+            vc14Print  = ",,,"
+        }
+        let ku14Print: String
+        if uploaded14Count.updated {
+            let values = uploaded14Count.per100KValues(range: 0...5)
+            ku14Print = "\(uploaded14Count.countPerDay),\(uploaded14Count.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+        } else {
+            ku14Print  = ",,,"
+        }
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print)")
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -456,9 +480,10 @@ struct Accumulators {
         dateExposureCount.advance()
         notificationsShown.advance()
         excessSecondaryAttack.advance()
-        #if computeSecondaryAttack14D
+        verified14DCount.advance()
+        uploaded14Count.advance()
             secondaryAttack14D.advance()
-        #endif
+      
     }
 
     func printHeader() {
@@ -472,13 +497,11 @@ struct Accumulators {
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-        #if computeSecondaryAttack14D
             let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
-        #else
-            let sa14Header = ""
-        #endif
+        let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
+        let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
 
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header)")
     }
 }
 
@@ -500,9 +523,11 @@ struct MetricSet {
     let dateExposure: Metric
     let userRisk: Metric?
     let interactions: Metric
-    #if computeSecondaryAttack14D
+   
         let secondaryAttack14D: Metric
-    #endif
+    let codeVerified14D: Metric
+    let keysUploaded14D: Metric
+   
 
     init(forIOS metrics: [String: Metric]) {
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -511,9 +536,12 @@ struct MetricSet {
         dateExposure = getMetric(metrics, "com.apple.EN.DateExposure")
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
-        #endif
+            codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
+        keysUploaded14D = getMetric(metrics, "com.apple.EN.KeysUploadedWithReportTypeV2D14")
+  
+        
     }
 
     init(forAndroid metrics: [String: Metric]) {
@@ -522,9 +550,11 @@ struct MetricSet {
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
         dateExposure = getMetric(metrics, "DateExposure")
         interactions = getMetric(metrics, "PeriodicExposureNotificationInteraction")
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
-        #endif
+        codeVerified14D = getMetric(metrics, "CodeVerifiedWithReportType14d")
+    keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
+        
         userRisk = nil
     }
 }

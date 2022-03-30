@@ -477,7 +477,7 @@ actor AnalysisTask {
                              "notificationInteractions",
                              "codeVerified",
                              "keysUploaded",
-                             "dateExposure"]
+                             "dateExposure","codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
             for m in readThese {
                 await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
