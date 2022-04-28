@@ -370,14 +370,13 @@ struct Accumulators {
                 let excessSecondaryAttacks = zip(vcLikely[2 ... (1 + numCategories)], backgroundNotifications).map { $0 - $1 }
                 excessSecondaryAttack.add(excessSecondaryAttacks, cvc, cvVariance)
             }
+
             interactionCount.addLikely(m.interactions, day: d,  scale: scale)
             
             secondaryAttack14D.addLikely(m.secondaryAttack14D, day: d,  scale: 1.0/14.0)
                 
             verified14DCount.addLikely(m.codeVerified14D, day: d,  scale: 1.0/14.0)
             uploaded14Count.addLikely(m.keysUploaded14D, day: d,  scale: 1.0/14.0)
-            
-           
             
         }
     }
