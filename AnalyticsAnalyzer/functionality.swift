@@ -80,44 +80,52 @@ class NotificationShown {
 }
 
 struct FixedLengthAccumulator {
-    let metric: Metric?
     let width: Int
     var valuesAdded: Int = 1
     var next: Int = 0
     var raw: [[Int]]
     var values: [[Double]]
     var counts: [Int]
+    var variances: [Double]
     var updated: Bool = false
     init(_ length: Int, width: Int) {
-        metric = nil
         self.width = width
         values = Array(repeating: Array(repeating: 0.0, count: width), count: length)
         raw = Array(repeating: Array(repeating: 0, count: width), count: length)
         counts = Array(repeating: 0, count: length)
+        variances = Array(repeating: 0.0, count: length)
     }
 
     init(_ length: Int, _ metric: Metric) {
-        self.metric = metric
         width = metric.buckets
         values = Array(repeating: Array(repeating: 0.0, count: width), count: length)
         raw = Array(repeating: Array(repeating: 0, count: width), count: length)
         counts = Array(repeating: 0, count: length)
+        variances = Array(repeating: 0, count: length)
     }
 
-    @discardableResult mutating func addLikely(sum: [Int], count: Int, scale: Double = 1.0) -> [Double] {
+    
+   
+    @discardableResult mutating func addLikely(_ metric: Metric, day: Date, scale: Double = 1.0) -> [Double]? {
+        guard
+            let sum = metric.sumByDay[day],
+            let count = metric.clientsByDay[day] else {
+            return nil
+        }
         for i in 0 ..< width {
             raw[next][i] += sum[i]
         }
-        let likely = metric!.getMostLikelyPopulationCount(totalCount: count, sumPart: sum, scale: scale)
-        add(likely, count)
+        let likely = metric.getMostLikelyPopulationCount(totalCount: count, sumPart: sum, scale: scale)
+        let variance = metric.getVariance(totalCount: count)
+        add(likely, count, variance)
         return likely
     }
-
-    mutating func add(_ v: [Double], _ count: Int) {
+    mutating func add(_ v: [Double], _ count: Int, _ variance: Double) {
         for i in 0 ..< width {
             values[next][i] += v[i]
         }
         counts[next] += count
+        variances[next] += variance
         updated = true
     }
 
@@ -129,6 +137,7 @@ struct FixedLengthAccumulator {
         raw[next] = Array(repeating: 0, count: width)
         values[next] = Array(repeating: 0.0, count: width)
         counts[next] = 0
+        variances[next] = 0.0
         valuesAdded += 1
         updated = false
     }
@@ -168,17 +177,21 @@ struct FixedLengthAccumulator {
     var count: Int {
         counts.reduce(0, +)
     }
+    
+    var variance: Double {
+        variances.reduce(0, +)
+    }
 
     var countPerDay: Int {
         count / rollupSizeInt
     }
 
     var std: Double {
-        metric!.getStandardDeviation(totalCount: count)
+        sqrt(variance)
     }
 
     func std(items: Int) -> Double {
-        sqrt(Double(items)) * metric!.getStandardDeviation(totalCount: count)
+        sqrt(Double(items)) * std
     }
 
     func stdPerDay(items: Int = 1) -> Double {
@@ -297,9 +310,11 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
-        #endif
+        verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
+        uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
+   
     }
 
     var verifiedCount: FixedLengthAccumulator
@@ -308,9 +323,13 @@ struct Accumulators {
     var interactionCount: FixedLengthAccumulator
     var dateExposureCount: FixedLengthAccumulator
     var notificationsShown: NotificationShown
-    #if computeSecondaryAttack14D
+
         var secondaryAttack14D: FixedLengthAccumulator
-    #endif
+    var verified14DCount: FixedLengthAccumulator
+    var uploaded14Count: FixedLengthAccumulator
+   
+    
+
     var excessSecondaryAttack: FixedLengthAccumulator
     var delayedNotifications = DelayedNotificationCounts(daysDelay: 7)
 
@@ -320,50 +339,46 @@ struct Accumulators {
     }
 
     mutating func update(_ d: Date, _ m: MetricSet, _ scale: Double = 1.0) {
-        if let cv = m.codeVerified.sumByDay[d],
-           let ku = m.keysUploaded.sumByDay[d],
-           let un = m.userNotification.sumByDay[d],
-           let cvc = m.codeVerified.clientsByDay[d],
-           let kuc = m.keysUploaded.clientsByDay[d],
-           let unc = m.userNotification.clientsByDay[d]
+        if let vcLikely = verifiedCount.addLikely(m.codeVerified, day: d,  scale: scale)
         {
-            let vcLikely = verifiedCount.addLikely(sum: cv, count: cvc, scale: scale)
-            uploadedCount.addLikely(sum: ku, count: kuc, scale: scale)
-            notifiedCount.addLikely(sum: un, count: unc, scale: scale)
+            
+            let cvc = m.codeVerified.clientsByDay[d]!
+            let cvVariance = m.codeVerified.getVariance(totalCount: cvc)
+            
+            uploadedCount.addLikely(m.keysUploaded, day: d,  scale: scale)
+            notifiedCount.addLikely(m.userNotification, day: d,  scale: scale)
             let allVerifiedCodes = vcLikely[1 ... (1 + numCategories)].reduce(0,+)
 
             let dateE = m.dateExposure
-            if let de = dateE.sumByDay[d],
+            if let likelyDE = dateExposureCount.addLikely(dateE, day: d, scale: scale),
                let dec = dateE.clientsByDay[d]
             {
-                let likely = dateExposureCount.addLikely(sum: de, count: dec, scale: scale)
-                notificationsShown.add(likely: likely, clients: dec)
+                
+                notificationsShown.add(likely: likelyDE, clients: dec)
                 let percentWithNotifications = notificationsShown.sum.map { $0 / 100_000.0 }
                 // true secondary attacks = (s-c*e)/(1-e).
                 let verifiedWithNotification = vcLikely[2 ... (1 + numCategories)]
                 let excessSecondaryAttacks = zip(verifiedWithNotification, percentWithNotifications).map { secondaryAttacks(codesVerified: allVerifiedCodes, verifiedWithNotification: $0, percentShowingNotification: $1) }
-                excessSecondaryAttack.add(excessSecondaryAttacks, cvc)
-                if false {
-                    let rawSums = dateExposureCount.rawSums
-                    print("\(dayFormatter.string(from: d)), XX, \(de[0]), \(de[1]), \(de[2]), \(de[3]),  \(rawSums[0]), \(rawSums[1]), \(rawSums[2]), \(rawSums[3]), \(dec)")
-                }
+           
+                excessSecondaryAttack.add(excessSecondaryAttacks, cvc, cvVariance)
+               
             } // if let de
             else {
                 let notificationsReceived = notifiedCount.per100KValues(range: 1 ... numCategories)
                 let percentWithNotifications = notificationsReceived.map { Double(daysSinceExposureThreshold / 2) * $0 / 100_000 }
                 let backgroundNotifications = percentWithNotifications.map { $0 * allVerifiedCodes }
                 let excessSecondaryAttacks = zip(vcLikely[2 ... (1 + numCategories)], backgroundNotifications).map { $0 - $1 }
-                excessSecondaryAttack.add(excessSecondaryAttacks, cvc)
+                excessSecondaryAttack.add(excessSecondaryAttacks, cvc, cvVariance)
             }
-            if let ic = m.interactions.clientsByDay[d], let ics = m.interactions.sumByDay[d] {
-                interactionCount.addLikely(sum: ics, count: ic, scale: scale)
-            }
-            #if computeSecondaryAttack14D
-                let sa14d = m.secondaryAttack14D
-                if let sa = sa14d.clientsByDay[d], let sas = sa14d.sumByDay[d] {
-                    secondaryAttack14D.addLikely(sum: sas, count: sa, scale: 1.0)
-                }
-            #endif
+            interactionCount.addLikely(m.interactions, day: d,  scale: scale)
+            
+            secondaryAttack14D.addLikely(m.secondaryAttack14D, day: d,  scale: 1.0/14.0)
+                
+            verified14DCount.addLikely(m.codeVerified14D, day: d,  scale: 1.0/14.0)
+            uploaded14Count.addLikely(m.keysUploaded14D, day: d,  scale: 1.0/14.0)
+            
+           
+            
         }
     }
 
@@ -433,21 +448,31 @@ struct Accumulators {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
-        #if computeSecondaryAttack14D
-            let sa14Print: String
+             let sa14Print: String
 
             if secondaryAttack14D.updated {
                 // numCategories = 2
                 // x, x, x,   x, x,   x, x
-                sa14Print = "\(secondaryAttack14D.countPerDay)," + secondaryAttack14D.per100KNoTotal(range: 0 ... numCategories - 1, scale: 1 / 14.0) + "," + secondaryAttack14D.per100KNoSTD(range: 8 ... 8 + numCategories - 1, scale: 1 / 14.0)
+                sa14Print = "\(secondaryAttack14D.countPerDay),\(secondaryAttack14D.per100K(secondaryAttack14D.std)/14.0)," + secondaryAttack14D.per100KNoSTD(range: 0 ... numCategories - 1 ) + "," + secondaryAttack14D.per100KNoSTD(range: 8 ... 8 + numCategories - 1)
             } else {
                 sa14Print = String(repeating: ",", count: 1 + 2 * numCategories)
             }
-        #else
-            let sa14Print = ""
-        #endif
+        let vc14Print: String
+        if verified14DCount.updated {
+            let values = verified14DCount.per100KValues(range: 0...5)
+            vc14Print = "\(verified14DCount.countPerDay),\(verified14DCount.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+        } else {
+            vc14Print  = ",,,"
+        }
+        let ku14Print: String
+        if uploaded14Count.updated {
+            let values = uploaded14Count.per100KValues(range: 0...5)
+            ku14Print = "\(uploaded14Count.countPerDay),\(uploaded14Count.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+        } else {
+            ku14Print  = ",,,"
+        }
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print)")
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -456,9 +481,10 @@ struct Accumulators {
         dateExposureCount.advance()
         notificationsShown.advance()
         excessSecondaryAttack.advance()
-        #if computeSecondaryAttack14D
+        verified14DCount.advance()
+        uploaded14Count.advance()
             secondaryAttack14D.advance()
-        #endif
+      
     }
 
     func printHeader() {
@@ -472,13 +498,11 @@ struct Accumulators {
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-        #if computeSecondaryAttack14D
             let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
-        #else
-            let sa14Header = ""
-        #endif
+        let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
+        let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
 
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header)")
     }
 }
 
@@ -500,9 +524,11 @@ struct MetricSet {
     let dateExposure: Metric
     let userRisk: Metric?
     let interactions: Metric
-    #if computeSecondaryAttack14D
+   
         let secondaryAttack14D: Metric
-    #endif
+    let codeVerified14D: Metric
+    let keysUploaded14D: Metric
+   
 
     init(forIOS metrics: [String: Metric]) {
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -511,9 +537,12 @@ struct MetricSet {
         dateExposure = getMetric(metrics, "com.apple.EN.DateExposure")
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
-        #endif
+            codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
+        keysUploaded14D = getMetric(metrics, "com.apple.EN.KeysUploadedWithReportTypeV2D14")
+  
+        
     }
 
     init(forAndroid metrics: [String: Metric]) {
@@ -522,9 +551,11 @@ struct MetricSet {
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
         dateExposure = getMetric(metrics, "DateExposure")
         interactions = getMetric(metrics, "PeriodicExposureNotificationInteraction")
-        #if computeSecondaryAttack14D
+        
             secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
-        #endif
+        codeVerified14D = getMetric(metrics, "CodeVerifiedWithReportType14d")
+    keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
+        
         userRisk = nil
     }
 }
@@ -817,12 +848,18 @@ public class Metric: @unchecked Sendable {
         1 / (1 + exp(epsilon))
     }
 
+    var pTimesOneMinusP: Double {
+        p*(1-p)
+    }
     var sqrtPTimesOneMinusP: Double {
         exp(epsilon / 2) / (1 + exp(epsilon))
     }
 
     func getStandardDeviation(totalCount: Int) -> Double {
         sqrt(Double(totalCount)) * sqrtPTimesOneMinusP
+    }
+    func getVariance(totalCount: Int) -> Double {
+        Double(totalCount) * pTimesOneMinusP
     }
 
     public func getMostLikelyPopulationCount(totalCount: Double, sumPart: Double) -> Double {

@@ -111,10 +111,7 @@ struct RawExportView: View {
                 CheckView(id: "beaconCount")
             }
             Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {
-                CheckView(id: "codeVerifiedWithReportType14d")
-                CheckView(id: "keysUploadedWithReportType14d")
                 CheckView(id: "periodicExposureNotification14d")
-                CheckView(id: "secondaryAttack14d")
                 CheckView(id: "dateExposure14d")
             }
 
