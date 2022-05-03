@@ -104,12 +104,11 @@ struct FixedLengthAccumulator {
         variances = Array(repeating: 0, count: length)
     }
 
-    
-   
     @discardableResult mutating func addLikely(_ metric: Metric, day: Date, scale: Double = 1.0) -> [Double]? {
         guard
             let sum = metric.sumByDay[day],
-            let count = metric.clientsByDay[day] else {
+            let count = metric.clientsByDay[day]
+        else {
             return nil
         }
         for i in 0 ..< width {
@@ -120,6 +119,7 @@ struct FixedLengthAccumulator {
         add(likely, count, variance)
         return likely
     }
+
     mutating func add(_ v: [Double], _ count: Int, _ variance: Double) {
         for i in 0 ..< width {
             values[next][i] += v[i]
@@ -177,7 +177,7 @@ struct FixedLengthAccumulator {
     var count: Int {
         counts.reduce(0, +)
     }
-    
+
     var variance: Double {
         variances.reduce(0, +)
     }
@@ -310,11 +310,10 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
-        
-            secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
+
+        secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
         uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
-   
     }
 
     var verifiedCount: FixedLengthAccumulator
@@ -324,11 +323,9 @@ struct Accumulators {
     var dateExposureCount: FixedLengthAccumulator
     var notificationsShown: NotificationShown
 
-        var secondaryAttack14D: FixedLengthAccumulator
+    var secondaryAttack14D: FixedLengthAccumulator
     var verified14DCount: FixedLengthAccumulator
     var uploaded14Count: FixedLengthAccumulator
-   
-    
 
     var excessSecondaryAttack: FixedLengthAccumulator
     var delayedNotifications = DelayedNotificationCounts(daysDelay: 7)
@@ -339,29 +336,25 @@ struct Accumulators {
     }
 
     mutating func update(_ d: Date, _ m: MetricSet, _ scale: Double = 1.0) {
-        if let vcLikely = verifiedCount.addLikely(m.codeVerified, day: d,  scale: scale)
-        {
-            
+        if let vcLikely = verifiedCount.addLikely(m.codeVerified, day: d, scale: scale) {
             let cvc = m.codeVerified.clientsByDay[d]!
             let cvVariance = m.codeVerified.getVariance(totalCount: cvc)
-            
-            uploadedCount.addLikely(m.keysUploaded, day: d,  scale: scale)
-            notifiedCount.addLikely(m.userNotification, day: d,  scale: scale)
+
+            uploadedCount.addLikely(m.keysUploaded, day: d, scale: scale)
+            notifiedCount.addLikely(m.userNotification, day: d, scale: scale)
             let allVerifiedCodes = vcLikely[1 ... (1 + numCategories)].reduce(0,+)
 
             let dateE = m.dateExposure
             if let likelyDE = dateExposureCount.addLikely(dateE, day: d, scale: scale),
                let dec = dateE.clientsByDay[d]
             {
-                
                 notificationsShown.add(likely: likelyDE, clients: dec)
                 let percentWithNotifications = notificationsShown.sum.map { $0 / 100_000.0 }
                 // true secondary attacks = (s-c*e)/(1-e).
                 let verifiedWithNotification = vcLikely[2 ... (1 + numCategories)]
                 let excessSecondaryAttacks = zip(verifiedWithNotification, percentWithNotifications).map { secondaryAttacks(codesVerified: allVerifiedCodes, verifiedWithNotification: $0, percentShowingNotification: $1) }
-           
+
                 excessSecondaryAttack.add(excessSecondaryAttacks, cvc, cvVariance)
-               
             } // if let de
             else {
                 let notificationsReceived = notifiedCount.per100KValues(range: 1 ... numCategories)
@@ -371,13 +364,12 @@ struct Accumulators {
                 excessSecondaryAttack.add(excessSecondaryAttacks, cvc, cvVariance)
             }
 
-            interactionCount.addLikely(m.interactions, day: d,  scale: scale)
-            
-            secondaryAttack14D.addLikely(m.secondaryAttack14D, day: d,  scale: 1.0/14.0)
-                
-            verified14DCount.addLikely(m.codeVerified14D, day: d,  scale: 1.0/14.0)
-            uploaded14Count.addLikely(m.keysUploaded14D, day: d,  scale: 1.0/14.0)
-            
+            interactionCount.addLikely(m.interactions, day: d, scale: scale)
+
+            secondaryAttack14D.addLikely(m.secondaryAttack14D, day: d, scale: 1.0 / 14.0)
+
+            verified14DCount.addLikely(m.codeVerified14D, day: d, scale: 1.0 / 14.0)
+            uploaded14Count.addLikely(m.keysUploaded14D, day: d, scale: 1.0 / 14.0)
         }
     }
 
@@ -414,27 +406,27 @@ struct Accumulators {
         let sarPrint: String
         let sarStdPrint: String
         let xsarPrint: String
-        
-            sarPrint = zip(saValues, unValues).map {
-                if let ar = sar($0, $1, std: cvSTD) {
-                    return "\(ar)"
-                }
-                return ""
-            }.joined(separator: ",")
-            sarStdPrint = zip(saValues, unValues).map {
-                if let ar = sar(cvSTD, $1, std: 0) {
-                    return "\(ar)"
-                }
-                return ""
-            }.joined(separator: ",")
-            xsarPrint = zip(xsa, unValues).map({
-                if let ar = sar($0, $1, std: cvSTD) {
-                    return "\(ar)"
-                }
-                return ""
+
+        sarPrint = zip(saValues, unValues).map {
+            if let ar = sar($0, $1, std: cvSTD) {
+                return "\(ar)"
             }
-            ).joined(separator: ",")
-        
+            return ""
+        }.joined(separator: ",")
+        sarStdPrint = zip(saValues, unValues).map {
+            if let ar = sar(cvSTD, $1, std: 0) {
+                return "\(ar)"
+            }
+            return ""
+        }.joined(separator: ",")
+        xsarPrint = zip(xsa, unValues).map({
+            if let ar = sar($0, $1, std: cvSTD) {
+                return "\(ar)"
+            }
+            return ""
+        }
+        ).joined(separator: ",")
+
         let dePrint: String
         let nsPrint: String
 
@@ -447,28 +439,28 @@ struct Accumulators {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
             nsPrint = String(repeating: ",", count: numCategories - 1)
         }
-             let sa14Print: String
+        let sa14Print: String
 
-            if secondaryAttack14D.updated {
-                // numCategories = 2
-                // x, x, x,   x, x,   x, x
-                sa14Print = "\(secondaryAttack14D.countPerDay),\(secondaryAttack14D.per100K(secondaryAttack14D.std)/14.0)," + secondaryAttack14D.per100KNoSTD(range: 0 ... numCategories - 1 ) + "," + secondaryAttack14D.per100KNoSTD(range: 8 ... 8 + numCategories - 1)
-            } else {
-                sa14Print = String(repeating: ",", count: 1 + 2 * numCategories)
-            }
+        if secondaryAttack14D.updated {
+            // numCategories = 2
+            // x, x, x,   x, x,   x, x
+            sa14Print = "\(secondaryAttack14D.countPerDay),\(secondaryAttack14D.per100K(secondaryAttack14D.std) / 14.0)," + secondaryAttack14D.per100KNoSTD(range: 0 ... numCategories - 1) + "," + secondaryAttack14D.per100KNoSTD(range: 8 ... 8 + numCategories - 1)
+        } else {
+            sa14Print = String(repeating: ",", count: 1 + 2 * numCategories)
+        }
         let vc14Print: String
         if verified14DCount.updated {
-            let values = verified14DCount.per100KValues(range: 0...5)
-            vc14Print = "\(verified14DCount.countPerDay),\(verified14DCount.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+            let values = verified14DCount.per100KValues(range: 0 ... 5)
+            vc14Print = "\(verified14DCount.countPerDay),\(verified14DCount.per100K(verified14DCount.std) / 14.0),\(values[1]),\(values[3])"
         } else {
-            vc14Print  = ",,,"
+            vc14Print = ",,,"
         }
         let ku14Print: String
         if uploaded14Count.updated {
-            let values = uploaded14Count.per100KValues(range: 0...5)
-            ku14Print = "\(uploaded14Count.countPerDay),\(uploaded14Count.per100K(verified14DCount.std)/14.0),\(values[1]),\(values[3])"
+            let values = uploaded14Count.per100KValues(range: 0 ... 5)
+            ku14Print = "\(uploaded14Count.countPerDay),\(uploaded14Count.per100K(verified14DCount.std) / 14.0),\(values[1]),\(values[3])"
         } else {
-            ku14Print  = ",,,"
+            ku14Print = ",,,"
         }
 
         printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print)")
@@ -482,8 +474,7 @@ struct Accumulators {
         excessSecondaryAttack.advance()
         verified14DCount.advance()
         uploaded14Count.advance()
-            secondaryAttack14D.advance()
-      
+        secondaryAttack14D.advance()
     }
 
     func printHeader() {
@@ -497,7 +488,7 @@ struct Accumulators {
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-            let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
+        let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
 
@@ -523,11 +514,10 @@ struct MetricSet {
     let dateExposure: Metric
     let userRisk: Metric?
     let interactions: Metric
-   
-        let secondaryAttack14D: Metric
+
+    let secondaryAttack14D: Metric
     let codeVerified14D: Metric
     let keysUploaded14D: Metric
-   
 
     init(forIOS metrics: [String: Metric]) {
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -536,12 +526,10 @@ struct MetricSet {
         dateExposure = getMetric(metrics, "com.apple.EN.DateExposure")
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
-        
-            secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
-            codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
+
+        secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
+        codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
         keysUploaded14D = getMetric(metrics, "com.apple.EN.KeysUploadedWithReportTypeV2D14")
-  
-        
     }
 
     init(forAndroid metrics: [String: Metric]) {
@@ -550,11 +538,11 @@ struct MetricSet {
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
         dateExposure = getMetric(metrics, "DateExposure")
         interactions = getMetric(metrics, "PeriodicExposureNotificationInteraction")
-        
-            secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
+
+        secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
         codeVerified14D = getMetric(metrics, "CodeVerifiedWithReportType14d")
-    keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
-        
+        keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
+
         userRisk = nil
     }
 }
@@ -848,8 +836,9 @@ public class Metric: @unchecked Sendable {
     }
 
     var pTimesOneMinusP: Double {
-        p*(1-p)
+        p * (1 - p)
     }
+
     var sqrtPTimesOneMinusP: Double {
         exp(epsilon / 2) / (1 + exp(epsilon))
     }
@@ -857,6 +846,7 @@ public class Metric: @unchecked Sendable {
     func getStandardDeviation(totalCount: Int) -> Double {
         sqrt(Double(totalCount)) * sqrtPTimesOneMinusP
     }
+
     func getVariance(totalCount: Int) -> Double {
         Double(totalCount) * pTimesOneMinusP
     }

@@ -53,7 +53,8 @@ struct ApiKeyView: View {
                 Text("api keys are typically between 100 and 250 characters, with no line breaks or spaces")
             }
             Button(action: { if !apiKey.isEmpty {
-                self.showingClear = true }}) {
+                self.showingClear = true
+            }}) {
                 Text("clear")
             }.alert(isPresented: $showingClear) {
                 makeAlert(title: "Really erase?",

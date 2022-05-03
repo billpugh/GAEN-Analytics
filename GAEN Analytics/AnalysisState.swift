@@ -85,6 +85,7 @@ class AnalysisState: NSObject, ObservableObject {
         csvExport = csvFile
         csvExportReady = true
     }
+
     static func exportToURL(csvFile: CSVFile) -> URL? {
         logger.log("exporting \(csvFile.name, privacy: .public)")
         do {
@@ -102,7 +103,6 @@ class AnalysisState: NSObject, ObservableObject {
             return nil
         }
     }
-    
 
     static func exportToURL(name: String, dataframe: DataFrame) -> URL? {
         logger.log("Exporting \(name, privacy: .public) to URL")
@@ -477,7 +477,7 @@ actor AnalysisTask {
                              "notificationInteractions",
                              "codeVerified",
                              "keysUploaded",
-                             "dateExposure","codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
+                             "dateExposure", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
             for m in readThese {
                 await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])

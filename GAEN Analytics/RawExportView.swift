@@ -78,7 +78,7 @@ struct CheckView: View, Identifiable {
 struct RawExportView: View {
     @ObservedObject var analysisState = AnalysisState.shared
     @ObservedObject var state = SetupState.shared
-  
+
     func exportRawENPA() {
         guard let raw = analysisState.rawENPA, let url = raw.writeMetrics() else { return }
         let name = url.lastPathComponent

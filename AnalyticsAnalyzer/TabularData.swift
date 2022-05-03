@@ -77,6 +77,7 @@ extension DataFrame {
         }
         return c.count
     }
+
     func emptyPrefix(_ names: [String]) -> Int {
         names.map { emptyPrefix($0) }.min()!
     }

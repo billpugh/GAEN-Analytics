@@ -85,10 +85,10 @@ struct ENXChartView: View {
                     #if targetEnvironment(macCatalyst)
                         analysisState.export(csvFile: csvDocument)
                     #else
-                         print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
+                        print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
 
-                    shareURL = AnalysisState.exportToURL(csvFile: csvDocument)
-                    shareTitle = csvDocument.name
+                        shareURL = AnalysisState.exportToURL(csvFile: csvDocument)
+                        shareTitle = csvDocument.name
                         showingShare = true
                     #endif
                 }) {
