@@ -340,7 +340,7 @@ struct LineChart: UIViewRepresentable {
 
     func formatLegend(legend: Legend) {
         legend.textColor = UIColor.black
-        legend.font = UIFont.boldSystemFont(ofSize: 12)
+        legend.font = UIFont.boldSystemFont(ofSize: 14)
         legend.horizontalAlignment = .center
         legend.verticalAlignment = .top
         legend.drawInside = false

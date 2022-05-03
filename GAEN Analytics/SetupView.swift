@@ -46,7 +46,7 @@ struct SetupView: View {
                 }
 
                 HStack {
-                    Text("# of notifications")
+                    Text("# of notification classifications")
                     Spacer()
                     Picker("", selection: $state.notifications) {
                         ForEach(1 ... 4, id: \.self) {

@@ -57,7 +57,7 @@
 		16856E5A27BBF40700F44960 /* about.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5727BBF31D00F44960 /* about.md */; };
 		16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */; };
 		16856E6627BC021000F44960 /* ENPA opt in.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6527BC01FC00F44960 /* ENPA opt in.md */; };
-		16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5F27BC014400F44960 /* claimed and consent rates.md */; };
+		16856E6727BC021400F44960 /* claim and consent rates.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E5F27BC014400F44960 /* claim and consent rates.md */; };
 		16856E6827BC021900F44960 /* tokens claimed.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6027BC018C00F44960 /* tokens claimed.md */; };
 		16856E6927BC021C00F44960 /* System health.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6127BC01A300F44960 /* System health.md */; };
 		16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */ = {isa = PBXBuildFile; fileRef = 16856E6227BC01BB00F44960 /* Notifications per key upload.md */; };
@@ -82,6 +82,7 @@
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
 		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
+		16A292E8282063000068F29B /* ENCV API key.md in Resources */ = {isa = PBXBuildFile; fileRef = 16A292E7282062F40068F29B /* ENCV API key.md */; };
 		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
 		16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB127E39D59000B1529 /* Users with notifications.md */; };
 		16AF2DB427E6167B000B1529 /* Notification share.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB327E61672000B1529 /* Notification share.md */; };
@@ -205,7 +206,7 @@
 		16856E5727BBF31D00F44960 /* about.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = about.md; sourceTree = "<group>"; };
 		16856E5827BBF34800F44960 /* DocView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocView.swift; sourceTree = "<group>"; };
 		16856E5B27BBF9CB00F44960 /* Notifications per 100K.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notifications per 100K.md"; sourceTree = "<group>"; };
-		16856E5F27BC014400F44960 /* claimed and consent rates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "claimed and consent rates.md"; sourceTree = "<group>"; };
+		16856E5F27BC014400F44960 /* claim and consent rates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "claim and consent rates.md"; sourceTree = "<group>"; };
 		16856E6027BC018C00F44960 /* tokens claimed.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "tokens claimed.md"; sourceTree = "<group>"; };
 		16856E6127BC01A300F44960 /* System health.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "System health.md"; sourceTree = "<group>"; };
 		16856E6227BC01BB00F44960 /* Notifications per key upload.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notifications per key upload.md"; sourceTree = "<group>"; };
@@ -219,6 +220,8 @@
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16A292E7282062F40068F29B /* ENCV API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV API key.md"; sourceTree = "<group>"; };
+		16A292E9282063160068F29B /* ENPA API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENPA API key.md"; sourceTree = "<group>"; };
 		16AF2DB127E39D59000B1529 /* Users with notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Users with notifications.md"; sourceTree = "<group>"; };
 		16AF2DB327E61672000B1529 /* Notification share.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notification share.md"; sourceTree = "<group>"; };
 		16B2B5D027D3C269000F763A /* codes claimed within hour %.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "codes claimed within hour %.md"; sourceTree = "<group>"; };
@@ -400,6 +403,8 @@
 				163EF28827C9218A00D3C19D /* ENCV.md */,
 				163EF28927C9219E00D3C19D /* ENPA.md */,
 				163CCB7A27DE45B000355180 /* Appendix.md */,
+				16A292E7282062F40068F29B /* ENCV API key.md */,
+				16A292E9282063160068F29B /* ENPA API key.md */,
 			);
 			path = docs;
 			sourceTree = "<group>";
@@ -431,7 +436,7 @@
 		16B2B5D627D40D85000F763A /* ENCV charts */ = {
 			isa = PBXGroup;
 			children = (
-				16856E5F27BC014400F44960 /* claimed and consent rates.md */,
+				16856E5F27BC014400F44960 /* claim and consent rates.md */,
 				163EF28E27C9330100D3C19D /* User report %.md */,
 				16856E6027BC018C00F44960 /* tokens claimed.md */,
 				16B2B5D027D3C269000F763A /* codes claimed within hour %.md */,
@@ -713,6 +718,7 @@
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
 				16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */,
 				16856E6927BC021C00F44960 /* System health.md in Resources */,
+				16A292E8282063000068F29B /* ENCV API key.md in Resources */,
 				1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */,
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
@@ -739,7 +745,7 @@
 				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
-				16856E6727BC021400F44960 /* claimed and consent rates.md in Resources */,
+				16856E6727BC021400F44960 /* claim and consent rates.md in Resources */,
 				1615FA5427EE09810089F0B6 /* Excess secondary attack rate 1.md in Resources */,
 				16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */,
 				1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */,
@@ -1070,7 +1076,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1109,7 +1115,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

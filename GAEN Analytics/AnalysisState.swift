@@ -765,9 +765,9 @@ func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
 
 func claimedConsent(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions {
     if hasUserReports {
-        return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate,user reports claim rate,user reports consent rate".components(separatedBy: ","))
+        return ChartOptions(title: "claim and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate,user reports claim rate,user reports consent rate".components(separatedBy: ","))
     }
-    return ChartOptions(title: "claimed and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate".components(separatedBy: ","))
+    return ChartOptions(title: "claim and consent rates", data: encv, columns: "confirmed test claim rate,confirmed test consent rate".components(separatedBy: ","))
 }
 
 func userReportRate(encv: DataFrame, hasUserReports: Bool, config _: Configuration) -> ChartOptions? {

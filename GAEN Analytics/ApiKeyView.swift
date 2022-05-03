@@ -19,9 +19,19 @@ struct ApiKeyView: View {
     @Binding var apiKey: String
     @State var textEditorHeight: CGFloat = 20
     @State var showingClear = false
+    @State var showingPopover = false
     var body: some View {
         VStack {
-            Text(title)
+            HStack { Text(title)
+                Button(action: { showingPopover.toggle() }) {
+                    Image(systemName: "info.circle")
+
+                }.buttonStyle(BorderlessButtonStyle())
+            }
+            if showingPopover {
+                Text(markdown(file: title)).fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
+            }
             ZStack(alignment: .leading) {
                 Text(apiKey)
                     .font(.system(.body))
@@ -42,7 +52,8 @@ struct ApiKeyView: View {
             if apiKey.count < 100 || apiKey.count > 250 {
                 Text("api keys are typically between 100 and 250 characters, with no line breaks or spaces")
             }
-            Button(action: { self.showingClear = true }) {
+            Button(action: { if !apiKey.isEmpty {
+                self.showingClear = true }}) {
                 Text("clear")
             }.alert(isPresented: $showingClear) {
                 makeAlert(title: "Really erase?",

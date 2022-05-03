@@ -2,7 +2,7 @@
 
 This app allows public health agencies that are using GAEN, the Google/Apple exposure notification system, to download, analyze and export the analytics made available from the ENPA and ENCV servers. In order to use this app, you must have created apiKeys for your organization through the ENPA and ENCV portals. It will work if you only have an apiKey for one or both of the two servers. You will need to copy and paste the api keys into the app, they are way too long to type in. 
 
-All analyzed/presented data is rolling 7-day averages. The ENPA metrics include noise due to differential privacy. 
+The ENPA metrics include noise arising from differential privacy methods used to ensure that data from any one device is protected. All analyzed/presented data is rolling averages (e.g., 7 day or 14 day rolling averages). The period for rolling averages can be selected in the setup screen. 
 
 All ENPA and ENCV data is kept private to the app except as exported by the user as csv files. 
 

@@ -132,7 +132,7 @@ struct ContentView: View {
                         }
                     }
 
-                    if state.debuggingFeatures && !state.setupNeeded {
+                    if false && state.debuggingFeatures && !state.setupNeeded {
                         HStack {
                             Button(action: { Task(priority: .userInitiated) {
                                 #if targetEnvironment(macCatalyst)
