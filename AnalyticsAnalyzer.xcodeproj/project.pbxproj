@@ -83,6 +83,7 @@
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
 		169FB8612642F3E20082DDD2 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16A292E8282063000068F29B /* ENCV API key.md in Resources */ = {isa = PBXBuildFile; fileRef = 16A292E7282062F40068F29B /* ENCV API key.md */; };
+		16A292EB2821C4920068F29B /* privacy policy.md in Resources */ = {isa = PBXBuildFile; fileRef = 16A292EA2821C4920068F29B /* privacy policy.md */; };
 		16AA11632625CE59007CA1A7 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 16AA11622625CE59007CA1A7 /* ArgumentParser */; };
 		16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB127E39D59000B1529 /* Users with notifications.md */; };
 		16AF2DB427E6167B000B1529 /* Notification share.md in Resources */ = {isa = PBXBuildFile; fileRef = 16AF2DB327E61672000B1529 /* Notification share.md */; };
@@ -222,6 +223,7 @@
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16A292E7282062F40068F29B /* ENCV API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV API key.md"; sourceTree = "<group>"; };
 		16A292E9282063160068F29B /* ENPA API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENPA API key.md"; sourceTree = "<group>"; };
+		16A292EA2821C4920068F29B /* privacy policy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "privacy policy.md"; sourceTree = "<group>"; };
 		16AF2DB127E39D59000B1529 /* Users with notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Users with notifications.md"; sourceTree = "<group>"; };
 		16AF2DB327E61672000B1529 /* Notification share.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Notification share.md"; sourceTree = "<group>"; };
 		16B2B5D027D3C269000F763A /* codes claimed within hour %.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "codes claimed within hour %.md"; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 			isa = PBXGroup;
 			children = (
 				16DEAB3927D64DC000069680 /* README.md */,
+				16A292EA2821C4920068F29B /* privacy policy.md */,
 				1609485925C3632A001705A6 /* AnalyticsAnalyzer */,
 				1673F54927B07F710037D340 /* GAEN Analytics */,
 				169FB8572642F0C10082DDD2 /* AnalyticsTool */,
@@ -723,6 +726,7 @@
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
+				16A292EB2821C4920068F29B /* privacy policy.md in Resources */,
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
