@@ -483,7 +483,7 @@ struct Accumulators {
         let kuHeader = "ku std,ku,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
         let esHeader = range.map { "nts\($0)%," }.joined()
-        let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0) stdev%," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
+        let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0)% stdev," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
 
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
@@ -1466,7 +1466,7 @@ func dotProduct(_ x: [Double], _ y: [Double]) -> Double {
 
 func presentValue(_ name: String, _ x: Double?) -> String {
     if let x = x {
-        if name.hasSuffix("rate") || name.hasSuffix("share") || name.hasSuffix("%") {
+        if name.hasSuffix("rate") || name.hasSuffix("share") || name.contains("%") {
             return "\(Int((x * 100).rounded()))%"
         } else if x < 10, x > -10 {
             return "\((x * 100).rounded() / 100.0)"

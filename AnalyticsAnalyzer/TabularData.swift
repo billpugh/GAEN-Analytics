@@ -394,6 +394,18 @@ extension DataFrame {
         return true
     }
 
+    mutating func addColumnComputation(_ name1: String, _ name2: String, giving: String, _ function: (Double?, Int?) -> Double?) {
+        logger.info("addColumComputation(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self), requireColumn(name2, Int.self) else {
+            return
+        }
+        let column1 = self[name1, Double.self]
+        let column2 = self[name2, Int.self]
+        let resultData = zip(column1, column2).map { function($0, $1) }
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {

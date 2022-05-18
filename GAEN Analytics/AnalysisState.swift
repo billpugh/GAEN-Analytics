@@ -32,7 +32,7 @@ class AnalysisState: NSObject, ObservableObject {
     var progressSteps: Double = 0.0
     @Published var progress: Double = 0.0
     var progressCount: Double {
-        let enpaCount = 7 + additionalMetrics.count
+        let enpaCount = standardMetrics.count + additionalMetrics.count
         return Double(enpaCount + 3)
     }
 
@@ -285,8 +285,8 @@ class AnalysisState: NSObject, ObservableObject {
         progressSteps = 0
         available = false
 
-        enpaSummary = ""
-        encvSummary = ""
+        enpaSummary = "waiting for ENPA data..."
+        encvSummary = "waiting for ENCV data..."
         nextAction = "Fetching analytics"
         enpaCharts = []
         encvCharts = []
@@ -372,6 +372,7 @@ class AnalysisState: NSObject, ObservableObject {
                     arrivingPromptly(enpa: enpa, config: config),
                     estimatedUsers(enpa: enpa, config: config),
                     enpaOptIn(enpa: enpa, config: config),
+                    scaledNotifications(enpa: enpa, config: config),
                 ]
             enpaCharts = maybeCharts.compactMap { $0 }
             let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config)]
@@ -468,17 +469,25 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     return result
 }
 
+func estimatedNotifications(nt: Double?, estUsers: Int?) -> Double? {
+    if let nt = nt, let estUsers = estUsers {
+        return nt / 100_000.0 * Double(estUsers)
+    }
+    return nil
+}
+
+let standardMetrics = ["userRisk",
+                       "notification",
+                       "notificationInteractions",
+                       "codeVerified",
+                       "keysUploaded",
+                       "dateExposure", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
 actor AnalysisTask {
     func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
         do {
             var raw = RawMetrics(config)
-            let readThese = ["userRisk",
-                             "notification",
-                             "notificationInteractions",
-                             "codeVerified",
-                             "keysUploaded",
-                             "dateExposure", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
-            for m in readThese {
+
+            for m in standardMetrics {
                 await result.update(enpa: "fetching ENPA \(m)")
                 let errors = raw.addMetric(names: [m])
                 if !errors.isEmpty {
@@ -507,6 +516,7 @@ actor AnalysisTask {
             if let encv = encvAverage {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
+                combinedDataFrame.addColumnComputation("nt", "est users from vc", giving: "est scaled notifications", estimatedNotifications)
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
                 combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
@@ -707,7 +717,7 @@ func secondaryAttackRate(enpa: DataFrame, config: Configuration) -> ChartOptions
 
 func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions? {
     let sar = "sar\(notification)%"
-    let stdev = "sar\(notification) stdev%"
+    let stdev = "sar\(notification)% stdev"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
@@ -722,7 +732,7 @@ func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notific
 
 func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions? {
     let sar = "xsar\(notification)%"
-    let stdev = "sar\(notification) stdev%"
+    let stdev = "sar\(notification)% stdev"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
@@ -745,6 +755,11 @@ func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
     ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users from vc"])
+}
+
+// est. users
+func scaledNotifications(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
+    ChartOptions.maybe(title: "Est. scaled notifications", data: enpa, columns: ["est scaled notifications"])
 }
 
 func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOptions? {
