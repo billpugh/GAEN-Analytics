@@ -405,7 +405,46 @@ extension DataFrame {
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
-
+    mutating func addRollingMedianInt(_ name1: String, giving: String, days: Int) {
+        logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Int.self) else {
+            return
+        }
+        let column1 : [Int?] = self[name1, Int.self]
+        let resultData = rollingMedian(column1, length: days)
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+    mutating func addRollingMedianDouble(_ name1: String, giving: String, days: Int) {
+        logger.info("addRollingMedianDouble(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self) else {
+            return
+        }
+        let column1 : [Double?] = self[name1, Double.self]
+        let resultData = rollingMedian(column1, length: days)
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+    mutating func addRollingSumInt(_ name1: String, giving: String) {
+        logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Int.self) else {
+            return
+        }
+        let column1 : [Int?] = self[name1, Int.self]
+        let resultData = rollingSum(column1)
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+    mutating func addRollingSumDouble(_ name1: String, giving: String) {
+        logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Double.self) else {
+            return
+        }
+        let column1 : [Double?] = self[name1, Double.self]
+        let resultData = rollingSum(column1)
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
@@ -451,6 +490,55 @@ func makeColumn<T>(_ name: String, _ value: T) -> AnyColumn {
 
     return Column<T>(name: name, contents: [value]).eraseToAnyColumn()
 }
+func rollingSum(_ a: [Int?]) -> [Int] {
+    var total = 0
+    return a.map { total += ($0 ?? 0); return total}
+    
+}
+func rollingSum(_ a: [Double?]) -> [Double] {
+    var total = 0.0
+    return a.map { total += ($0 ?? 0); return total}
+    
+}
+
+func median<T>(_ a: ArraySlice<T>) -> T? where T: Numeric, T : Comparable  {
+
+    if a.isEmpty {
+        return nil
+    }
+    let sorted = a.sorted()
+    let count = sorted.count
+    // 0 - nil
+    // 1 - 0
+    // 2 - 0, 1
+    // 3 - 1
+    // 4 - 1,2
+    if count % 2 == 0 {
+          // Even number of items - return the mean of two middle values
+          let leftIndex = count / 2 - 1
+          let leftValue = sorted[leftIndex]
+          return leftValue
+        } else {
+          // Odd number of items - take the middle item.
+          return sorted[count/2]
+        }
+}
+
+
+
+
+func median<T>(_ a: [T?], ending: Int, count: Int) -> T? where T : Numeric, T : Comparable {
+    let values = a[0...ending].compactMap( { $0 }).suffix(count)
+    
+    let result =  median(values)
+    return result
+}
+
+
+func rollingMedian<T>(_ a: [T?],  length: Int) -> [T?] where T : Numeric, T : Comparable {
+    return (0 ..< a.count).map( { median(a, ending: $0, count: length) } )
+}
+
 
 class TextBuffer {
     var text: [String] = []

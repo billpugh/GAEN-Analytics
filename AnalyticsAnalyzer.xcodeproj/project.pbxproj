@@ -78,7 +78,7 @@
 		16856EB027C2F58200F44960 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16856EB127C2F5BB00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		16856EB227C2F70100F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
-		168933ED282952E600A3FDC2 /* Est. scaled notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 168933EC282952D900A3FDC2 /* Est. scaled notifications.md */; };
+		168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */ = {isa = PBXBuildFile; fileRef = 168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
@@ -220,7 +220,7 @@
 		16856E9827BFEFFA00F44960 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16856EA027C04EBE00F44960 /* SmokeTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmokeTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
-		168933EC282952D900A3FDC2 /* Est. scaled notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Est. scaled notifications.md"; sourceTree = "<group>"; };
+		168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Est. scaled notifications per day.md"; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16A292E7282062F40068F29B /* ENCV API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV API key.md"; sourceTree = "<group>"; };
@@ -471,7 +471,7 @@
 				1615FA5627EE09B10089F0B6 /* Excess secondary attack rate 3.md */,
 				1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */,
 				16AF2DB127E39D59000B1529 /* Users with notifications.md */,
-				168933EC282952D900A3FDC2 /* Est. scaled notifications.md */,
+				168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -730,7 +730,7 @@
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
 				16A292EB2821C4920068F29B /* privacy policy.md in Resources */,
-				168933ED282952E600A3FDC2 /* Est. scaled notifications.md in Resources */,
+				168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */,
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
@@ -1064,7 +1064,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1084,7 +1084,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1103,7 +1103,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1123,7 +1123,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

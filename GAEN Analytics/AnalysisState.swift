@@ -415,8 +415,9 @@ class AnalysisState: NSObject, ObservableObject {
     }
 }
 
-func computeEstimatedDevices(_ codesClaimed: Int?, _ cv: Double?) -> Int? {
-    guard let codesClaimed = codesClaimed, let cv = cv, cv >= 1 else {
+func computeEstimatedDevices(_ codesClaimed: Int?, _ cvData: (Double?, Double?)) -> Int? {
+    let (cv, cvstd) = cvData
+    guard let codesClaimed = codesClaimed, let cv = cv, let cvstd = cvstd, cv >= 3.0*cvstd else {
         return nil
     }
     return Int((Double(codesClaimed * 100_000) / cv).rounded())
@@ -460,7 +461,8 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     logger.log("added encv data to enpa data")
 
     let vc = result[enpaColumn, Double.self]
-    let estUsers = zip(newEncvColumn, vc).map { computeEstimatedDevices($0.0, $0.1) }
+    let vcstd = result[enpaColumn+" std", Double.self]
+    let estUsers = zip(newEncvColumn, zip(vc, vcstd)).map { computeEstimatedDevices($0.0, $0.1) }
     let estUsersColumnName = "est \(platform)users from \(enpaColumn)"
     logger.log("\(estUsersColumnName) computed")
     let c = Column(name: estUsersColumnName, contents: estUsers)
@@ -515,8 +517,15 @@ actor AnalysisTask {
             var worksheet: DataFrame
             if let encv = encvAverage {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
+                
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
-                combinedDataFrame.addColumnComputation("nt", "est users from vc", giving: "est scaled notifications", estimatedNotifications)
+                combinedDataFrame.addRollingMedianInt("est users from vc", giving: "est users", days: 14)
+                combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "ENPA %", days: 14)
+                combinedDataFrame.addColumnComputation("nt", "est users", giving: "est scaled notifications/day", estimatedNotifications)
+                combinedDataFrame.addRollingSumDouble("est scaled notifications/day",  giving: "est total notifications")
+               
+                
+                
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
                 combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
@@ -668,8 +677,6 @@ struct ChartOptions: Identifiable {
         }
 
         self.data = data.selecting(columnNames: ["date"] + columns)
-        let dates = self.data["date", Date.self]
-        print("\(dates.first!!)")
         self.columns = columns
         self.maxBound = maxBound
     }
@@ -754,12 +761,12 @@ func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
 
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users from vc"])
+    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users"])
 }
 
 // est. users
 func scaledNotifications(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Est. scaled notifications", data: enpa, columns: ["est scaled notifications"])
+    ChartOptions.maybe(title: "Est. scaled notifications per day", data: enpa, columns: ["est scaled notifications/day"])
 }
 
 func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOptions? {
@@ -770,7 +777,7 @@ func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOption
 
 // est. users
 func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["vc ENPA %"], maxBound: 1.0)
+    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %"], maxBound: 1.0)
 }
 
 // codes claimed/consent
