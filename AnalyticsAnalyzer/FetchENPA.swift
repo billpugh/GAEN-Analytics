@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import os.log
 
 let urlSession = URLSession(configuration: .ephemeral)
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "fetchENPA")
 
 public func getStat(metric: String, configuration: Configuration) -> NSDictionary {
     let sDate: String
@@ -42,7 +44,7 @@ func getData(_ request: URLRequest) -> Data? {
 
         // Check if Error took place
         if let error = error {
-            print("Error took place \(error)")
+            logger.log("Error took place \(error.localizedDescription)")
             semaphore.signal()
             return
         }
@@ -50,7 +52,7 @@ func getData(_ request: URLRequest) -> Data? {
         // Read HTTP Response Status code
         if let response = response as? HTTPURLResponse {
             if response.statusCode != 200 {
-                print("Response HTTP Status code: \(response.statusCode)")
+                logger.log("Response HTTP Status code: \(response.statusCode)")
             }
         }
 

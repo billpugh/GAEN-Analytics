@@ -107,7 +107,6 @@ struct RawExportView: View {
     var body: some View {
         List {
             Section(header: Text("Additional interaction metrics").font(.headline).textCase(nil)) {
-                CheckView(id: "riskParameters")
                 CheckView(id: "beaconCount")
             }
             Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {

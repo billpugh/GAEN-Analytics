@@ -15,6 +15,9 @@
 		1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */; };
 		1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5527EE09990089F0B6 /* Excess secondary attack rate 2.md */; };
 		161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */ = {isa = PBXBuildFile; fileRef = 161A123427DA3CE50026C53D /* Secondary attack rate.md */; };
+		1639ADE4286E04E200E66EC7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 1639ADE3286E04E200E66EC7 /* ZIPFoundation */; };
+		1639ADE5286E057600E66EC7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
+		1639ADE7286E09A900E66EC7 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1639ADE6286E09A900E66EC7 /* CSV */; };
 		163CCB7B27DE462000355180 /* Appendix.md in Resources */ = {isa = PBXBuildFile; fileRef = 163CCB7A27DE45B000355180 /* Appendix.md */; };
 		163EF28627C91FA800D3C19D /* TopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163EF28527C91FA800D3C19D /* TopicView.swift */; };
 		163EF28A27C921FA00D3C19D /* Test.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28727C9216800D3C19D /* Test.md */; };
@@ -30,6 +33,7 @@
 		164945B427B6B1E400C0F5F0 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16515AA625C9939200C97BB8 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16570A1627D2662B00BEAA12 /* AnalysisProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */; };
+		1670B5352864E1350018A084 /* Invalid code ratios.md in Resources */ = {isa = PBXBuildFile; fileRef = 1670B5342864E1350018A084 /* Invalid code ratios.md */; };
 		1673F54127B002B80037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		1673F54227B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		1673F54327B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
@@ -79,6 +83,7 @@
 		16856EB127C2F5BB00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		16856EB227C2F70100F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
 		168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */ = {isa = PBXBuildFile; fileRef = 168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */; };
+		169AAED9286E243B0039CB4E /* unusual tek uploads.md in Resources */ = {isa = PBXBuildFile; fileRef = 169AAED8286E235A0039CB4E /* unusual tek uploads.md */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
 		169FB8602642F1360082DDD2 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85F2642F1360082DDD2 /* ArgumentParser */; };
@@ -188,6 +193,7 @@
 		164945A727B6AE5600C0F5F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16515AA525C9939200C97BB8 /* functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = functionality.swift; sourceTree = "<group>"; };
 		16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisProgressView.swift; sourceTree = "<group>"; };
+		1670B5342864E1350018A084 /* Invalid code ratios.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Invalid code ratios.md"; sourceTree = "<group>"; };
 		1673F54027B002B80037D340 /* configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configuration.swift; sourceTree = "<group>"; };
 		1673F54827B07F710037D340 /* GAEN Analytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GAEN Analytics.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1673F54A27B07F710037D340 /* GAEN_AnalyticsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GAEN_AnalyticsApp.swift; sourceTree = "<group>"; };
@@ -221,6 +227,7 @@
 		16856EA027C04EBE00F44960 /* SmokeTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmokeTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Est. scaled notifications per day.md"; sourceTree = "<group>"; };
+		169AAED8286E235A0039CB4E /* unusual tek uploads.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "unusual tek uploads.md"; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16A292E7282062F40068F29B /* ENCV API key.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV API key.md"; sourceTree = "<group>"; };
@@ -254,6 +261,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1639ADE4286E04E200E66EC7 /* ZIPFoundation in Frameworks */,
+				1639ADE7286E09A900E66EC7 /* CSV in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +457,8 @@
 				16B2B5D227D3C66D000F763A /* avg days onset to upload.md */,
 				16856E6127BC01A300F44960 /* System health.md */,
 				1615FA5027EE092F0089F0B6 /* Publish requests.md */,
+				1670B5342864E1350018A084 /* Invalid code ratios.md */,
+				169AAED8286E235A0039CB4E /* unusual tek uploads.md */,
 			);
 			path = "ENCV charts";
 			sourceTree = "<group>";
@@ -529,6 +540,8 @@
 			);
 			name = AnalyticsAnalyzer;
 			packageProductDependencies = (
+				1639ADE3286E04E200E66EC7 /* ZIPFoundation */,
+				1639ADE6286E09A900E66EC7 /* CSV */,
 			);
 			productName = AnalyticsAnalyzer;
 			productReference = 1609485725C3632A001705A6 /* AnalyticsAnalyzer */;
@@ -729,6 +742,7 @@
 				163EF28B27C921FE00D3C19D /* ENCV.md in Resources */,
 				16B2B5E327D40F86000F763A /* combined analysis.md in Resources */,
 				16856E6827BC021900F44960 /* tokens claimed.md in Resources */,
+				169AAED9286E243B0039CB4E /* unusual tek uploads.md in Resources */,
 				16A292EB2821C4920068F29B /* privacy policy.md in Resources */,
 				168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */,
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
@@ -754,6 +768,7 @@
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
 				16856E6727BC021400F44960 /* claim and consent rates.md in Resources */,
+				1670B5352864E1350018A084 /* Invalid code ratios.md in Resources */,
 				1615FA5427EE09810089F0B6 /* Excess secondary attack rate 1.md in Resources */,
 				16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */,
 				1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */,
@@ -777,6 +792,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16515AA625C9939200C97BB8 /* functionality.swift in Sources */,
+				1639ADE5286E057600E66EC7 /* main.swift in Sources */,
 				16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */,
 				1673F54127B002B80037D340 /* configuration.swift in Sources */,
 				16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */,
@@ -1084,7 +1100,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.2;
+				MARKETING_VERSION = 0.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1123,7 +1139,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.2;
+				MARKETING_VERSION = 0.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1369,6 +1385,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
 			productName = ZIPFoundation;
+		};
+		1639ADE3286E04E200E66EC7 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		1639ADE6286E09A900E66EC7 /* CSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1609486125C3634A001705A6 /* XCRemoteSwiftPackageReference "CSV.swift" */;
+			productName = CSV;
 		};
 		164945AF27B6B17700C0F5F0 /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;

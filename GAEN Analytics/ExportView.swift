@@ -211,6 +211,9 @@ struct ExportView: View {
 
             Section(header: Text("ENCV").font(.title).padding(.top)) {
                 ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
+                if let smsErrors = analysisState.smsErrors {
+                    ExportItem(title: "SMS errors data", fileTitle: "encv-sms-errors", dataFrame: smsErrors, showingSheet: $showingSheet)
+                }
                 ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
 
                 // Text("System health")

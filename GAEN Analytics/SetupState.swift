@@ -8,23 +8,6 @@
 import Foundation
 // import UIKit
 
-let dateFormatter: DateFormatter = {
-    let df = DateFormatter()
-    df.dateFormat = "yyyy-MM-dd"
-    df.timeZone = TimeZone(identifier: "UTC")!
-    return df
-}()
-
-let defaultStart = dateFormatter.date(from: "2021-12-01")!
-
-private func dateFor(key: String) -> Date {
-    let d = UserDefaults.standard.double(forKey: key)
-    if d == 0 {
-        return defaultStart
-    }
-    return Date(timeIntervalSince1970: d)
-}
-
 // struct Configuration : Sendable {
 //    let region: String
 //    let notifications: Int
@@ -33,6 +16,14 @@ private func dateFor(key: String) -> Date {
 //    let startDate: Date
 //    let configStartDate: Date
 // }
+
+func dateFor(key: String) -> Date {
+    let d = UserDefaults.standard.double(forKey: key)
+    if d == 0 {
+        return defaultStart
+    }
+    return Date(timeIntervalSince1970: d)
+}
 
 func getTestServers() -> NSDictionary? {
     do {

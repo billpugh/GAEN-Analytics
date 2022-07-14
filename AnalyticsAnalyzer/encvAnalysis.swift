@@ -68,6 +68,24 @@ func transformDistribution(_ distribution: String) -> [Int] {
     return d.map { Int($0) ?? -1 }
 }
 
+func firstElement(_ v: [Int]?) -> Int? {
+    guard let v = v else {
+        return nil
+    }
+    return v.first
+}
+
+func sum(_ v: [Int]?) -> Int? {
+    guard let v = v else {
+        return nil
+    }
+    var total = 0
+    for i in 0 ..< v.count {
+        total += v[i]
+    }
+    return total
+}
+
 func weightedSum(_ v: [Int]?) -> Double? {
     guard let v = v else {
         return nil
@@ -150,6 +168,7 @@ func analyzeENCV(config: Configuration, composite: DataFrame, smsData: DataFrame
     tmp.transformColumn("code_claim_age_distribution", transformDistribution)
     if hasKeyServerStats {
         tmp.transformColumn("onset_to_upload_distribution", transformDistribution)
+        tmp.transformColumn("tek_age_distribution", transformDistribution)
     }
     tmp.checkUniqueColumnNames()
     var rollingAvg = DataFrame(tmp.rollingAvg(days: config.numDays).filter { date($0) >= config.startDate! })
@@ -158,6 +177,10 @@ func analyzeENCV(config: Configuration, composite: DataFrame, smsData: DataFrame
     if hasKeyServerStats {
         rollingAvg.transformColumn("onset_to_upload_distribution", weightedSum)
         rollingAvg.renameColumn("onset_to_upload_distribution", to: "avg_days_onset_to_upload")
+        rollingAvg.copyColumnIntArray("tek_age_distribution", giving: "tek_uploads")
+        rollingAvg.transformColumn("tek_age_distribution", firstElement)
+        rollingAvg.renameColumn("tek_age_distribution", to: "uploads with single key")
+        rollingAvg.transformColumn("tek_uploads", sum)
     }
     // Buckets are: 1m, 5m, 15m, 30m, 1h, 2h, 3h, 6h, 12h, 24h, >24h
     rollingAvg.transformColumn("code_claim_age_distribution") { weightedSum($0, weights: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]) }
@@ -181,9 +204,12 @@ func analyzeENCV(config: Configuration, composite: DataFrame, smsData: DataFrame
     if hasKeyServerStats {
         rollingAvg.addColumnPercentage("publish_requests_android", "publish_requests", giving: "android_publish_share")
         // rollingAvg.addColumnPercentage("publish_requests_ios", "publish_requests_android", giving: "ios_scaling_factor")
-
-        // rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
-        // rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
+        rollingAvg.addColumnShare("codes_invalid", "codes_claimed", giving: "invalid_share")
+        rollingAvg.addColumnPercentage("codes_invalid_ios", "codes_invalid", giving: "ios_invalid_share")
+        rollingAvg.addColumnPercentage("codes_invalid_ios", "publish_requests_ios", giving: "ios_invalid_ratio")
+        rollingAvg.addColumnPercentage("codes_invalid_android", "publish_requests_android", giving: "android_invalid_ratio")
+        rollingAvg.addColumnPercentage("uploads with single key", "publish_requests", giving: "single key uploads")
+        rollingAvg.addColumnPercentage(excluding: "tek_uploads", "publish_requests", giving: "publish requests without teks")
     }
     rollingAvg.checkUniqueColumnNames()
     if smsData != nil {

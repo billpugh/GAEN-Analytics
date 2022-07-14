@@ -54,6 +54,8 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var combinedENPA: DataFrame?
     // persisted
     @Published var encvComposite: DataFrame?
+    @Published var smsErrors: DataFrame?
+
     @Published var worksheet: DataFrame?
     @Published var rollingAvg: DataFrame?
     @Published var enpaCharts: [ChartOptions] = []
@@ -301,9 +303,10 @@ class AnalysisState: NSObject, ObservableObject {
         nextAction = "Update analytics"
     }
 
-    func gotENCV(composite: DataFrame?) {
+    func gotENCV(composite: DataFrame?, smsErrors: DataFrame?) {
         encvComposite = composite
         saveComposite()
+        self.smsErrors = smsErrors
     }
 
     func gotRollingAvg(rollingAvg: DataFrame?) {
@@ -370,6 +373,8 @@ class AnalysisState: NSObject, ObservableObject {
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
                     arrivingPromptly(enpa: enpa, config: config),
+                    attenuationsGraph(enpa: enpa, config: config),
+                    durationsGraph(enpa: enpa, config: config),
                     estimatedUsers(enpa: enpa, config: config),
                     enpaOptIn(enpa: enpa, config: config),
                     scaledNotifications(enpa: enpa, config: config),
@@ -400,10 +405,13 @@ class AnalysisState: NSObject, ObservableObject {
                 userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
                 tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
                 systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
+                invalidCodes(encv: encv, config: config),
+
             ].compactMap { $0 }
 
             appendixCharts = [
                 timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
+                tekUploads(encv: encv, config: config),
                 onsetToUpload(encv: encv, hasUserReports: hasUserReports, config: config),
                 publishRequests(encv: encv, config: config),
             ].compactMap { $0 }
@@ -417,7 +425,7 @@ class AnalysisState: NSObject, ObservableObject {
 
 func computeEstimatedDevices(_ codesClaimed: Int?, _ cvData: (Double?, Double?)) -> Int? {
     let (cv, cvstd) = cvData
-    guard let codesClaimed = codesClaimed, let cv = cv, let cvstd = cvstd, cv >= 3.0*cvstd else {
+    guard let codesClaimed = codesClaimed, let cv = cv, let cvstd = cvstd, cv >= 3.0 * cvstd else {
         return nil
     }
     return Int((Double(codesClaimed * 100_000) / cv).rounded())
@@ -461,7 +469,7 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     logger.log("added encv data to enpa data")
 
     let vc = result[enpaColumn, Double.self]
-    let vcstd = result[enpaColumn+" std", Double.self]
+    let vcstd = result[enpaColumn + " std", Double.self]
     let estUsers = zip(newEncvColumn, zip(vc, vcstd)).map { computeEstimatedDevices($0.0, $0.1) }
     let estUsersColumnName = "est \(platform)users from \(enpaColumn)"
     logger.log("\(estUsersColumnName) computed")
@@ -478,7 +486,7 @@ func estimatedNotifications(nt: Double?, estUsers: Int?) -> Double? {
     return nil
 }
 
-let standardMetrics = ["userRisk",
+let standardMetrics = ["userRisk", "riskParameters",
                        "notification",
                        "notificationInteractions",
                        "codeVerified",
@@ -517,15 +525,13 @@ actor AnalysisTask {
             var worksheet: DataFrame
             if let encv = encvAverage {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
-                
+
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
                 combinedDataFrame.addRollingMedianInt("est users from vc", giving: "est users", days: 14)
                 combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "ENPA %", days: 14)
                 combinedDataFrame.addColumnComputation("nt", "est users", giving: "est scaled notifications/day", estimatedNotifications)
-                combinedDataFrame.addRollingSumDouble("est scaled notifications/day",  giving: "est total notifications")
-               
-                
-                
+                combinedDataFrame.addRollingSumDouble("est scaled notifications/day", giving: "est total notifications")
+
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
                 combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
@@ -602,7 +608,7 @@ actor AnalysisTask {
         await result.update(encv: "Analyzing encv")
         let analysis = analyzeENCV(config: config, composite: composite, smsData: smsData)
 
-        await result.gotENCV(composite: composite)
+        await result.gotENCV(composite: composite, smsErrors: smsData)
         await result.gotRollingAvg(rollingAvg: analysis.average)
         await result.log(encv: analysis.log)
         return analysis
@@ -682,6 +688,19 @@ struct ChartOptions: Identifiable {
     }
 }
 
+func invalidCodes(encv: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["invalid share", "ios invalid share", "ios invalid ratio", "android invalid ratio"]
+    return ChartOptions(title: "Invalid code ratios", data: encv,
+                        columns: columns, maxBound: 2.0)
+}
+
+func tekUploads(encv: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["single key uploads", "publish requests without teks"]
+    let result = ChartOptions(title: "unusual tek uploads", data: encv,
+                              columns: columns, maxBound: 0.5)
+    return result
+}
+
 func notificationsPerUpload(enpa: DataFrame, config: Configuration) -> ChartOptions {
     let columns: [String]
     if config.numCategories == 1 {
@@ -693,6 +712,25 @@ func notificationsPerUpload(enpa: DataFrame, config: Configuration) -> ChartOpti
     return ChartOptions(title: "Notifications per key upload", data: enpa,
                         columns: columns,
                         maxBound: 50)
+}
+
+//   let aBHeader = "attn count, <= 50 dB %, <= 55 dB %, <= 60 dB %, <= 65 dB %, <= 70 dB %, <= 75 dB %, <= 80 dB %"
+// let dBHeader = "dur count, dur std, > 10min %, > 20min %,> 30min %,> 50min %,> 70min %, > 90min %, > 120min %"
+
+func attenuationsGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["<= 50 dB %", "<= 55 dB %", "<= 60 dB %", "<= 65 dB %", "<= 70 dB %", "<= 75 dB %", "<= 80 dB %"]
+
+    return ChartOptions(title: "Attenuation distribution", data: enpa,
+                        columns: columns,
+                        maxBound: 1)
+}
+
+func durationsGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["> 10min %", "> 20min %", "> 30min %", "> 50min %", "> 70min %", "> 90min %", "> 120min %"]
+
+    return ChartOptions(title: "Weighted duration distribution", data: enpa,
+                        columns: columns,
+                        maxBound: 1)
 }
 
 func notificationsPer100K(enpa: DataFrame, config: Configuration) -> ChartOptions {

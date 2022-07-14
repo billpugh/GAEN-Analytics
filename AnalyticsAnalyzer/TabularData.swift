@@ -35,6 +35,20 @@ extension DataFrame {
         return Double(x) / Double(y)
     }
 
+    func ratio(excluding x: Int?, _ y: Int?) -> Double? {
+        guard let x = x, let y = y, y > 0 else {
+            return nil
+        }
+        return Double(y - x) / Double(y)
+    }
+
+    func share(_ x: Int?, _ y: Int?) -> Double? {
+        guard let x = x, let y = y, y > 0 else {
+            return nil
+        }
+        return Double(x) / Double(x + y)
+    }
+
     func ratio(_ x: Double?, _ y: Double?) -> Double? {
         guard let x = x, let y = y, y > 0.1 else {
             return nil
@@ -54,7 +68,7 @@ extension DataFrame {
             }
         }
         if !hasAll {
-            print("\(columns.count) Columns: \(columns.map(\.name))")
+            logger.log("\(columns.count) Columns: \(columns.map(\.name))")
         }
     }
 
@@ -131,13 +145,18 @@ extension DataFrame {
             // print(c.name)
             if c.wrappedElementType == Date.self {
                 let c = c.assumingType(Date.self)
-                result.append(column: Column(c[days ..< c.count]))
+                let d = Column(c[days - 1 ..< c.count])
+                // print("\(d.count) dates")
+                // print(d)
+
+                result.append(column: d)
             } else if c.wrappedElementType == Int.self {
                 let c = c.assumingType(Int.self)
-                let range = (days ..< c.count)
+                let range = (days - 1 ..< c.count)
                 var rSum: [Int?] = []
                 for end in range {
-                    let slice = c[end - days ..< end]
+                    let slice = c[end - days + 1 ... end]
+                    // print("slice \(end-days+1)... \(end) has \(slice.count) elements")
                     // print(slice)
 
                     if let sum = slice.reduce(0, sum) {
@@ -147,15 +166,15 @@ extension DataFrame {
                     }
                 }
                 let r = Column(name: c.name, contents: rSum)
-                // print(r.count)
+                // print("\(r.count) ints")
                 // print(r)
                 result.append(column: r)
             } else if c.wrappedElementType == [Int].self {
                 let c = c.assumingType([Int].self)
-                let range = (days ..< c.count)
+                let range = (days - 1 ..< c.count)
                 var rSum: [[Int]?] = []
                 for end in range {
-                    let slice = c[end - days ..< end]
+                    let slice = c[end - days + 1 ... end]
                     // print(slice)
                     if let sum = slice.reduce(nil, sum) {
                         rSum.append(sum.map { average($0, days) })
@@ -363,6 +382,18 @@ extension DataFrame {
         append(column: column1)
     }
 
+    mutating func copyColumnIntArray(_ name1: String, giving: String) {
+        logger.info("copyColumn(\(name1, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1) else {
+            return
+        }
+        removeIfPresent(giving)
+        var column1 = self[name1, [Int].self]
+        column1.name = giving
+
+        append(column: column1)
+    }
+
     mutating func addColumnSum(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnSum(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
@@ -405,48 +436,53 @@ extension DataFrame {
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
     mutating func addRollingMedianInt(_ name1: String, giving: String, days: Int) {
         logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self) else {
             return
         }
-        let column1 : [Int?] = self[name1, Int.self]
+        let column1: [Int?] = self[name1, Int.self]
         let resultData = rollingMedian(column1, length: days)
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
     mutating func addRollingMedianDouble(_ name1: String, giving: String, days: Int) {
         logger.info("addRollingMedianDouble(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self) else {
             return
         }
-        let column1 : [Double?] = self[name1, Double.self]
+        let column1: [Double?] = self[name1, Double.self]
         let resultData = rollingMedian(column1, length: days)
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
     mutating func addRollingSumInt(_ name1: String, giving: String) {
         logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self) else {
             return
         }
-        let column1 : [Int?] = self[name1, Int.self]
+        let column1: [Int?] = self[name1, Int.self]
         let resultData = rollingSum(column1)
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
     mutating func addRollingSumDouble(_ name1: String, giving: String) {
         logger.info("addRollingMedianInt(\(name1, privacy: .public),  giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self) else {
             return
         }
-        let column1 : [Double?] = self[name1, Double.self]
+        let column1: [Double?] = self[name1, Double.self]
         let resultData = rollingSum(column1)
         append(column: Column(name: giving, contents: resultData))
         logger.info("added column \(giving, privacy: .public)")
     }
+
     mutating func addColumnPercentage(_ name1: String, _ name2: String, giving: String) {
-        logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        logger.info("addColumnShare(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
             return
         }
@@ -457,7 +493,31 @@ extension DataFrame {
         logger.info("added column \(giving, privacy: .public)")
     }
 
+    mutating func addColumnPercentage(excluding name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnShare(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
+            return
+        }
+        let column1 = self[name1, Int.self]
+        let column2 = self[name2, Int.self]
+        let resultData = zip(column1, column2).map { ratio(excluding: $0, $1) }
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
     mutating func addColumnShare(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Int.self), requireColumn(name2, Int.self) else {
+            return
+        }
+        let column1 = self[name1, Int.self]
+        let column2 = self[name2, Int.self]
+        let resultData = zip(column1, column2).map { share($0, $1) }
+        append(column: Column(name: giving, contents: resultData))
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
+    mutating func addColumnShareZX(_ name1: String, _ name2: String, giving: String) {
         logger.info("addColumnPercentage(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
             return
@@ -490,19 +550,18 @@ func makeColumn<T>(_ name: String, _ value: T) -> AnyColumn {
 
     return Column<T>(name: name, contents: [value]).eraseToAnyColumn()
 }
+
 func rollingSum(_ a: [Int?]) -> [Int] {
     var total = 0
-    return a.map { total += ($0 ?? 0); return total}
-    
+    return a.map { total += ($0 ?? 0); return total }
 }
+
 func rollingSum(_ a: [Double?]) -> [Double] {
     var total = 0.0
-    return a.map { total += ($0 ?? 0); return total}
-    
+    return a.map { total += ($0 ?? 0); return total }
 }
 
-func median<T>(_ a: ArraySlice<T>) -> T? where T: Numeric, T : Comparable  {
-
+func median<T>(_ a: ArraySlice<T>) -> T? where T: Numeric, T: Comparable {
     if a.isEmpty {
         return nil
     }
@@ -514,31 +573,26 @@ func median<T>(_ a: ArraySlice<T>) -> T? where T: Numeric, T : Comparable  {
     // 3 - 1
     // 4 - 1,2
     if count % 2 == 0 {
-          // Even number of items - return the mean of two middle values
-          let leftIndex = count / 2 - 1
-          let leftValue = sorted[leftIndex]
-          return leftValue
-        } else {
-          // Odd number of items - take the middle item.
-          return sorted[count/2]
-        }
+        // Even number of items - return the mean of two middle values
+        let leftIndex = count / 2 - 1
+        let leftValue = sorted[leftIndex]
+        return leftValue
+    } else {
+        // Odd number of items - take the middle item.
+        return sorted[count / 2]
+    }
 }
 
+func median<T>(_ a: [T?], ending: Int, count: Int) -> T? where T: Numeric, T: Comparable {
+    let values = a[0 ... ending].compactMap { $0 }.suffix(count)
 
-
-
-func median<T>(_ a: [T?], ending: Int, count: Int) -> T? where T : Numeric, T : Comparable {
-    let values = a[0...ending].compactMap( { $0 }).suffix(count)
-    
-    let result =  median(values)
+    let result = median(values)
     return result
 }
 
-
-func rollingMedian<T>(_ a: [T?],  length: Int) -> [T?] where T : Numeric, T : Comparable {
-    return (0 ..< a.count).map( { median(a, ending: $0, count: length) } )
+func rollingMedian<T>(_ a: [T?], length: Int) -> [T?] where T: Numeric, T: Comparable {
+    (0 ..< a.count).map { median(a, ending: $0, count: length) }
 }
-
 
 class TextBuffer {
     var text: [String] = []
@@ -563,25 +617,31 @@ class TextBuffer {
                 locale: Locale(identifier: "en_US"),
                 timeZone: TimeZone(abbreviation: "GMT")!
             ))
-        let result = try DataFrame(csvData: all.data(using: .utf8)!,
-                                   types: ["date": .date,
-                                           "days": .integer,
-                                           "vc count": .integer,
-                                           "kc count": .integer,
-                                           "nc count": .integer,
-                                           "dec count": .integer],
-                                   options: readingOptions)
-        if let startDate = startDate {
-            let df = DateFormatter()
-            df.dateStyle = .full
-            df.timeStyle = .full
-            df.timeZone = TimeZone(identifier: "UTC")!
-            print("filtering rows to \(df.string(from: startDate))")
-            let filtered = DataFrame(result.filter { date($0) >= startDate })
-            let dates = filtered["date", Date.self]
-            print("first date: \(df.string(from: dates.first!!))")
-            return filtered
+        do {
+            let result = try DataFrame(csvData: all.data(using: .utf8)!,
+                                       types: ["date": .date,
+                                               "days": .integer,
+                                               "vc count": .integer,
+                                               "kc count": .integer,
+                                               "nc count": .integer,
+                                               "dec count": .integer],
+                                       options: readingOptions)
+            if let startDate = startDate {
+                let df = DateFormatter()
+                df.dateStyle = .full
+                df.timeStyle = .full
+                df.timeZone = TimeZone(identifier: "UTC")!
+                print("filtering rows to \(df.string(from: startDate))")
+                let filtered = DataFrame(result.filter { date($0) >= startDate })
+                let dates = filtered["date", Date.self]
+                print("first date: \(df.string(from: dates.first!!))")
+                return filtered
+            }
+            return result
+        } catch {
+            print("Error: \(error.localizedDescription)")
+            print(all)
+            throw error
         }
-        return result
     }
 }

@@ -100,11 +100,11 @@ struct LineChart: UIViewRepresentable {
     let lineChart = LineChartView()
     init(data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
         let emptyPrefix = data.emptyPrefix(columns)
-        print("rows: \(data.rows.count), empty prefix: \(emptyPrefix)")
+        // print("rows: \(data.rows.count), empty prefix: \(emptyPrefix)")
 
         let pruned = data.suffix(data.rows.count - emptyPrefix)
         let emptySuffix = data.emptySuffix(columns)
-        print("rows: \(pruned.rows.count), empty suffix: \(emptySuffix)")
+        // print("rows: \(pruned.rows.count), empty suffix: \(emptySuffix)")
         self.data = pruned.prefix(max(0, pruned.rows.count - emptySuffix))
         self.columns = columns
 

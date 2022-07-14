@@ -9,6 +9,15 @@ import Foundation
 import os.log
 import TabularData
 
+public let dateFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.dateFormat = "yyyy-MM-dd"
+    df.timeZone = TimeZone(identifier: "UTC")!
+    return df
+}()
+
+let defaultStart = dateFormatter.date(from: "2021-12-01")!
+
 // import ZIPFoundation
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "functionality")
 
@@ -106,16 +115,13 @@ struct FixedLengthAccumulator {
 
     @discardableResult mutating func addLikely(_ metric: Metric, day: Date, scale: Double = 1.0) -> [Double]? {
         guard
-            let sum = metric.sumByDay[day],
-            let count = metric.clientsByDay[day]
+            let (count, sum, likely, variance) = metric.getLikely(day: day, scale: scale)
         else {
             return nil
         }
         for i in 0 ..< width {
             raw[next][i] += sum[i]
         }
-        let likely = metric.getMostLikelyPopulationCount(totalCount: count, sumPart: sum, scale: scale)
-        let variance = metric.getVariance(totalCount: count)
         add(likely, count, variance)
         return likely
     }
@@ -297,12 +303,12 @@ struct Accumulators {
         } else {
             self.printFunction = { print($0) }
         }
-//        let codeVerified: Metric
-//        let keysUploaded: Metric
-//        let userNotification: Metric
-//        let dateExposure: Metric?
-//        let userRisk: Metric?
-//        let interactions: Metric
+        //        let codeVerified: Metric
+        //        let keysUploaded: Metric
+        //        let userNotification: Metric
+        //        let dateExposure: Metric?
+        //        let userRisk: Metric?
+        //        let interactions: Metric
         verifiedCount = FixedLengthAccumulator(numDays, m.codeVerified)
         uploadedCount = FixedLengthAccumulator(numDays, m.keysUploaded)
         notifiedCount = FixedLengthAccumulator(numDays, m.userNotification)
@@ -310,7 +316,8 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
-
+        durationBuckets = FixedLengthAccumulator(numDays, width: 8)
+        attenuationBuckets = FixedLengthAccumulator(numDays, width: 8)
         secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
         uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
@@ -322,6 +329,8 @@ struct Accumulators {
     var interactionCount: FixedLengthAccumulator
     var dateExposureCount: FixedLengthAccumulator
     var notificationsShown: NotificationShown
+    var durationBuckets: FixedLengthAccumulator
+    var attenuationBuckets: FixedLengthAccumulator
 
     var secondaryAttack14D: FixedLengthAccumulator
     var verified14DCount: FixedLengthAccumulator
@@ -365,6 +374,17 @@ struct Accumulators {
             }
 
             interactionCount.addLikely(m.interactions, day: d, scale: scale)
+
+            if let (count, _, likely, variance) = m.userRiskParameters.getLikely(day: d, scale: scale) {
+                // 1344 buckets
+                let summary = attenuationSummary(likely: likely)
+                attenuationBuckets.add(summary, count, variance * 168.0)
+            }
+            if let (count, _, likely, variance) = m.userRisk?.getLikely(day: d, scale: scale) {
+                // 512 buckets
+                let summary = durationSummary(likely: likely)
+                durationBuckets.add(summary, count, variance * 64.0)
+            }
 
             secondaryAttack14D.addLikely(m.secondaryAttack14D, day: d, scale: 1.0 / 14.0)
 
@@ -463,7 +483,32 @@ struct Accumulators {
             ku14Print = ",,,"
         }
 
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print)")
+        let aBPrint: String
+        if attenuationBuckets.updated {
+            let total = attenuationBuckets.sums.reduce(0.0,+)
+            var sum = 0.0
+            let prefixPercentage = attenuationBuckets.sums[0 ..< attenuationBuckets.sums.count - 1].map { (sum += $0, sum / total).1 }
+
+            let v = prefixPercentage.map { "\(round4($0))" }.joined(separator: ",")
+            aBPrint = "\(attenuationBuckets.countPerDay),\(v)"
+        } else {
+            aBPrint = ",, ,,, ,,,"
+        }
+        let dBPrint: String
+        if durationBuckets.updated {
+            let total = durationBuckets.sums.reduce(0.0,+)
+            var sum = 0.0
+            let tmp = durationBuckets.sums[1 ..< durationBuckets.sums.count].reversed()
+            print("total: \(total)")
+            print("sums: \(durationBuckets.sums)")
+            print("reversed buckets: \(tmp)")
+            let prefixPercentage = tmp.map { (sum += $0, sum / total).1 }.reversed()
+            let v = prefixPercentage.map { "\(round4($0))" }.joined(separator: ",")
+            dBPrint = "\(durationBuckets.countPerDay),\(round4(durationBuckets.std / total)),\(v)"
+        } else {
+            dBPrint = ",, ,,, ,,,"
+        }
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -475,6 +520,8 @@ struct Accumulators {
         verified14DCount.advance()
         uploaded14Count.advance()
         secondaryAttack14D.advance()
+        attenuationBuckets.advance()
+        durationBuckets.advance()
     }
 
     func printHeader() {
@@ -491,8 +538,10 @@ struct Accumulators {
         let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
+        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %"
+        let dBHeader = "dur count,dur std,> 10min %,> 20min %,> 30min %,> 50min %,> 70min %,> 90min %,> 120min %"
 
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
     }
 }
 
@@ -513,6 +562,7 @@ struct MetricSet {
     let userNotification: Metric
     let dateExposure: Metric
     let userRisk: Metric?
+    let userRiskParameters: Metric
     let interactions: Metric
 
     let secondaryAttack14D: Metric
@@ -525,6 +575,7 @@ struct MetricSet {
         userNotification = getMetric(metrics, "com.apple.EN.UserNotification")
         dateExposure = getMetric(metrics, "com.apple.EN.DateExposure")
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
+        userRiskParameters = getMetric(metrics, "com.apple.EN.UserRiskParameters")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
 
         secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
@@ -537,6 +588,7 @@ struct MetricSet {
         keysUploaded = getMetric(metrics, "KeysUploaded")
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
         dateExposure = getMetric(metrics, "DateExposure")
+        userRiskParameters = getMetric(metrics, "histogramMetric")
         interactions = getMetric(metrics, "PeriodicExposureNotificationInteraction")
 
         secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
@@ -829,6 +881,30 @@ let events = ["CodeVerified": [1, 2],
               "com.apple.EN.KeysUploaded": [1, 2],
               "com.apple.EN.UserNotificationInteraction": [1, 5]]
 
+public func durationSummary(likely: [Double]) -> [Double] {
+    assert(likely.count == 512)
+    var result = Array(repeating: 0.0, count: 8)
+    for i in 1 ... 511 {
+        let weightBucket = i / 64
+        result[weightBucket] += likely[i]
+    }
+
+    if false { print("likely: \(likely)")
+        print("result: \(result)")
+    }
+    return result
+}
+
+public func attenuationSummary(likely: [Double]) -> [Double] {
+    assert(likely.count == 1344)
+    var result = Array(repeating: 0.0, count: 8)
+    for i in 0 ..< likely.count {
+        let c = RiskParametersComponents(i)
+        result[c.attenuationIndex] += likely[i] * durationWeights[c.durationIndex]
+    }
+    return result
+}
+
 public class Metric: @unchecked Sendable {
     let epsilon: Double
     var p: Double {
@@ -858,6 +934,18 @@ public class Metric: @unchecked Sendable {
 
     public func getMostLikelyPopulationCountInt(totalCount: Int, sumPart: Int) -> Int {
         Int(getMostLikelyPopulationCount(totalCount: Double(totalCount), sumPart: Double(sumPart)).rounded())
+    }
+
+    public func getLikely(day: Date, scale: Double = 1.0) -> (clients: Int, sum: [Int], likely: [Double], variance: Double)? {
+        guard
+            let sum = sumByDay[day],
+            let count = clientsByDay[day]
+        else {
+            return nil
+        }
+        let likely = getMostLikelyPopulationCount(totalCount: count, sumPart: sum, scale: scale)
+        let variance = getVariance(totalCount: count)
+        return (clients: count, sum: sum, likely: likely, variance: variance)
     }
 
     public func getMostLikelyPopulationCount(totalCount: Int, sumPart: [Int], scale: Double = 1.0) -> [Double] {
@@ -1019,8 +1107,9 @@ public class Metric: @unchecked Sendable {
     func sumsByDay() -> String {
         let buf = TextBuffer()
         let bucketString = (0 ..< buckets).map { "\($0)" }.joined(separator: ",")
+        let rawString = (0 ..< buckets).map { "r\($0)" }.joined(separator: ",")
 
-        buf.append("date,devices,epsilon,stdev,\(bucketString) ")
+        buf.append("date,devices,epsilon,stdev,\(bucketString),\(rawString)")
         for (day, sumBy) in sumByDay.sorted(by: { $0.0 < $1.0 }) {
             let count = clientsByDay[day]!
             let likelyValues = sumBy.map { getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0)) }
@@ -1256,6 +1345,7 @@ let dayBuckets = [2, 4, 6, 8, 10, 12, 99]
 
 let attenuationBuckets = [50, 55, 60, 65, 70, 75, 80, 255]
 let durationBuckets = [5, 10, 15, 23, 30, 60, 120, 255]
+let durationWeights = [3.0, 8.0, 12.0, 19.0, 26.0, 45.0, 80.0, 160.0]
 
 struct RiskParametersComponents {
     let infectiousnessIndex: Int
@@ -1306,6 +1396,17 @@ func analyzeContactsByDay(_ riskParameters: Metric, _ filter: UserRiskParameters
         print("\(dayFormatter.string(from: day)), \(nf6(count)),    \(round1(total)),  \(round1(per100K))")
     }
     print()
+}
+
+func analyzeRiskParameters2(_ riskParameters: Metric) {
+    print("\nRisk parameters: \(riskParameters.aggregation_id), \(riskParameters.clients) clients")
+    let parameterSums = riskParameters.likelyPopulation
+    var attenuationTotals = Array(repeating: 0.0, count: attenuationBuckets.count)
+
+    for i in 0 ..< parameterSums.count {
+        let c = RiskParametersComponents(i)
+        attenuationTotals[c.attenuationIndex] += durationWeights[c.durationIndex] * parameterSums[i]
+    }
 }
 
 func analyzeRiskParameters(_ riskParameters: Metric) {
