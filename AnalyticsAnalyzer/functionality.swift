@@ -382,7 +382,7 @@ struct Accumulators {
             }
             if let (count, _, likely, variance) = m.userRisk?.getLikely(day: d, scale: scale) {
                 // 512 buckets
-                let summary = durationSummary(likely: likely)
+                let summary = userRiskSummary(likely: likely)
                 durationBuckets.add(summary, count, variance * 64.0)
             }
 
@@ -496,17 +496,11 @@ struct Accumulators {
         }
         let dBPrint: String
         if durationBuckets.updated {
-            let total = durationBuckets.sums.reduce(0.0,+)
-            var sum = 0.0
-            let tmp = durationBuckets.sums[1 ..< durationBuckets.sums.count].reversed()
-            print("total: \(total)")
-            print("sums: \(durationBuckets.sums)")
-            print("reversed buckets: \(tmp)")
-            let prefixPercentage = tmp.map { (sum += $0, sum / total).1 }.reversed()
-            let v = prefixPercentage.map { "\(round4($0))" }.joined(separator: ",")
+            let total = durationBuckets.sums[0..<8].reduce(0.0,+)
+            let v = durationBuckets.sums.map { "\(round4($0/total))" }.joined(separator: ",")
             dBPrint = "\(durationBuckets.countPerDay),\(round4(durationBuckets.std / total)),\(v)"
         } else {
-            dBPrint = ",, ,,, ,,,"
+            dBPrint = ",, ,,,,,,,,  ,,,,,,,,  ,,,,,,,"
         }
         printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
 
@@ -539,7 +533,7 @@ struct Accumulators {
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
         let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %"
-        let dBHeader = "dur count,dur std,> 10min %,> 20min %,> 30min %,> 50min %,> 70min %,> 90min %,> 120min %"
+        let dBHeader = "dur count,dur std,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max >7min %, max > 11min %,max > 15min %,max > 19 %,max >  23min %,max >  27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120 %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
     }
@@ -881,12 +875,25 @@ let events = ["CodeVerified": [1, 2],
               "com.apple.EN.KeysUploaded": [1, 2],
               "com.apple.EN.UserNotificationInteraction": [1, 5]]
 
-public func durationSummary(likely: [Double]) -> [Double] {
+public func userRiskSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 512)
-    var result = Array(repeating: 0.0, count: 8)
+    var result = Array(repeating: 0.0, count: 25)
     for i in 1 ... 511 {
         let weightBucket = i / 64
-        result[weightBucket] += likely[i]
+        let sumBucket = i % 8
+        let maxBucket = (i/8) % 8
+        for j in 0...weightBucket {
+                result[j] += likely[i]
+        }
+        for j in 8...(8+maxBucket) {
+                        result[j] += likely[i]
+        }
+        for j in 16...(16+sumBucket) {
+            result[j] += likely[i]
+        }
+        if maxBucket < 2 && sumBucket > 1 {
+            result[24] += likely[i]
+        }
     }
 
     if false { print("likely: \(likely)")
@@ -894,6 +901,7 @@ public func durationSummary(likely: [Double]) -> [Double] {
     }
     return result
 }
+
 
 public func attenuationSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 1344)
