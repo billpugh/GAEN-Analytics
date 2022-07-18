@@ -43,6 +43,7 @@ struct DocView: View {
                 }
 
                 Text(markdown(file: file))
+                    .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
             }.padding().navigationBarTitle(title, displayMode: .inline)

@@ -374,7 +374,10 @@ class AnalysisState: NSObject, ObservableObject {
                 + [
                     arrivingPromptly(enpa: enpa, config: config),
                     attenuationsGraph(enpa: enpa, config: config),
-                    durationsGraph(enpa: enpa, config: config),
+                    detectedEncounterGraph(enpa: enpa, config: config),
+                    weightedDurationGraph(enpa: enpa, config: config),
+                    sumScoreGraph(enpa: enpa, config: config),
+                    maxScoreGraph(enpa: enpa, config: config),
                     estimatedUsers(enpa: enpa, config: config),
                     enpaOptIn(enpa: enpa, config: config),
                     scaledNotifications(enpa: enpa, config: config),
@@ -725,10 +728,32 @@ func attenuationsGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions
                         maxBound: 1)
 }
 
-func durationsGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
-    let columns = ["> 10min %", "> 20min %", "> 30min %", "> 50min %", "> 70min %", "> 90min %", "> 120min %"]
+func weightedDurationGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["wd > 10min %", "wd > 20min %", "wd > 30min %", "wd > 50min %", "wd > 70min %", "wd > 90min %", "wd > 120min %"]
 
     return ChartOptions(title: "Weighted duration distribution", data: enpa,
+                        columns: columns,
+                        maxBound: 1)
+}
+
+func detectedEncounterGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    ChartOptions(title: "Detected encounters", data: enpa,
+                 columns: ["detected %"],
+                 maxBound: 1)
+}
+
+func sumScoreGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["sum > 40min %", "sum > 50min %", "sum > 60min %", "sum > 70min %", "sum > 80min %", "sum > 90min %", "sum > 120min %"]
+
+    return ChartOptions(title: "Sum score distribution", data: enpa,
+                        columns: columns,
+                        maxBound: 1)
+}
+
+func maxScoreGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
+    let columns = ["max > 7min %", "max > 11min %", "max > 15min %", "max > 19min %", "max > 23min %", "max > 27min %"]
+
+    return ChartOptions(title: "Max score distribution", data: enpa,
                         columns: columns,
                         maxBound: 1)
 }

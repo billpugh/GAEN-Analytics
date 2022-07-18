@@ -316,7 +316,7 @@ struct Accumulators {
         dateExposureCount = FixedLengthAccumulator(numDays, m.dateExposure)
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
-        durationBuckets = FixedLengthAccumulator(numDays, width: 8)
+        durationBuckets = FixedLengthAccumulator(numDays, width: 26)
         attenuationBuckets = FixedLengthAccumulator(numDays, width: 8)
         secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
@@ -496,11 +496,15 @@ struct Accumulators {
         }
         let dBPrint: String
         if durationBuckets.updated {
-            let total = durationBuckets.sums[0..<8].reduce(0.0,+)
-            let v = durationBuckets.sums.map { "\(round4($0/total))" }.joined(separator: ",")
-            dBPrint = "\(durationBuckets.countPerDay),\(round4(durationBuckets.std / total)),\(v)"
+            let detected = durationBuckets.sums[0]
+            let noninfectious = durationBuckets.sums[25]
+            let infectious = detected - noninfectious
+            let wd = durationBuckets.sums[1 ..< 8].map { "\(round4($0 / detected))" }.joined(separator: ",")
+            let max = durationBuckets.sums[9 ..< 16].map { "\(round4($0 / infectious))" }.joined(separator: ",")
+            let sum = durationBuckets.sums[17 ..< 25].map { "\(round4($0 / infectious))" }.joined(separator: ",")
+            dBPrint = "\(durationBuckets.countPerDay),\(round4(durationBuckets.std / Double(durationBuckets.countPerDay))),\(round4(detected / Double(durationBuckets.count))), \(wd), \(max), \(sum)"
         } else {
-            dBPrint = ",, ,,,,,,,,  ,,,,,,,,  ,,,,,,,"
+            dBPrint = ",,, ,,,,,,,  ,,,,,,,  ,,,,,,,"
         }
         printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
 
@@ -533,7 +537,7 @@ struct Accumulators {
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
         let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %"
-        let dBHeader = "dur count,dur std,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max >7min %, max > 11min %,max > 15min %,max > 19 %,max >  23min %,max >  27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120 %,long/far %"
+        let dBHeader = "dur count,dur std,detected %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
     }
@@ -877,22 +881,28 @@ let events = ["CodeVerified": [1, 2],
 
 public func userRiskSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 512)
-    var result = Array(repeating: 0.0, count: 25)
+    var result = Array(repeating: 0.0, count: 26)
     for i in 1 ... 511 {
         let weightBucket = i / 64
         let sumBucket = i % 8
-        let maxBucket = (i/8) % 8
-        for j in 0...weightBucket {
-                result[j] += likely[i]
+        let maxBucket = (i / 8) % 8
+        if maxBucket == 0 {
+            continue
         }
-        for j in 8...(8+maxBucket) {
-                        result[j] += likely[i]
-        }
-        for j in 16...(16+sumBucket) {
+        for j in 0 ... weightBucket {
             result[j] += likely[i]
         }
-        if maxBucket < 2 && sumBucket > 1 {
+        for j in 8 ... (8 + maxBucket) {
+            result[j] += likely[i]
+        }
+        for j in 16 ... (16 + sumBucket) {
+            result[j] += likely[i]
+        }
+        if maxBucket < 2, sumBucket > 1 {
             result[24] += likely[i]
+        }
+        if maxBucket == 0 {
+            result[25] += likely[i]
         }
     }
 
@@ -901,7 +911,6 @@ public func userRiskSummary(likely: [Double]) -> [Double] {
     }
     return result
 }
-
 
 public func attenuationSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 1344)
