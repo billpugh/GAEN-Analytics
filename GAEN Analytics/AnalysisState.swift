@@ -383,7 +383,8 @@ class AnalysisState: NSObject, ObservableObject {
                     scaledNotifications(enpa: enpa, config: config),
                 ]
             enpaCharts = maybeCharts.compactMap { $0 }
-            let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config)]
+            let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config),
+                                                            deviceAttenuations(worksheet: worksheet)]
                 + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
 
             appendixENPACharts = maybeAppendixENPACharts.compactMap { $0 }
@@ -567,7 +568,15 @@ actor AnalysisTask {
             worksheet.addOptionalColumn("Android ku ENPA %", Double.self, from: androidDataFrame)
             worksheet.addOptionalColumn("publish requests android", Int.self, from: encvAverage)
             worksheet.addOptionalColumn("android publish share", Double.self, from: encvAverage)
-
+            if false {
+                worksheet.addColumn("<= 55 dB %", Double.self, newName: "Android <= 55 dB %", from: androidDataFrame)
+                worksheet.addColumn("<= 60 dB %", Double.self, newName: "iOS <= 60 dB %", from: iOSDataFrame)
+                worksheet.addColumn("<= 65 dB %", Double.self, newName: "Android <= 65 dB %", from: androidDataFrame)
+                worksheet.addColumn("<= 70 dB %", Double.self, newName: "iOS <= 70 dB %", from: iOSDataFrame)
+                worksheet.addColumn("<= 75 dB %", Double.self, newName: "iOS <= 75 dB %", from: iOSDataFrame)
+                worksheet.addColumn("<= 75 dB %", Double.self, newName: "Android <= 75 dB %", from: androidDataFrame)
+                worksheet.addColumn("<= 80 dB %", Double.self, newName: "iOS <= 80 dB %", from: iOSDataFrame)
+            }
             await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
@@ -737,7 +746,7 @@ func weightedDurationGraph(enpa: DataFrame, config _: Configuration) -> ChartOpt
 }
 
 func detectedEncounterGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
-    ChartOptions(title: "Detected encounters", data: enpa,
+    ChartOptions(title: "Encounter detected in past 14 days", data: enpa,
                  columns: ["detected %"],
                  maxBound: 1)
 }
@@ -836,6 +845,15 @@ func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOption
     let columns = Array((1 ... config.numCategories).map { "nts\($0)%" })
 
     return ChartOptions.maybe(title: "Users with notifications", data: enpa, columns: columns)
+}
+
+func deviceAttenuations(worksheet: DataFrame?) -> ChartOptions? {
+    guard let worksheet = worksheet else {
+        return nil
+    }
+    let columns = ["Android <= 55 dB %", "iOS <= 60 dB %", "Android <= 65 dB %", "iOS <= 70 dB %", "iOS <= 75 dB %", "Android <= 75 dB %", "iOS <= 80 dB %"]
+
+    return ChartOptions.maybe(title: "Comparison of device received attenuations", data: worksheet, columns: columns)
 }
 
 // est. users

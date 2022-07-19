@@ -502,9 +502,12 @@ struct Accumulators {
             let wd = durationBuckets.sums[1 ..< 8].map { "\(round4($0 / detected))" }.joined(separator: ",")
             let max = durationBuckets.sums[9 ..< 16].map { "\(round4($0 / infectious))" }.joined(separator: ",")
             let sum = durationBuckets.sums[17 ..< 25].map { "\(round4($0 / infectious))" }.joined(separator: ",")
-            dBPrint = "\(durationBuckets.countPerDay),\(round4(durationBuckets.std / Double(durationBuckets.countPerDay))),\(round4(detected / Double(durationBuckets.count))), \(wd), \(max), \(sum)"
+            let std = round4(durationBuckets.std / detected)
+            let detectedPercentage = round4(detected / Double(durationBuckets.count))
+            let noninfectiousPercentage = round4(noninfectious / Double(durationBuckets.count))
+            dBPrint = "\(durationBuckets.countPerDay),\(std),\(detectedPercentage),\(noninfectiousPercentage), \(wd), \(max), \(sum)"
         } else {
-            dBPrint = ",,, ,,,,,,,  ,,,,,,,  ,,,,,,,"
+            dBPrint = ",,,, ,,,,,,,  ,,,,,,,  ,,,,,,,"
         }
         printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
 
@@ -537,7 +540,7 @@ struct Accumulators {
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
         let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %"
-        let dBHeader = "dur count,dur std,detected %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
+        let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
     }
@@ -886,7 +889,15 @@ public func userRiskSummary(likely: [Double]) -> [Double] {
         let weightBucket = i / 64
         let sumBucket = i % 8
         let maxBucket = (i / 8) % 8
+        if maxBucket < 2, sumBucket > 1 {
+            // far & long
+            result[24] += likely[i]
+        }
         if maxBucket == 0 {
+            if weightBucket > 0 {
+                // non-infectious
+                result[25] += likely[i]
+            }
             continue
         }
         for j in 0 ... weightBucket {
@@ -897,12 +908,6 @@ public func userRiskSummary(likely: [Double]) -> [Double] {
         }
         for j in 16 ... (16 + sumBucket) {
             result[j] += likely[i]
-        }
-        if maxBucket < 2, sumBucket > 1 {
-            result[24] += likely[i]
-        }
-        if maxBucket == 0 {
-            result[25] += likely[i]
         }
     }
 

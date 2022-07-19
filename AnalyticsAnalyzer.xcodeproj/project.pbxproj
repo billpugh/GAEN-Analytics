@@ -16,7 +16,7 @@
 		1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5527EE09990089F0B6 /* Excess secondary attack rate 2.md */; };
 		161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */ = {isa = PBXBuildFile; fileRef = 161A123427DA3CE50026C53D /* Secondary attack rate.md */; };
 		16216BD22885D10D008F5F36 /* Weighted duration distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD12885D107008F5F36 /* Weighted duration distribution.md */; };
-		16216BD32885D110008F5F36 /* Detected encounters.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD02885D0E9008F5F36 /* Detected encounters.md */; };
+		16216BD32885D110008F5F36 /* Encounter detected in past 14 days.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD02885D0E9008F5F36 /* Encounter detected in past 14 days.md */; };
 		16216BD52885D12B008F5F36 /* Sum score distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD42885D129008F5F36 /* Sum score distribution.md */; };
 		16216BD72885D145008F5F36 /* Max score distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD62885D145008F5F36 /* Max score distribution.md */; };
 		1639ADE4286E04E200E66EC7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 1639ADE3286E04E200E66EC7 /* ZIPFoundation */; };
@@ -37,6 +37,8 @@
 		164945B427B6B1E400C0F5F0 /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16515AA625C9939200C97BB8 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16570A1627D2662B00BEAA12 /* AnalysisProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */; };
+		166E89BB28874498009BEFF5 /* Comparison of device received attenuations.md in Resources */ = {isa = PBXBuildFile; fileRef = 166E89BA28874498009BEFF5 /* Comparison of device received attenuations.md */; };
+		166E89BC2887452F009BEFF5 /* Attenuation distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD82885DCC2008F5F36 /* Attenuation distribution.md */; };
 		1670B5352864E1350018A084 /* Invalid code ratios.md in Resources */ = {isa = PBXBuildFile; fileRef = 1670B5342864E1350018A084 /* Invalid code ratios.md */; };
 		1673F54127B002B80037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		1673F54227B002E10037D340 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
@@ -187,7 +189,7 @@
 		1615FA5627EE09B10089F0B6 /* Excess secondary attack rate 3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 3.md"; sourceTree = "<group>"; };
 		1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Excess secondary attack rate 4.md"; sourceTree = "<group>"; };
 		161A123427DA3CE50026C53D /* Secondary attack rate.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate.md"; sourceTree = "<group>"; };
-		16216BD02885D0E9008F5F36 /* Detected encounters.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Detected encounters.md"; sourceTree = "<group>"; };
+		16216BD02885D0E9008F5F36 /* Encounter detected in past 14 days.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Encounter detected in past 14 days.md"; sourceTree = "<group>"; };
 		16216BD12885D107008F5F36 /* Weighted duration distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Weighted duration distribution.md"; sourceTree = "<group>"; };
 		16216BD42885D129008F5F36 /* Sum score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Sum score distribution.md"; sourceTree = "<group>"; };
 		16216BD62885D145008F5F36 /* Max score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Max score distribution.md"; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 		164945A727B6AE5600C0F5F0 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		16515AA525C9939200C97BB8 /* functionality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = functionality.swift; sourceTree = "<group>"; };
 		16570A1527D2662B00BEAA12 /* AnalysisProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisProgressView.swift; sourceTree = "<group>"; };
+		166E89BA28874498009BEFF5 /* Comparison of device received attenuations.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Comparison of device received attenuations.md"; sourceTree = "<group>"; };
 		1670B5342864E1350018A084 /* Invalid code ratios.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Invalid code ratios.md"; sourceTree = "<group>"; };
 		1673F54027B002B80037D340 /* configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configuration.swift; sourceTree = "<group>"; };
 		1673F54827B07F710037D340 /* GAEN Analytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GAEN Analytics.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -492,11 +495,12 @@
 				1615FA5827EE09CB0089F0B6 /* Excess secondary attack rate 4.md */,
 				16AF2DB127E39D59000B1529 /* Users with notifications.md */,
 				168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */,
-				16216BD02885D0E9008F5F36 /* Detected encounters.md */,
+				16216BD02885D0E9008F5F36 /* Encounter detected in past 14 days.md */,
 				16216BD12885D107008F5F36 /* Weighted duration distribution.md */,
 				16216BD42885D129008F5F36 /* Sum score distribution.md */,
 				16216BD62885D145008F5F36 /* Max score distribution.md */,
 				16216BD82885DCC2008F5F36 /* Attenuation distribution.md */,
+				166E89BA28874498009BEFF5 /* Comparison of device received attenuations.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -748,7 +752,7 @@
 			files = (
 				1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */,
 				16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */,
-				16216BD32885D110008F5F36 /* Detected encounters.md in Resources */,
+				16216BD32885D110008F5F36 /* Encounter detected in past 14 days.md in Resources */,
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
 				16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */,
 				16856E6927BC021C00F44960 /* System health.md in Resources */,
@@ -773,6 +777,7 @@
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
 				16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */,
 				163EF28F27C933C600D3C19D /* User report %.md in Resources */,
+				166E89BB28874498009BEFF5 /* Comparison of device received attenuations.md in Resources */,
 				16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */,
 				16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */,
 				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
@@ -783,6 +788,7 @@
 				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
+				166E89BC2887452F009BEFF5 /* Attenuation distribution.md in Resources */,
 				16216BD52885D12B008F5F36 /* Sum score distribution.md in Resources */,
 				16856E6727BC021400F44960 /* claim and consent rates.md in Resources */,
 				1670B5352864E1350018A084 /* Invalid code ratios.md in Resources */,
@@ -1070,7 +1076,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -1084,7 +1090,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_HARDENED_RUNTIME = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -1098,7 +1104,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1113,7 +1119,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1137,7 +1143,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1152,7 +1158,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1371,8 +1377,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/danielgindi/Charts.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.3;
 			};
 		};
 		1615FA4D27EE04390089F0B6 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {

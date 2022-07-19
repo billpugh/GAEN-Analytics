@@ -35,11 +35,12 @@ struct encvTool: ParsableCommand {
         } else {
             smsErrors = nil
         }
-        let results = analyzeENCV(composite: composite, smsData: smsErrors)
+        let results = analyzeENCV(config: Configuration(), composite: composite, smsData: smsErrors)
         for s in results.log {
             print(s)
         }
-        let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
+        var writingOptions = CSVWritingOptions()
+        writingOptions.dateFormatter = { date in dayFormatter.string(from: date) }
         if let avg = results.average {
             print()
             let data = try avg.csvRepresentation(options: writingOptions)
