@@ -317,7 +317,7 @@ struct Accumulators {
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
         durationBuckets = FixedLengthAccumulator(numDays, width: 26)
-        attenuationBuckets = FixedLengthAccumulator(numDays, width: 8)
+        attenuationBuckets = FixedLengthAccumulator(numDays, width: 13)
         secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
         uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
@@ -485,14 +485,17 @@ struct Accumulators {
 
         let aBPrint: String
         if attenuationBuckets.updated {
-            let total = attenuationBuckets.sums.reduce(0.0,+)
+            let total = attenuationBuckets.sums[0 ..< 8].reduce(0.0,+)
             var sum = 0.0
-            let prefixPercentage = attenuationBuckets.sums[0 ..< attenuationBuckets.sums.count - 1].map { (sum += $0, sum / total).1 }
+            let prefixPercentage = attenuationBuckets.sums[0 ..< 7].map { (sum += $0, sum / total).1 }
 
             let v = prefixPercentage.map { "\(round4($0))" }.joined(separator: ",")
-            aBPrint = "\(attenuationBuckets.countPerDay),\(v)"
+            let highInfectious = attenuationBuckets.sums[10] / total
+            let infectious = (attenuationBuckets.sums[9] + attenuationBuckets.sums[10]) / total
+            let sumWeight = attenuationBuckets.sums[12] / attenuationBuckets.sums[11]
+            aBPrint = "\(attenuationBuckets.countPerDay),\(v),\(round4(highInfectious)),\(round4(infectious)),\(round4(sumWeight))"
         } else {
-            aBPrint = ",, ,,, ,,,"
+            aBPrint = ",, ,,, ,,, ,,,"
         }
         let dBPrint: String
         if durationBuckets.updated {
@@ -539,7 +542,7 @@ struct Accumulators {
         let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
-        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %"
+        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %,sum weight"
         let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
@@ -764,8 +767,6 @@ struct RawMetrics {
                 errors.append(error)
                 continue
             }
-            // isoDateFormatter.formatOptions = [.withFractionalSeconds]
-            // print(isoDateFormatter.string(from: Date()))
             if let rawData = json["rawData"] as? [NSDictionary] {
                 for m in rawData {
                     let provider = m["data_provider"] as? String ?? "?"
@@ -917,12 +918,41 @@ public func userRiskSummary(likely: [Double]) -> [Double] {
     return result
 }
 
+let attenuationThresholds = [55, 70, 80]
+let attenuationWeights = [200, 100, 25]
+let infectiousnessWeights = [100, 30, 0]
+
+func attenuationWeight(db: Int) -> Double {
+    for i in 0 ..< attenuationThresholds.count {
+        if db <= attenuationThresholds[i] {
+            return Double(attenuationWeights[i]) / 100.0
+        }
+    }
+    return 0.0
+}
+
+func attenuationWeight(low: Int, high: Int) -> Double {
+    let values = (low ... high).map { attenuationWeight(db: $0) }
+    let sum = values.reduce(0,+)
+    return sum / Double(values.count)
+}
+
 public func attenuationSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 1344)
-    var result = Array(repeating: 0.0, count: 8)
+    var result = Array(repeating: 0.0, count: 13)
     for i in 0 ..< likely.count {
         let c = RiskParametersComponents(i)
-        result[c.attenuationIndex] += likely[i] * durationWeights[c.durationIndex]
+        let duration = likely[i] * durationWeights[c.durationIndex]
+        result[c.attenuationIndex] += duration
+        result[8 + c.infectiousnessIndex] += duration
+        let attenuationTop = c.attenuationIndex * 5 + 50
+
+        if c.infectiousnessIndex > 0 {
+            let attenuationWeight = attenuationWeight(low: attenuationTop - 4, high: attenuationTop)
+            let infectiousnessWeight = infectiousnessWeights[2 - c.infectiousnessIndex]
+            result[11] += duration * attenuationWeight
+            result[12] += duration * attenuationWeight * Double(infectiousnessWeight) / 100.0
+        }
     }
     return result
 }

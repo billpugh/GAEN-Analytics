@@ -122,7 +122,7 @@ extension DataFrame {
 
     func makeMap(_ row: [Any]) -> [String: Any?] {
         logger.info("appendRow")
-        let columns = self.columns
+        let columns = columns
         var myMap: [String: Any?] = [:]
         for (c, v) in zip(columns, row) {
             myMap[c.name] = v

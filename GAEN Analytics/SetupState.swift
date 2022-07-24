@@ -57,10 +57,8 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
         let s = df.string(from: date)
-        print(s)
         df.timeZone = TimeZone(identifier: "UTC")!
         let ss = df.date(from: s)!
-        print(ss)
         return ss
     }
 

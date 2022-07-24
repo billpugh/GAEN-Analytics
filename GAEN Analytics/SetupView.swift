@@ -104,7 +104,7 @@ struct SetupView: View {
                 if !self.state.usingTestData {
                     Toggle(self.state.disableTestServer ? "Enable debugging features" : "Enable test/debugging features", isOn: self.$state.debuggingFeatures.animation())
                 }
-                if !self.state.disableTestServer && (self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData) {
+                if !self.state.disableTestServer, self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
                     Toggle("Use test data", isOn: self.$state.usingTestData.animation())
 
                 } else if !self.state.isClear {

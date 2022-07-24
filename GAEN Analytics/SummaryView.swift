@@ -44,7 +44,7 @@ struct SummaryView: View {
             ENXChartsView(charts: analysisState.appendixENPACharts)
         }.listStyle(GroupedListStyle())
             .onAppear {
-                if !state.setupNeeded && !analysisState.inProgress && !analysisState.available {
+                if !state.setupNeeded, !analysisState.inProgress, !analysisState.available {
                     Task(priority: .userInitiated) {
                         await AnalysisTask().analyze(config: state.config, result: analysisState)
                     }

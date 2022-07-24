@@ -95,6 +95,7 @@ func day(date: Date) -> Int {
 }
 
 let darkYellow = UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 1)
+
 struct LineChart: UIViewRepresentable {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
@@ -123,6 +124,8 @@ struct LineChart: UIViewRepresentable {
         lastDay = Double(day(date: data["date", Date.self].last!!))
     }
 
+    let xName = "date"
+    let xType: Any.Type = Date.self
     var data: DataFrame.Slice
     var lastDay: Double
 
@@ -184,7 +187,7 @@ struct LineChart: UIViewRepresentable {
     }
 
     func makeDateSet(column: String) -> LineChartDataSet? {
-        let days = data["date", Date.self]
+        let days = data[xName, Date.self]
         let chartData: [ChartDataEntry]
         let cc = data[column]
         if cc.wrappedElementType == Double.self {

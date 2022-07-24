@@ -267,6 +267,8 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary = ""
         enpaCharts = []
         encvCharts = []
+        appendixENPACharts = []
+        appendixCharts = []
         rawENPA = nil
         iOSENPA = nil
         AndroidENPA = nil
@@ -606,9 +608,6 @@ actor AnalysisTask {
         let composite: DataFrame
         if let existingComposite = await result.encvComposite {
             composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
-            for d in composite["date", Date.self] {
-                print(dateFormatter.string(from: d!))
-            }
         } else {
             composite = newComposite
         }
@@ -631,6 +630,7 @@ actor AnalysisTask {
         let foo: String? = nil
         print("\(foo!.count)")
     }
+
     func analyze(config: Configuration, result: AnalysisState,
                  analyzeENCV: Bool = true, analyzeENPA: Bool = true) async
     {
