@@ -55,6 +55,24 @@ struct SetupView: View {
                     }
                 }
                 HStack {
+                    Text("baseline exposure duration")
+                    Spacer()
+                    Picker("", selection: $state.durationBaselineMinutes) {
+                        ForEach([7.5, 10, 15], id: \.self) {
+                            Text(format(minutes: $0))
+                        }
+                    }
+                }
+                HStack {
+                    Text("High infectiousness weight")
+                    Spacer()
+                    Picker("", selection: $state.highInfectiousnessWeight) {
+                        ForEach([100, 200], id: \.self) {
+                            Text("\($0)")
+                        }
+                    }
+                }
+                HStack {
                     Text("# of days for rolling averages")
                     Spacer()
                     Picker("", selection: $state.daysRollup) {

@@ -317,7 +317,7 @@ struct Accumulators {
         notificationsShown = NotificationShown(options)
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
         durationBuckets = FixedLengthAccumulator(numDays, width: 26)
-        attenuationBuckets = FixedLengthAccumulator(numDays, width: 13)
+        attenuationBuckets = FixedLengthAccumulator(numDays, width: 11 + standardAttenuationConfigs.count)
         secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
         uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
@@ -492,10 +492,13 @@ struct Accumulators {
             let v = prefixPercentage.map { "\(round4($0))" }.joined(separator: ",")
             let highInfectious = attenuationBuckets.sums[10] / total
             let infectious = (attenuationBuckets.sums[9] + attenuationBuckets.sums[10]) / total
-            let sumWeight = attenuationBuckets.sums[12] / attenuationBuckets.sums[11]
-            aBPrint = "\(attenuationBuckets.countPerDay),\(v),\(round4(highInfectious)),\(round4(infectious)),\(round4(sumWeight))"
+            let nnv2 = attenuationBuckets.sums[11]
+            let configWeights = attenuationBuckets.sums[12 ..< 11 + standardAttenuationConfigs.count].map { "\(round4($0 / nnv2))" }.joined(separator: ",")
+            // attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %,narrow net v1,wide net
+            aBPrint = "\(attenuationBuckets.countPerDay),\(v),\(round4(highInfectious)),\(round4(infectious)),\(configWeights)"
         } else {
-            aBPrint = ",, ,,, ,,, ,,,"
+            // aBPrint = ",, ,,, ,,, ,,," / 11
+            aBPrint = String(repeating: ",", count: 8 + standardAttenuationConfigs.count)
         }
         let dBPrint: String
         if durationBuckets.updated {
@@ -542,7 +545,8 @@ struct Accumulators {
         let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
-        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %,sum weight"
+        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %," +
+            standardAttenuationConfigs[1 ..< standardAttenuationConfigs.count].map { "\($0.name) %" }.joined(separator: ",")
         let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
@@ -918,40 +922,66 @@ public func userRiskSummary(likely: [Double]) -> [Double] {
     return result
 }
 
-let attenuationThresholds = [55, 70, 80]
-let attenuationWeights = [200, 100, 25]
 let infectiousnessWeights = [100, 30, 0]
 
-func attenuationWeight(db: Int) -> Double {
-    for i in 0 ..< attenuationThresholds.count {
-        if db <= attenuationThresholds[i] {
-            return Double(attenuationWeights[i]) / 100.0
-        }
-    }
-    return 0.0
-}
+let standardAttenuationConfigs = [
+    attenuationConfig("narrow net v1", thresholds: [55, 63, 75], weights: [175, 100, 33]),
+    attenuationConfig("narrow net v2", thresholds: [55, 67, 80], weights: [150, 100, 40]),
+    attenuationConfig("wide net", thresholds: [55, 70, 80], weights: [200, 100, 25]),
+]
 
-func attenuationWeight(low: Int, high: Int) -> Double {
-    let values = (low ... high).map { attenuationWeight(db: $0) }
-    let sum = values.reduce(0,+)
-    return sum / Double(values.count)
+struct attenuationConfig {
+    static func config(named: String) -> attenuationConfig {
+        for c in standardAttenuationConfigs {
+            if c.name == named {
+                return c
+            }
+        }
+        logger.error("No standard config named \(named)")
+
+        return standardAttenuationConfigs[0]
+    }
+
+    let name: String
+    let thresholds: [Int]
+    let weights: [Int]
+    init(_ name: String, thresholds: [Int], weights: [Int]) {
+        self.name = name
+        self.thresholds = thresholds
+        self.weights = weights
+    }
+
+    func attenuationWeight(db: Int) -> Double {
+        for i in 0 ..< thresholds.count {
+            if db <= thresholds[i] {
+                return Double(weights[i]) / 100.0
+            }
+        }
+        return 0.0
+    }
+
+    func attenuationWeight(low: Int, high: Int) -> Double {
+        let values = (low ... high).map { attenuationWeight(db: $0) }
+        let sum = values.reduce(0,+)
+        return sum / Double(values.count)
+    }
 }
 
 public func attenuationSummary(likely: [Double]) -> [Double] {
     assert(likely.count == 1344)
-    var result = Array(repeating: 0.0, count: 13)
+    var result = Array(repeating: 0.0, count: 11 + standardAttenuationConfigs.count)
     for i in 0 ..< likely.count {
         let c = RiskParametersComponents(i)
         let duration = likely[i] * durationWeights[c.durationIndex]
         result[c.attenuationIndex] += duration
         result[8 + c.infectiousnessIndex] += duration
         let attenuationTop = c.attenuationIndex * 5 + 50
-
         if c.infectiousnessIndex > 0 {
-            let attenuationWeight = attenuationWeight(low: attenuationTop - 4, high: attenuationTop)
-            let infectiousnessWeight = infectiousnessWeights[2 - c.infectiousnessIndex]
-            result[11] += duration * attenuationWeight
-            result[12] += duration * attenuationWeight * Double(infectiousnessWeight) / 100.0
+            for i in 0 ..< standardAttenuationConfigs.count {
+                let attenuationWeight = standardAttenuationConfigs[i].attenuationWeight(low: attenuationTop - 4, high: attenuationTop)
+                let infectiousnessWeight = infectiousnessWeights[2 - c.infectiousnessIndex]
+                result[11 + i] += duration * attenuationWeight * Double(infectiousnessWeight) / 100.0
+            }
         }
     }
     return result

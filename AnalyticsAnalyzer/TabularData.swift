@@ -610,6 +610,11 @@ class TextBuffer {
 
     func asENPAData(startDate: Date? = nil) throws -> DataFrame {
         logger.info("converting ENPA TextBuffer to DataFrame")
+        if false {
+            for s in text.prefix(10) {
+                print(s)
+            }
+        }
         var readingOptions = CSVReadingOptions()
         readingOptions.addDateParseStrategy(
             Date.ParseStrategy(

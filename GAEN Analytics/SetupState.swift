@@ -51,6 +51,8 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let configStartKey = "configStartKey"
     static let testServerKey = "testServerKey"
     static let daysRollupKey = "daysRollupKey"
+    static let baselineExposureKey = "baselineExposureKey"
+    static let highInfectiousnessWeightKey = "highInfectiousnessWeightKey"
     static let debuggingKey = "debuggingKey"
 
     func convertToUTCDay(_ date: Date) -> Date {
@@ -63,7 +65,10 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     }
 
     var config: Configuration {
-        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate), configStart: configStartDate, useTestServers: useTestServers)
+        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate), configStart: configStartDate,
+                      durationBaselineMinutes: durationBaselineMinutes,
+                      highInfectiousnessWeight: highInfectiousnessWeight,
+                      useTestServers: useTestServers)
     }
 
     @Published var region: String = "" {
@@ -81,6 +86,18 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     @Published var notifications: Int = 1 {
         didSet {
             UserDefaults.standard.set(notifications, forKey: Self.notificationsKey)
+        }
+    }
+
+    @Published var durationBaselineMinutes: Double = 15.0 {
+        didSet {
+            UserDefaults.standard.set(durationBaselineMinutes, forKey: Self.baselineExposureKey)
+        }
+    }
+
+    @Published var highInfectiousnessWeight: Int = 100 {
+        didSet {
+            UserDefaults.standard.set(highInfectiousnessWeight, forKey: Self.highInfectiousnessWeightKey)
         }
     }
 
@@ -226,6 +243,12 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         if let data = UserDefaults.standard.string(forKey: Self.regionKey) {
             region = data
         }
+        let baseline = UserDefaults.standard.double(forKey: Self.baselineExposureKey)
+        durationBaselineMinutes = baseline == 0.0 ? 15.0 : baseline
+
+        let hiw = UserDefaults.standard.integer(forKey: Self.highInfectiousnessWeightKey)
+        highInfectiousnessWeight = hiw == 0 ? 100 : hiw
+
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
         let dr = UserDefaults.standard.integer(forKey: Self.daysRollupKey)
         daysRollup = dr == 0 ? 7 : dr

@@ -16,6 +16,8 @@ public struct Configuration: @unchecked Sendable {
     let startDate: Date?
     let configStart: Date?
     let useTestServers: Bool
+    let durationBaselineMinutes: Double
+    let highInfectiousnessWeight: Int
 
     var hasENPA: Bool {
         let result = enpaAPIKey != nil && !enpaAPIKey!.isEmpty
@@ -43,8 +45,11 @@ public struct Configuration: @unchecked Sendable {
          encvAPIKey: String? = nil,
          startDate: Date? = nil,
          configStart: Date? = nil,
+         durationBaselineMinutes: Double = 15.0,
+         highInfectiousnessWeight: Int,
          useTestServers: Bool = false)
     {
+        print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
         self.daysSinceExposureThreshold = daysSinceExposureThreshold
         self.numDays = numDays
         self.numCategories = numCategories
@@ -54,5 +59,7 @@ public struct Configuration: @unchecked Sendable {
         self.startDate = startDate
         self.configStart = configStart
         self.useTestServers = useTestServers
+        self.durationBaselineMinutes = durationBaselineMinutes
+        self.highInfectiousnessWeight = highInfectiousnessWeight
     }
 }

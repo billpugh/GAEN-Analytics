@@ -7,13 +7,6 @@
 
 import Foundation
 
-//
-//  LineChart.swift
-//  Charts-SwiftUI
-//
-//  Created by Stewart Lynch on 2020-11-20.
-//
-
 import Charts
 import os.log
 import SwiftUI
@@ -61,6 +54,12 @@ class MyValueFormatter: NSObject, ValueFormatter {
 class RoundedAxisValueFormatter: NSObject, AxisValueFormatter {
     public func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
         "\(threeDigitsPrecision.string(from: value as NSNumber)!)"
+    }
+}
+
+class IntAxisValueFormatter: NSObject, AxisValueFormatter {
+    public func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
+        "\(Int(value.rounded()))"
     }
 }
 
@@ -124,8 +123,6 @@ struct LineChart: UIViewRepresentable {
         lastDay = Double(day(date: data["date", Date.self].last!!))
     }
 
-    let xName = "date"
-    let xType: Any.Type = Date.self
     var data: DataFrame.Slice
     var lastDay: Double
 
@@ -187,7 +184,7 @@ struct LineChart: UIViewRepresentable {
     }
 
     func makeDateSet(column: String) -> LineChartDataSet? {
-        let days = data[xName, Date.self]
+        let days = data["date", Date.self]
         let chartData: [ChartDataEntry]
         let cc = data[column]
         if cc.wrappedElementType == Double.self {
@@ -249,20 +246,6 @@ struct LineChart: UIViewRepresentable {
         return yMax
     }
 
-    let format = NumberFormatter()
-    func foo(
-        _: Double,
-        _ entry: ChartDataEntry,
-        _: Int,
-        _: ViewPortHandler?
-    ) -> String {
-        if let s = entry.data as? String {
-            return s
-        }
-        // print("\(value) \(dataSetIndex) \(entry.x) \(entry.y) \(entry.data)")
-        return ""
-    }
-
     func formatDataSet(dataSet: LineChartDataSet, label: String, color: UIColor) {
         dataSet.label = "\(label)  "
         dataSet.colors = [color]
@@ -273,7 +256,7 @@ struct LineChart: UIViewRepresentable {
             dataSet.drawCirclesEnabled = true
             dataSet.circleRadius = 4
             dataSet.lineWidth = 0
-        } else if label.hasSuffix("stdev") { dataSet.lineWidth = 4
+        } else if label.hasSuffix("stdev") {
             dataSet.lineWidth = 2
             dataSet.drawCirclesEnabled = false
         } else {
@@ -302,10 +285,6 @@ struct LineChart: UIViewRepresentable {
         lineChart.highlightPerTapEnabled = false
         lineChart.highlightPerDragEnabled = false
         lineChart.setScaleEnabled(false)
-        if false, lineChart.scaleX == 1.0 {
-            lineChart.zoom(scaleX: 1.5, scaleY: 1, x: 0, y: 0)
-        }
-        // lineChart.animate(xAxisDuration: 0.5, yAxisDuration: 0, easingOption: .linear)
     }
 
     func formatXAxis(xAxis: XAxis) {
@@ -321,6 +300,184 @@ struct LineChart: UIViewRepresentable {
         // let weeks = 9
         // xAxis.axisMinimum = Double(-7*weeks)
         xAxis.setLabelCount(5, force: true)
+    }
+
+    func formatLeftAxis(leftAxis: YAxis, yMax: Double) {
+        leftAxis.labelTextColor = .darkGray
+        leftAxis.axisMinimum = 0
+
+        if let maxBound = maxBound {
+            leftAxis.axisMaximum = min(maxBound, yMax)
+        } else {
+            leftAxis.axisMaximum = yMax
+        }
+
+        leftAxis.labelFont = UIFont.boldSystemFont(ofSize: 12)
+
+        if leftAxis.axisMaximum <= 1.5 {
+            leftAxis.valueFormatter = PercentAxisValueFormatter()
+        } else {
+            leftAxis.valueFormatter = RoundedAxisValueFormatter()
+        }
+    }
+
+    func formatLegend(legend: Legend) {
+        legend.textColor = UIColor.black
+        legend.font = UIFont.boldSystemFont(ofSize: 14)
+        legend.horizontalAlignment = .center
+        legend.verticalAlignment = .top
+        legend.drawInside = false
+        legend.yOffset = 24.0
+    }
+}
+
+struct XYLineChart: UIViewRepresentable {
+    // NOTE: No Coordinator or delegate functions in this example
+    let lineChart = LineChartView()
+    init(data: DataFrame, x: String, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
+        xName = x
+        self.data = data
+        self.columns = columns
+
+        let allColors: [UIColor] = [.blue, .red, .green, darkYellow, .purple, .cyan, .magenta, .orange]
+        // let allColors: [UIColor] = [.systemBlue, .systemRed, .systemGreen, .systemYellow, .systemPurple, .systemCyan, .systemIndigo, .systemOrange]
+
+        var c: [String: UIColor] = [:]
+        for (i, name) in columns.enumerated() {
+            c[name] = allColors[i]
+        }
+        colors = c
+
+        self.maxBound = maxBound
+        self.minBound = minBound
+    }
+
+    var data: DataFrame
+
+    let maxBound: Double?
+    let minBound: Double?
+    let columns: [String]
+    let colors: [String: UIColor]
+    let xName: String
+
+    func makeUIView(context _: Context) -> LineChartView {
+        lineChart
+    }
+
+    func updateUIView(_ uiView: LineChartView, context _: Context) {
+        let yMax = setChartData(uiView)
+        configureChart(uiView)
+        formatXAxis(xAxis: uiView.xAxis)
+        formatLeftAxis(leftAxis: uiView.leftAxis, yMax: yMax)
+
+        if columns.count == 1 {
+            uiView.legend.enabled = false
+        } else {
+            formatLegend(legend: uiView.legend)
+        }
+
+        uiView.notifyDataSetChanged()
+    }
+
+    func makeDataEntry(_ x: Double?, _ y: Double?) -> ChartDataEntry? {
+        guard let x = x else {
+            return nil
+        }
+        guard let y = y else {
+            return ChartDataEntry(x: x, y: -100)
+        }
+
+        return ChartDataEntry(x: x, y: y)
+    }
+
+    func makeDateSet(column: String) -> LineChartDataSet? {
+        let days = data[xName, Double.self]
+        let chartData: [ChartDataEntry]
+        let cc = data[column]
+        if cc.wrappedElementType == Double.self {
+            let c = data[column, Double.self]
+            chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
+            print("got \(chartData.count) entries for \(column)")
+        } else {
+            logger.error("Column \(column) has unexpected type \(cc.wrappedElementType)")
+            chartData = []
+        }
+        if chartData.isEmpty {
+            print("no data")
+            return nil
+        }
+
+        let dataSet = LineChartDataSet(entries: chartData)
+        if dataSet.yMax == 0 {
+            print("yMax is nil")
+            return nil
+        }
+
+        formatDataSet(dataSet: dataSet, label: column, color: colors[column]!)
+        print("Got dataset for \(column), x is \(dataSet.xMin)...\(dataSet.xMax), y is \(dataSet.yMin)...\(dataSet.yMax)")
+        return dataSet
+    }
+
+    func setChartData(_ lineChart: LineChartView) -> Double {
+        let dataSets = columns.compactMap { makeDateSet(column: $0) }
+
+        let yMaxAll = dataSets.map(\.yMax).reduce(-Double.infinity, max)
+
+        let yMax = twoDigitsPrecisionCeiling(yMaxAll)
+
+        let lineChartData = LineChartData(dataSets: dataSets)
+        lineChart.data = lineChartData
+
+        return yMax
+    }
+
+    func formatDataSet(dataSet: LineChartDataSet, label: String, color: UIColor) {
+        dataSet.label = "\(label)  "
+        dataSet.colors = [color]
+        dataSet.valueColors = [color]
+
+        dataSet.circleColors = [color]
+
+        dataSet.lineWidth = 4
+        dataSet.drawCirclesEnabled = false
+
+        // dataSet.circleRadius = 0
+        dataSet.circleHoleRadius = 0
+        dataSet.mode = .linear
+        // dataSet.lineDashLengths = [4]
+        dataSet.drawValuesEnabled = false
+        dataSet.drawIconsEnabled = false
+
+        dataSet.valueFormatter = MyValueFormatter()
+        dataSet.valueFont = UIFont.systemFont(ofSize: 24)
+    }
+
+    func configureChart(_ lineChart: LineChartView) {
+        lineChart.noDataText = "No Data"
+        lineChart.drawGridBackgroundEnabled = true
+        lineChart.gridBackgroundColor = UIColor.tertiarySystemFill
+        lineChart.drawBordersEnabled = true
+        lineChart.rightAxis.enabled = false
+        lineChart.dragEnabled = false
+        lineChart.drawMarkers = false
+        lineChart.highlightPerTapEnabled = false
+        lineChart.highlightPerDragEnabled = false
+        lineChart.setScaleEnabled(false)
+    }
+
+    func formatXAxis(xAxis: XAxis) {
+        xAxis.labelPosition = .bottom
+
+        xAxis.valueFormatter = IntAxisValueFormatter()
+        xAxis.labelTextColor = .darkGray
+        xAxis.labelFont = UIFont.boldSystemFont(ofSize: 12)
+        // xAxis.granularity = 7
+        // xAxis.entries = [-21,-14,-7,0]
+        // Setting the max and min make sure that the markers are visible at the edges
+        // xAxis.axisMaximum = 12
+        // let weeks = 9
+        // xAxis.axisMinimum = Double(-7*weeks)
+        // xAxis.setLabelCount(5, force: true)
     }
 
     func formatLeftAxis(leftAxis: YAxis, yMax: Double) {

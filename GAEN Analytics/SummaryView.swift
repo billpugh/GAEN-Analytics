@@ -39,6 +39,11 @@ struct SummaryView: View {
                     .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
             }
             ENXChartsView(charts: analysisState.enpaCharts)
+            if let da = analysisState.durationAnalysis,
+               let summary = analysisState.durationSummary
+            {
+                DurationSummaryView(title: "Duration summary", df: da, summary: summary)
+            }
             Section(header: TopicView(topic: "Appendix").padding(.top)) {}
             ENXChartsView(charts: analysisState.appendixCharts)
             ENXChartsView(charts: analysisState.appendixENPACharts)

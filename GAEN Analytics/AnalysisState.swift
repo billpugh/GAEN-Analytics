@@ -52,6 +52,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var iOSENPA: DataFrame?
     @Published var AndroidENPA: DataFrame?
     @Published var combinedENPA: DataFrame?
+    @Published var durationAnalysis: DataFrame?
     // persisted
     @Published var encvComposite: DataFrame?
     @Published var smsErrors: DataFrame?
@@ -68,6 +69,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var csvExport: CSVFile? = nil
     @Published var csvExportReady = false
     @Published var additionalMetrics: Set<String> = []
+    @Published var durationSummary: String? = nil
     func metricSelected(_ name: String) -> Bool {
         additionalMetrics.contains(name)
     }
@@ -273,6 +275,8 @@ class AnalysisState: NSObject, ObservableObject {
         iOSENPA = nil
         AndroidENPA = nil
         combinedENPA = nil
+        durationAnalysis = nil
+        durationSummary = nil
         encvComposite = nil
         worksheet = nil
         rollingAvg = nil
@@ -336,12 +340,17 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary.append(joined)
     }
 
-    func analyzedENPA(raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?) {
+    func analyzedENPA(config: Configuration, raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?, durationAnalysis: DataFrame?) {
         rawENPA = raw
         iOSENPA = ios
         AndroidENPA = android
         combinedENPA = combined
         self.worksheet = worksheet
+        self.durationAnalysis = durationAnalysis
+        if let da = durationAnalysis {
+            durationSummary = summarizeDurations(da, baselineDuration: config.durationBaselineMinutes).joined(separator: "\n")
+        }
+
         encvDate = Date()
         makeENPACharts()
         enpaAvailable = true
@@ -384,6 +393,7 @@ class AnalysisState: NSObject, ObservableObject {
                     enpaOptIn(enpa: enpa, config: config),
                     scaledNotifications(enpa: enpa, config: config),
                 ]
+
             enpaCharts = maybeCharts.compactMap { $0 }
             let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config),
                                                             deviceAttenuations(worksheet: worksheet)]
@@ -579,7 +589,10 @@ actor AnalysisTask {
                 worksheet.addColumn("<= 75 dB %", Double.self, newName: "Android <= 75 dB %", from: androidDataFrame)
                 worksheet.addColumn("<= 80 dB %", Double.self, newName: "iOS <= 80 dB %", from: iOSDataFrame)
             }
-            await result.analyzedENPA(raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet)
+            let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
+
+            await result.analyzedENPA(config: config, raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,
+                                      durationAnalysis: durationAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
             let android = summarize("Android", androidDataFrame, categories: config.numCategories)
@@ -668,6 +681,7 @@ struct ChartOptions: Identifiable {
     let data: DataFrame
     let columns: [String]
     let maxBound: Double?
+    let doubleDouble: Bool
     var id: String {
         title
     }
@@ -680,10 +694,10 @@ struct ChartOptions: Identifiable {
                 return nil
             }
         }
-        return ChartOptions(title: title, data: data, columns: columns, maxBound: maxBound)
+        return ChartOptions(title: title, data: data, columns: columns, maxBound: maxBound, doubleDouble: false)
     }
 
-    init(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) {
+    init(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil, doubleDouble: Bool = false) {
         self.title = title
         // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
         logger.log("Making chart \(title, privacy: .public)")
@@ -697,6 +711,7 @@ struct ChartOptions: Identifiable {
         self.data = data.selecting(columnNames: ["date"] + columns)
         self.columns = columns
         self.maxBound = maxBound
+        self.doubleDouble = doubleDouble
     }
 }
 
