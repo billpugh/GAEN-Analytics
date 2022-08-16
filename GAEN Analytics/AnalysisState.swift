@@ -387,9 +387,9 @@ class AnalysisState: NSObject, ObservableObject {
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
                     arrivingPromptly(enpa: enpa, config: config),
-                    
+
                     detectedEncounterGraph(enpa: enpa, config: config),
-                   
+
                     estimatedUsers(enpa: enpa, config: config),
                     enpaOptIn(enpa: enpa, config: config),
                     scaledNotifications(enpa: enpa, config: config),
@@ -598,7 +598,7 @@ actor AnalysisTask {
                 worksheet.addColumn("<= 80 dB %", Double.self, newName: "iOS <= 80 dB %", from: iOSDataFrame)
             }
             await result.update(enpa: "Computing enpa duration analysis")
-            
+
             let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
 
             await result.analyzedENPA(config: config, raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,

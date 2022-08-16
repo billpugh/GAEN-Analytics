@@ -126,10 +126,10 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
     wdValues = addInterpolation(minutes: 30 / med, wdValues)
     wdValues = addInterpolation(minutes: 60 / med, wdValues)
 
-    var csvRows: [String] = ["minutes,max %,sum %,scaled wd %,wd %,hip sum %", "0.0,1.0, , 1.0, 1.0, 1.0","3.0,1.0,,1.0,,"]
-    csvRows.append("\(round2(3.0/med)), , ,, 1.0, ")
-    csvRows.append("\(round2(3.0/med * hiWeight)), , ,, ,1.0")
-    
+    var csvRows: [String] = ["minutes,max %,sum %,scaled wd %,wd %,hip sum %", "0.0,1.0, , 1.0, 1.0, 1.0", "3.0,1.0,,1.0,,"]
+    csvRows.append("\(round2(3.0 / med)), , ,, 1.0, ")
+    csvRows.append("\(round2(3.0 / med * hiWeight)), , ,, ,1.0")
+
     for m in wdValues {
         csvRows.append("\(round2(med * m.minutes)),,,\(m.percentile),,")
         csvRows.append("\(m.minutes),,,,\(m.percentile),")

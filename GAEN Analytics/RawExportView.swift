@@ -148,7 +148,7 @@ struct RawExportView: View {
                        })
         #endif
 
-                       .navigationBarTitle("Export raw ENPA data")
+        .navigationBarTitle("Export raw ENPA data")
     }
 }
 
