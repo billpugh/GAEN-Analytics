@@ -286,6 +286,7 @@ struct DelayedNotificationCounts {
     }
 }
 
+let computeConfigWeights = false
 struct Accumulators {
     let numDays: Int
     let numCategories: Int
@@ -484,7 +485,7 @@ struct Accumulators {
         }
 
         let aBPrint: String
-        if attenuationBuckets.updated {
+        if  attenuationBuckets.updated {
             let total = attenuationBuckets.sums[0 ..< 8].reduce(0.0,+)
             var sum = 0.0
             let prefixPercentage = attenuationBuckets.sums[0 ..< 7].map { (sum += $0, sum / total).1 }
@@ -493,12 +494,13 @@ struct Accumulators {
             let highInfectious = attenuationBuckets.sums[10] / total
             let infectious = (attenuationBuckets.sums[9] + attenuationBuckets.sums[10]) / total
             let nnv2 = attenuationBuckets.sums[11]
-            let configWeights = attenuationBuckets.sums[12 ..< 11 + standardAttenuationConfigs.count].map { "\(round4($0 / nnv2))" }.joined(separator: ",")
+            let cwPrint = computeConfigWeights ? attenuationBuckets.sums[12 ..< 11 + standardAttenuationConfigs.count].map { ",\(round4($0 / nnv2))" }.joined() : ""
             // attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %,narrow net v1,wide net
-            aBPrint = "\(attenuationBuckets.countPerDay),\(v),\(round4(highInfectious)),\(round4(infectious)),\(configWeights)"
+            aBPrint = "\(attenuationBuckets.countPerDay),\(v),\(round4(highInfectious)),\(round4(infectious))\(cwPrint)"
+            
         } else {
             // aBPrint = ",, ,,, ,,, ,,," / 11
-            aBPrint = String(repeating: ",", count: 8 + standardAttenuationConfigs.count)
+            aBPrint = String(repeating: ",", count: 9 + (computeConfigWeights ? standardAttenuationConfigs.count-1 : 0 ))
         }
         let dBPrint: String
         if durationBuckets.updated {
@@ -545,8 +547,10 @@ struct Accumulators {
         let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
-        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %," +
-            standardAttenuationConfigs[1 ..< standardAttenuationConfigs.count].map { "\($0.name) %" }.joined(separator: ",")
+        let cwHeader = computeConfigWeights ?
+        standardAttenuationConfigs[1 ..< standardAttenuationConfigs.count].map { ",\($0.name) %" }.joined() : ""
+        
+        let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %\(cwHeader)"
         let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
         printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		160B1D75289D728700B68C50 /* durationAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C8995C288E1FF100DA69AC /* durationAnalysis.swift */; };
 		1615FA4C27EE041F0089F0B6 /* Charts in Frameworks */ = {isa = PBXBuildFile; productRef = 1615FA4B27EE041F0089F0B6 /* Charts */; };
 		1615FA4F27EE04390089F0B6 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 1615FA4E27EE04390089F0B6 /* ZIPFoundation */; };
 		1615FA5127EE092F0089F0B6 /* Publish requests.md in Resources */ = {isa = PBXBuildFile; fileRef = 1615FA5027EE092F0089F0B6 /* Publish requests.md */; };
@@ -89,6 +90,7 @@
 		16856EB127C2F5BB00F44960 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
 		16856EB227C2F70100F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
 		168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */ = {isa = PBXBuildFile; fileRef = 168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */; };
+		169205DF28ABD3CB004ADE89 /* Duration summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 169205DE28ABD3CB004ADE89 /* Duration summary.md */; };
 		169AAED9286E243B0039CB4E /* unusual tek uploads.md in Resources */ = {isa = PBXBuildFile; fileRef = 169AAED8286E235A0039CB4E /* unusual tek uploads.md */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
@@ -115,11 +117,11 @@
 		16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16C8995D288E1FF100DA69AC /* durationAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C8995C288E1FF100DA69AC /* durationAnalysis.swift */; };
-		16C8995E288E256300DA69AC /* durationAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C8995C288E1FF100DA69AC /* durationAnalysis.swift */; };
 		16D7B5E226237CEE00D09126 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D7B5E126237CEE00D09126 /* main.swift */; };
 		16DC0F022623908F0023AF49 /* functionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16515AA525C9939200C97BB8 /* functionality.swift */; };
 		16DC0F05262391EF0023AF49 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 16DC0F04262391EF0023AF49 /* CSV */; };
 		16DEAB4127D65A4600069680 /* testServers.json in Resources */ = {isa = PBXBuildFile; fileRef = 16DEAB3F27D6537300069680 /* testServers.json */; };
+		16E8AAF628A4447B009EC1F0 /* ENPA API key.md in Resources */ = {isa = PBXBuildFile; fileRef = 16A292E9282063160068F29B /* ENPA API key.md */; };
 		16F6DAAF27A764A100388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 		16F6DAB027A76C1500388B5B /* FetchENPA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F6DAAE27A764A100388B5B /* FetchENPA.swift */; };
 /* End PBXBuildFile section */
@@ -241,6 +243,7 @@
 		16856EA027C04EBE00F44960 /* SmokeTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmokeTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Est. scaled notifications per day.md"; sourceTree = "<group>"; };
+		169205DE28ABD3CB004ADE89 /* Duration summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Duration summary.md"; sourceTree = "<group>"; };
 		169AAED8286E235A0039CB4E /* unusual tek uploads.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "unusual tek uploads.md"; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -501,6 +504,7 @@
 				168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */,
 				16216BD02885D0E9008F5F36 /* Encounter detected in past 14 days.md */,
 				16216BD12885D107008F5F36 /* Weighted duration distribution.md */,
+				169205DE28ABD3CB004ADE89 /* Duration summary.md */,
 				16216BD42885D129008F5F36 /* Sum score distribution.md */,
 				16216BD62885D145008F5F36 /* Max score distribution.md */,
 				16216BD82885DCC2008F5F36 /* Attenuation distribution.md */,
@@ -694,7 +698,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1330;
-				LastUpgradeCheck = 1330;
+				LastUpgradeCheck = 1340;
 				TargetAttributes = {
 					1609485625C3632A001705A6 = {
 						CreatedOnToolsVersion = 12.5;
@@ -774,6 +778,7 @@
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
 				16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
+				169205DF28ABD3CB004ADE89 /* Duration summary.md in Resources */,
 				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
 				16AF2DB427E6167B000B1529 /* Notification share.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
@@ -801,6 +806,7 @@
 				1615FA5927EE09CE0089F0B6 /* Excess secondary attack rate 4.md in Resources */,
 				16216BD22885D10D008F5F36 /* Weighted duration distribution.md in Resources */,
 				16856E5A27BBF40700F44960 /* about.md in Resources */,
+				16E8AAF628A4447B009EC1F0 /* ENPA API key.md in Resources */,
 				16856E6A27BC021F00F44960 /* Notifications per key upload.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -864,7 +870,7 @@
 				1673F56027B0A5800037D340 /* functionality.swift in Sources */,
 				1673F55A27B0A4D70037D340 /* AnalysisState.swift in Sources */,
 				1673F54D27B07F710037D340 /* ContentView.swift in Sources */,
-				16C8995E288E256300DA69AC /* durationAnalysis.swift in Sources */,
+				160B1D75289D728700B68C50 /* durationAnalysis.swift in Sources */,
 				1673F55D27B0A4D70037D340 /* SetupState.swift in Sources */,
 				1673F55C27B0A4D70037D340 /* SetupView.swift in Sources */,
 				1673F54B27B07F710037D340 /* GAEN_AnalyticsApp.swift in Sources */,
@@ -1110,7 +1116,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1149,7 +1155,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1185,6 +1191,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1198,6 +1205,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_HARDENED_RUNTIME = YES;

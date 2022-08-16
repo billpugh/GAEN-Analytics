@@ -32,7 +32,7 @@ class AnalysisState: NSObject, ObservableObject {
     var progressSteps: Double = 0.0
     @Published var progress: Double = 0.0
     var progressCount: Double {
-        let enpaCount = standardMetrics.count + additionalMetrics.count
+        let enpaCount = standardMetrics.count + additionalMetrics.count + 5
         return Double(enpaCount + 3)
     }
 
@@ -360,6 +360,9 @@ class AnalysisState: NSObject, ObservableObject {
         progressSteps = progressSteps + 1
         progress = min(progressSteps / progressCount, 1.0)
 
+        if progressSteps > progressCount {
+            print("Progress count is too small")
+        }
         if let encv = encv {
             encvDate = Date()
             status = encv
@@ -384,11 +387,9 @@ class AnalysisState: NSObject, ObservableObject {
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
                     arrivingPromptly(enpa: enpa, config: config),
-                    attenuationsGraph(enpa: enpa, config: config),
+                    
                     detectedEncounterGraph(enpa: enpa, config: config),
-                    weightedDurationGraph(enpa: enpa, config: config),
-                    sumScoreGraph(enpa: enpa, config: config),
-                    maxScoreGraph(enpa: enpa, config: config),
+                   
                     estimatedUsers(enpa: enpa, config: config),
                     enpaOptIn(enpa: enpa, config: config),
                     scaledNotifications(enpa: enpa, config: config),
@@ -396,6 +397,10 @@ class AnalysisState: NSObject, ObservableObject {
 
             enpaCharts = maybeCharts.compactMap { $0 }
             let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config),
+                                                            weightedDurationGraph(enpa: enpa, config: config),
+                                                            sumScoreGraph(enpa: enpa, config: config),
+                                                            maxScoreGraph(enpa: enpa, config: config),
+                                                            attenuationsGraph(enpa: enpa, config: config),
                                                             deviceAttenuations(worksheet: worksheet)]
                 + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
 
@@ -531,13 +536,16 @@ actor AnalysisTask {
             } // for m
 
             let metrics = raw.metrics
-            await result.update(enpa: "Analyzing enpa")
+            await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
             iOSDataFrame.removeRandomElements()
+            await result.update(enpa: "Analyzing Android enpa")
             var androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
             androidDataFrame.removeRandomElements()
+            await result.update(enpa: "Analyzing Combined enpa")
             var combinedDataFrame = try getRollingAverageKeyMetrics(metrics, options: config)
             combinedDataFrame.removeRandomElements()
+            await result.update(enpa: "Computing enpa worksheet")
             var worksheet: DataFrame
             if let encv = encvAverage {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
@@ -589,6 +597,8 @@ actor AnalysisTask {
                 worksheet.addColumn("<= 75 dB %", Double.self, newName: "Android <= 75 dB %", from: androidDataFrame)
                 worksheet.addColumn("<= 80 dB %", Double.self, newName: "iOS <= 80 dB %", from: iOSDataFrame)
             }
+            await result.update(enpa: "Computing enpa duration analysis")
+            
             let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
 
             await result.analyzedENPA(config: config, raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,

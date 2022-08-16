@@ -126,7 +126,10 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
     wdValues = addInterpolation(minutes: 30 / med, wdValues)
     wdValues = addInterpolation(minutes: 60 / med, wdValues)
 
-    var csvRows: [String] = ["minutes,max %,sum %,scaled wd %,wd %,hip sum %", "3.0,1.0,,1.0,1.0,1.0"]
+    var csvRows: [String] = ["minutes,max %,sum %,scaled wd %,wd %,hip sum %", "0.0,1.0, , 1.0, 1.0, 1.0","3.0,1.0,,1.0,,"]
+    csvRows.append("\(round2(3.0/med)), , ,, 1.0, ")
+    csvRows.append("\(round2(3.0/med * hiWeight)), , ,, ,1.0")
+    
     for m in wdValues {
         csvRows.append("\(round2(med * m.minutes)),,,\(m.percentile),,")
         csvRows.append("\(m.minutes),,,,\(m.percentile),")
@@ -141,7 +144,8 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
 
     let csv = csvRows.joined(separator: "\n")
     print(csv)
-    let df = try DataFrame(csvData: csv.data(using: .utf8)!)
+    var df = try DataFrame(csvData: csv.data(using: .utf8)!)
+    df.sort(on: "minutes")
 
     var df2 = compactRows(column: "minutes", df.sorted(on: "minutes"))
     print((try? String(data: df2.csvRepresentation(), encoding: .utf8))!)
@@ -166,7 +170,10 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
 func desirableRow(_ row: DataFrame.Row) -> Bool {
     let minutes = round4(row["minutes", Double.self]!)
 
-    if minutes == 3 || minutes == 5 || minutes == 7.5 || minutes == 15 {
+    if minutes == 0 {
+        return false
+    }
+    if minutes == 3 || minutes == 5 || minutes == 7.5 || minutes == 15 || minutes == 27 {
         return true
     }
     return minutes == 10 * (minutes / 10).rounded()
