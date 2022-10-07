@@ -228,8 +228,10 @@ class AnalysisState: NSObject, ObservableObject {
                 return
             }
             try csv.write(to: path, options: .atomicWrite)
-            let dates = encvComposite["date", Date.self]
-            print("wrote composites to \(path), first date \(dateFormatter.string(from: dates.first!!))")
+            if encvComposite.requireColumn("date", Date.self) {
+                let dates = encvComposite["date", Date.self]
+                print("wrote composites to \(path), first date \(dateFormatter.string(from: dates.first!!))")
+            }
 
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -298,6 +300,9 @@ class AnalysisState: NSObject, ObservableObject {
         nextAction = "Fetching analytics"
         enpaCharts = []
         encvCharts = []
+        appendixENPACharts = []
+        appendixCharts = []
+        durationSummary = nil
     }
 
     func finish() {

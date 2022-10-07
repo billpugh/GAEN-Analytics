@@ -27,7 +27,7 @@ public func loadMetrics(file: String, configuration: Configuration, only: [Strin
         let endTime = dateParser.date(from: row[3])!
         let sum = row[1].dropFirst().dropLast().components(separatedBy: ", ").map { Int($0)! }
 
-        rawMetrics.addMetric(fullId: fullId, id: id, epsilon: 8.0, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
+        //rawMetrics.addMetric(fullId: fullId, id: id, epsilon: 8.0, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
     }
     return rawMetrics.metrics
 }
@@ -81,7 +81,7 @@ struct AnalyticsTool: ParsableCommand {
             configStart = dateFormatter.date(from: cStart)
         }
         let options = Configuration(daysSinceExposureThreshold: daysSinceExposureThreshold, numDays: days, numCategories: categories,
-                                    region: region, enpaAPIKey: apiKey, startDate: startDate, configStart: configStart)
+                                    region: region, enpaAPIKey: apiKey, startDate: startDate, configStart: configStart, highInfectiousnessWeight: 100)
 
         let metrics: [String: Metric]
         if let region = region, let apiKey = apiKey {

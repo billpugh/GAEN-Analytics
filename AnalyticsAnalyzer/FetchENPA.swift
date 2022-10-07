@@ -33,8 +33,12 @@ public func getStat(metric: String, configuration: Configuration) -> NSDictionar
         return [:]
     }
 
-    let json = try! JSONSerialization.jsonObject(with: data, options: [])
-    return json as! NSDictionary
+    if let json = try? JSONSerialization.jsonObject(with: data, options: []) {
+        if let result = json as? NSDictionary {
+            return result
+        }
+    }
+    return [:]
 }
 
 func getData(_ request: URLRequest) -> Data? {
