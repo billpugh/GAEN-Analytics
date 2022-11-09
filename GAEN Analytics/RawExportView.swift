@@ -111,7 +111,7 @@ struct RawExportView: View {
             }
             Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {
                 CheckView(id: "periodicExposureNotification14d")
-                CheckView(id: "dateExposure14d")
+                // CheckView(id: "dateExposure14d")
             }
 
             Section(header: Text("Actions").font(.headline).textCase(nil)) {

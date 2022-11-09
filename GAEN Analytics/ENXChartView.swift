@@ -10,10 +10,15 @@ import TabularData
 
 struct ENXChartsView: View {
     let charts: [ChartOptions]
-    var body: some View {
-        ForEach(charts) { c in
-            ENXChartView(title: c.title, lineChart: LineChart(data: c.data, columns: c.columns, maxBound: c.maxBound))
+    @MainActor func chartView(_ c: ChartOptions) -> ENXChartView {
+        if c.doubleDouble {
+            return ENXChartView(title: c.title, data: c.data, chart: XYLineChart(data: c.data, x: "days since exposure", columns: c.columns, maxBound: c.maxBound))
         }
+        return ENXChartView(title: c.title, data: c.data, chart: LineChart(data: c.data, columns: c.columns, maxBound: c.maxBound))
+    }
+
+    var body: some View {
+        ForEach(charts) { c in chartView(c) }
     }
 }
 
@@ -37,20 +42,22 @@ extension View {
 struct ENXChartView: View {
     @EnvironmentObject var analysisState: AnalysisState
     let title: String
-    let lineChart: LineChart
-    @MainActor init(title: String, lineChart: LineChart) {
+    let lineChart: any GAENChart
+    let data: DataFrame
+    @MainActor init(title: String, data: DataFrame, chart: any GAENChart) {
         self.title = title
-        self.lineChart = lineChart
+        self.data = data
+        lineChart = chart
         let exportTitle = title + ".csv"
 
-        if let csv = AnalysisState.exportToFileDocument(name: exportTitle, dataframe: lineChart.data) {
+        if let csv = AnalysisState.exportToFileDocument(name: exportTitle, dataframe: data) {
             csvDocument = csv
         } else {
             csvDocument = CSVFile(name: "none", Data())
             print("set empty csvDocument")
         }
 
-        if let url = AnalysisState.exportToURL(name: exportTitle, dataframe: lineChart.data) {
+        if let url = AnalysisState.exportToURL(name: exportTitle, dataframe: data) {
             csvItem = CSVItem(url: url,
                               title: title)
         } else {
@@ -101,7 +108,7 @@ struct ENXChartView: View {
             }
             // TestView()
 
-            lineChart.frame(height: 300)
+            AnyView(lineChart.frame(height: 300))
 
         }.textCase(nil)
             .sheet(isPresented: self.$showingShare, onDismiss: { print("share sheet dismissed") },

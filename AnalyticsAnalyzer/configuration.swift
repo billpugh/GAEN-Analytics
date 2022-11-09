@@ -6,6 +6,18 @@
 //
 
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "configuration")
+
+let oneDay: TimeInterval = 24 * 60 * 60
+let oneFetch = oneDay * 366
+
+public struct FetchInterval {
+    let start: Date
+    let end: Date
+}
+
 public struct Configuration: @unchecked Sendable {
     let daysSinceExposureThreshold: Int
     let numDays: Int
@@ -29,12 +41,22 @@ public struct Configuration: @unchecked Sendable {
         return result
     }
 
-    var prefetchStart: Date? {
+    func getFetchIntervals() -> [FetchInterval] {
         guard let startDate = startDate else {
-            return nil
+            logger.log("no start date specified")
+
+            return []
         }
-        let prefetchDate = startDate.advanced(by: -Double((numDays - 1) * 24 * 60 * 60))
-        return prefetchDate
+        var fetchStart = startDate.advanced(by: -Double(numDays - 1) * oneDay)
+        var result: [FetchInterval] = []
+        let now = Date()
+        while now.timeIntervalSince(fetchStart) > oneFetch {
+            let nextFetch = fetchStart.advanced(by: oneFetch)
+            result.append(FetchInterval(start: fetchStart, end: nextFetch))
+            fetchStart = nextFetch
+        }
+        result.append(FetchInterval(start: fetchStart, end: now))
+        return result
     }
 
     init(daysSinceExposureThreshold: Int = 10,

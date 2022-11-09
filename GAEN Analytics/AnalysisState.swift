@@ -53,6 +53,7 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var AndroidENPA: DataFrame?
     @Published var combinedENPA: DataFrame?
     @Published var durationAnalysis: DataFrame?
+    @Published var dateExposureAnalysis: DataFrame?
     // persisted
     @Published var encvComposite: DataFrame?
     @Published var smsErrors: DataFrame?
@@ -278,6 +279,7 @@ class AnalysisState: NSObject, ObservableObject {
         AndroidENPA = nil
         combinedENPA = nil
         durationAnalysis = nil
+        dateExposureAnalysis = nil
         durationSummary = nil
         encvComposite = nil
         worksheet = nil
@@ -345,13 +347,14 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary.append(joined)
     }
 
-    func analyzedENPA(config: Configuration, raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?, durationAnalysis: DataFrame?) {
+    func analyzedENPA(config: Configuration, raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?, durationAnalysis: DataFrame?, dateExposureAnalysis: DataFrame?) {
         rawENPA = raw
         iOSENPA = ios
         AndroidENPA = android
         combinedENPA = combined
         self.worksheet = worksheet
         self.durationAnalysis = durationAnalysis
+        self.dateExposureAnalysis = dateExposureAnalysis
         if let da = durationAnalysis {
             durationSummary = summarizeDurations(da, baselineDuration: config.durationBaselineMinutes).joined(separator: "\n")
         }
@@ -392,6 +395,9 @@ class AnalysisState: NSObject, ObservableObject {
                 + (1 ... config.numCategories).map { secondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) }
                 + [
                     arrivingPromptly(enpa: enpa, config: config),
+                    averageDaysUntilNotification(enpa: enpa, config: config),
+
+                    daysUntilNotification(dateExposureAnalysis: dateExposureAnalysis, config: config),
 
                     detectedEncounterGraph(enpa: enpa, config: config),
 
@@ -407,6 +413,7 @@ class AnalysisState: NSObject, ObservableObject {
                                                             maxScoreGraph(enpa: enpa, config: config),
                                                             attenuationsGraph(enpa: enpa, config: config),
                                                             deviceAttenuations(worksheet: worksheet)]
+                + ((1 ... config.numCategories).map { dateExposure14(enpa: enpa, config: config, notification: $0) })
                 + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
 
             appendixENPACharts = maybeAppendixENPACharts.compactMap { $0 }
@@ -517,7 +524,7 @@ let standardMetrics = ["userRisk", "riskParameters",
                        "notificationInteractions",
                        "codeVerified",
                        "keysUploaded",
-                       "dateExposure", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
+                       "dateExposure", "dateExposure14d", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
 actor AnalysisTask {
     func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
         do {
@@ -525,7 +532,7 @@ actor AnalysisTask {
 
             for m in standardMetrics {
                 await result.update(enpa: "fetching ENPA \(m)")
-                let errors = raw.addMetric(names: [m])
+                let errors = raw.addMetric(m)
                 if !errors.isEmpty {
                     await result.log(enpa: errors)
                     return
@@ -534,7 +541,7 @@ actor AnalysisTask {
             let additional = await result.additionalMetrics
             for m in additional {
                 await result.update(enpa: "fetching ENPA \(m)")
-                let errors = raw.addMetric(names: [m])
+                let errors = raw.addMetric(m)
                 if !errors.isEmpty {
                     await result.log(enpa: errors)
                 }
@@ -605,9 +612,10 @@ actor AnalysisTask {
             await result.update(enpa: "Computing enpa duration analysis")
 
             let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
+            let dateExposureAnalysis = try? computeDateExposureCurves(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], categories: config.numCategories)
 
             await result.analyzedENPA(config: config, raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,
-                                      durationAnalysis: durationAnalysis)
+                                      durationAnalysis: durationAnalysis, dateExposureAnalysis: dateExposureAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
             let android = summarize("Android", androidDataFrame, categories: config.numCategories)
@@ -727,6 +735,23 @@ struct ChartOptions: Identifiable {
         self.columns = columns
         self.maxBound = maxBound
         self.doubleDouble = doubleDouble
+    }
+
+    init(title: String, data: DataFrame, xAxis: String, columns: [String]) {
+        self.title = title
+        // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
+        logger.log("Making chart \(title, privacy: .public)")
+        for c in columns {
+            if data.indexOfColumn(c) == nil {
+                logger.error("Column \(c, privacy: .public) doesn't exist")
+                data.printColumnNames()
+            }
+        }
+
+        self.data = data.selecting(columnNames: [xAxis] + columns)
+        self.columns = columns
+        maxBound = nil
+        doubleDouble = true
     }
 }
 
@@ -854,11 +879,33 @@ func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, n
     return ChartOptions(title: "Excess secondary attack rate \(notification)", data: data, columns: [sar, sarplus, sarminus])
 }
 
+func dateExposure14(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
+    let columns = (1 ... 8).map { "nt\(notification)-de\($0)%" }
+
+    return ChartOptions(title: "Delay between nt\(notification) and exposure", data: enpa, columns: columns, maxBound: 1.0)
+}
+
 func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
     let columns = Array((1 ... config.numCategories).map { ["nt\($0) 0-3 days %", "nt\($0) 0-6 days %"] }.joined())
 
     return ChartOptions(title: "Notifications arriving promptly", data: enpa, columns: columns,
                         maxBound: 1.0)
+}
+
+func averageDaysUntilNotification(enpa: DataFrame, config: Configuration) -> ChartOptions {
+    let columns = (1 ... config.numCategories).map { "nt\($0) de avg" }
+
+    return ChartOptions(title: "Average days until notification", data: enpa, columns: columns)
+}
+
+func daysUntilNotification(dateExposureAnalysis: DataFrame?, config: Configuration) -> ChartOptions? {
+    guard let dateExposureAnalysis = dateExposureAnalysis else {
+        return nil
+    }
+    let columns = (1 ... config.numCategories).map { "category \($0)" }
+
+    return ChartOptions(title: "Days until notification", data: dateExposureAnalysis,
+                        xAxis: "days since exposure", columns: columns)
 }
 
 // est. users

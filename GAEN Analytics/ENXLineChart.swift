@@ -95,7 +95,9 @@ func day(date: Date) -> Int {
 
 let darkYellow = UIColor(red: 0.9, green: 0.9, blue: 0, alpha: 1)
 
-struct LineChart: UIViewRepresentable {
+protocol GAENChart: UIViewRepresentable where UIViewType == LineChartView {}
+
+struct LineChart: GAENChart {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
     init(data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {
@@ -331,7 +333,7 @@ struct LineChart: UIViewRepresentable {
     }
 }
 
-struct XYLineChart: UIViewRepresentable {
+struct XYLineChart: GAENChart {
     // NOTE: No Coordinator or delegate functions in this example
     let lineChart = LineChartView()
     init(data: DataFrame, x: String, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) {

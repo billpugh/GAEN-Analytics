@@ -109,6 +109,13 @@
 		16B2B5E127D40F80000F763A /* ENCV data.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DC27D40F1B000F763A /* ENCV data.md */; };
 		16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DD27D40F51000F763A /* ENCV analysis.md */; };
 		16B2B5E327D40F86000F763A /* combined analysis.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B2B5DE27D40F74000F763A /* combined analysis.md */; };
+		16C36C7F291BDD63005B8613 /* durationAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C8995C288E1FF100DA69AC /* durationAnalysis.swift */; };
+		16C36C81291BFEAB005B8613 /* Average days until notification.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C80291BFEAB005B8613 /* Average days until notification.md */; };
+		16C36C83291C0019005B8613 /* Days until notification.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C82291BFECB005B8613 /* Days until notification.md */; };
+		16C36C88291C0259005B8613 /* Delay between nt1 and exposure.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C84291C0192005B8613 /* Delay between nt1 and exposure.md */; };
+		16C36C89291C025D005B8613 /* Delay between nt2 and exposure.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C85291C021A005B8613 /* Delay between nt2 and exposure.md */; };
+		16C36C8A291C0263005B8613 /* Delay between nt3 and exposure.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C86291C022C005B8613 /* Delay between nt3 and exposure.md */; };
+		16C36C8B291C0266005B8613 /* Delay between nt4 and exposure.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C36C87291C023A005B8613 /* Delay between nt4 and exposure.md */; };
 		16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D527E220730008863F /* Secondary attack rate 1.md */; };
 		16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D727E221A50008863F /* Secondary attack rate 2.md */; };
 		16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D827E221B60008863F /* Secondary attack rate 3.md */; };
@@ -260,6 +267,12 @@
 		16B2B5DC27D40F1B000F763A /* ENCV data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV data.md"; sourceTree = "<group>"; };
 		16B2B5DD27D40F51000F763A /* ENCV analysis.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "ENCV analysis.md"; sourceTree = "<group>"; };
 		16B2B5DE27D40F74000F763A /* combined analysis.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "combined analysis.md"; sourceTree = "<group>"; };
+		16C36C80291BFEAB005B8613 /* Average days until notification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Average days until notification.md"; sourceTree = "<group>"; };
+		16C36C82291BFECB005B8613 /* Days until notification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Days until notification.md"; sourceTree = "<group>"; };
+		16C36C84291C0192005B8613 /* Delay between nt1 and exposure.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Delay between nt1 and exposure.md"; sourceTree = "<group>"; };
+		16C36C85291C021A005B8613 /* Delay between nt2 and exposure.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Delay between nt2 and exposure.md"; sourceTree = "<group>"; };
+		16C36C86291C022C005B8613 /* Delay between nt3 and exposure.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Delay between nt3 and exposure.md"; sourceTree = "<group>"; };
+		16C36C87291C023A005B8613 /* Delay between nt4 and exposure.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Delay between nt4 and exposure.md"; sourceTree = "<group>"; };
 		16C381D527E220730008863F /* Secondary attack rate 1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 1.md"; sourceTree = "<group>"; };
 		16C381D727E221A50008863F /* Secondary attack rate 2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 2.md"; sourceTree = "<group>"; };
 		16C381D827E221B60008863F /* Secondary attack rate 3.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Secondary attack rate 3.md"; sourceTree = "<group>"; };
@@ -509,6 +522,12 @@
 				16216BD62885D145008F5F36 /* Max score distribution.md */,
 				16216BD82885DCC2008F5F36 /* Attenuation distribution.md */,
 				166E89BA28874498009BEFF5 /* Comparison of device received attenuations.md */,
+				16C36C80291BFEAB005B8613 /* Average days until notification.md */,
+				16C36C82291BFECB005B8613 /* Days until notification.md */,
+				16C36C84291C0192005B8613 /* Delay between nt1 and exposure.md */,
+				16C36C85291C021A005B8613 /* Delay between nt2 and exposure.md */,
+				16C36C86291C022C005B8613 /* Delay between nt3 and exposure.md */,
+				16C36C87291C023A005B8613 /* Delay between nt4 and exposure.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -759,6 +778,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */,
+				16C36C88291C0259005B8613 /* Delay between nt1 and exposure.md in Resources */,
 				16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */,
 				16216BD32885D110008F5F36 /* Encounter detected in past 14 days.md in Resources */,
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
@@ -772,6 +792,8 @@
 				169AAED9286E243B0039CB4E /* unusual tek uploads.md in Resources */,
 				16A292EB2821C4920068F29B /* privacy policy.md in Resources */,
 				168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */,
+				16C36C8B291C0266005B8613 /* Delay between nt4 and exposure.md in Resources */,
+				16C36C81291BFEAB005B8613 /* Average days until notification.md in Resources */,
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16216BD72885D145008F5F36 /* Max score distribution.md in Resources */,
@@ -782,6 +804,7 @@
 				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
 				16AF2DB427E6167B000B1529 /* Notification share.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
+				16C36C83291C0019005B8613 /* Days until notification.md in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
 				16B2B5D127D3C35B000F763A /* codes claimed within hour %.md in Resources */,
@@ -799,7 +822,9 @@
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
 				166E89BC2887452F009BEFF5 /* Attenuation distribution.md in Resources */,
 				16216BD52885D12B008F5F36 /* Sum score distribution.md in Resources */,
+				16C36C8A291C0263005B8613 /* Delay between nt3 and exposure.md in Resources */,
 				16856E6727BC021400F44960 /* claim and consent rates.md in Resources */,
+				16C36C89291C025D005B8613 /* Delay between nt2 and exposure.md in Resources */,
 				1670B5352864E1350018A084 /* Invalid code ratios.md in Resources */,
 				1615FA5427EE09810089F0B6 /* Excess secondary attack rate 1.md in Resources */,
 				16AF2DB227E39DCD000B1529 /* Users with notifications.md in Resources */,
@@ -903,6 +928,7 @@
 				16856EA327C04EBE00F44960 /* SmokeTest.swift in Sources */,
 				16856EA827C04EEE00F44960 /* TabularData.swift in Sources */,
 				16856EA727C04EEE00F44960 /* functionality.swift in Sources */,
+				16C36C7F291BDD63005B8613 /* durationAnalysis.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1116,7 +1142,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1136,7 +1162,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.4.2;
+				MARKETING_VERSION = 0.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1155,7 +1181,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1175,7 +1201,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.4.2;
+				MARKETING_VERSION = 0.4.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

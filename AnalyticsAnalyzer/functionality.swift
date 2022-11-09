@@ -238,6 +238,16 @@ struct FixedLengthAccumulator {
         "\(per100K(std * scale))," + per100KNoSTD(range: range, scale: scale)
     }
 
+    func percentageOfFinal(range: ClosedRange<Int>) -> [Double] {
+        let total = sums[range.upperBound]
+        return sums[range.lowerBound ..< range.upperBound].map { $0 / total }
+    }
+
+    func percentageOfFinalAsString(range: ClosedRange<Int>) -> String {
+        let p = percentageOfFinal(range: range)
+        return p.map { String($0) }.joined(separator: ",")
+    }
+
     func cumulativeDistribution(range: ClosedRange<Int>) -> String {
         let values = sums[range]
         let total = values.reduce(0.0,+)
@@ -322,8 +332,10 @@ struct Accumulators {
         secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
         verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
         uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
+        dateExposure14DCount = FixedLengthAccumulator(numDays, width: 12 * options.numCategories)
     }
 
+    var dateExposure14DCount: FixedLengthAccumulator
     var verifiedCount: FixedLengthAccumulator
     var uploadedCount: FixedLengthAccumulator
     var notifiedCount: FixedLengthAccumulator
@@ -391,6 +403,9 @@ struct Accumulators {
 
             verified14DCount.addLikely(m.codeVerified14D, day: d, scale: 1.0 / 14.0)
             uploaded14Count.addLikely(m.keysUploaded14D, day: d, scale: 1.0 / 14.0)
+            if let dateExposure14D = m.dateExposure14D {
+                dateExposure14DCount.addLikely(dateExposure14D, day: d, scale: 1.0 / 14.0)
+            }
         }
     }
 
@@ -403,6 +418,16 @@ struct Accumulators {
             return ""
         }
         return "\(f4: round4(ratio))"
+    }
+
+    func average(probabilityDistribution: [Double]) -> Double {
+        var result = 0.0
+        for i in 1 ..< probabilityDistribution.count {
+            result += (probabilityDistribution[i] - probabilityDistribution[i - 1]) * Double(i)
+        }
+        result += (1.0 - probabilityDistribution.last!) * Double(probabilityDistribution.count)
+        // print("avg of \(result) for \(probabilityDistribution)")
+        return result
     }
 
     mutating func printMe(date: Date, scale: Double) {
@@ -449,6 +474,7 @@ struct Accumulators {
         ).joined(separator: ",")
 
         let dePrint: String
+        let de14Print: String
         let nsPrint: String
 
         if dateExposureCount.updated {
@@ -459,6 +485,18 @@ struct Accumulators {
         } else {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
             nsPrint = String(repeating: ",", count: numCategories - 1)
+        }
+        if dateExposure14DCount.updated {
+            let de14Print0 = "\(dateExposure14DCount.countPerDay),\(dateExposure14DCount.per100KNoTotal(range: 0 ... (12 * numCategories - 1)))"
+            let de14Print1 = (1 ... numCategories).map { dateExposure14DCount.percentageOfFinalAsString(range: (($0 - 1) * 12) ... ($0 * 12 - 1))
+            }.joined(separator: ",")
+
+            let de14Avg = (1 ... numCategories).map { String(average(probabilityDistribution: dateExposure14DCount.percentageOfFinal(range: (($0 - 1) * 12) ... ($0 * 12 - 1)))) }.joined(separator: ",")
+
+            de14Print = "\(de14Print0),\(de14Print1),\(de14Avg)"
+
+        } else {
+            de14Print = String(repeating: ",", count: 1 + 24 * numCategories)
         }
         let sa14Print: String
 
@@ -517,7 +555,7 @@ struct Accumulators {
         } else {
             dBPrint = ",,,, ,,,,,,,  ,,,,,,,  ,,,,,,,"
         }
-        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
+        printFunction("\(dayFormatter.string(from: date)),\(stats),\(cvPrint),\(saPrint),\(sarPrint),\(sarStdPrint),\(xsarPrint),\(kuPrint),\(unPrint),\(unPercentage),\(ntPerKy),\(nsPrint),\(icPrint),\(dePrint),\(de14Print),\(sa14Print),\(vc14Print),\(ku14Print),\(aBPrint),\(dBPrint)")
 
         verifiedCount.advance()
         uploadedCount.advance()
@@ -544,7 +582,13 @@ struct Accumulators {
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
         let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
-        let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined() + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
+        let de14Days = 0 ... 11
+        let de14Main = range.map { cat in de14Days.map { "nt\(cat)-de\($0)" } }.joined().joined(separator: ",")
+        let de14Percent = range.map { cat in (0 ... 10).map { "nt\(cat)-de\($0)%" } }.joined().joined(separator: ",")
+        let de14Average = range.map { "nt\($0) de avg" }.joined(separator: ",")
+        let de14Header = "de14 count,de14 std,\(de14Main),\(de14Percent),\(de14Average)"
+        let sa14Header = "sa14 count,sa14 std," + (0 ... numCategories - 1).map { "sa14 ct\(1 + $0)," }.joined()
+            + (0 ... numCategories - 1).map { "sa14 sr\(1 + $0)" }.joined(separator: ",")
         let cv14Header = "vc14 count,vc14 std,vc ct,vc sr"
         let ku14Header = "ku14 count,ku14 std,ku ct,ku sr"
         let cwHeader = computeConfigWeights ?
@@ -553,7 +597,7 @@ struct Accumulators {
         let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %\(cwHeader)"
         let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(de14Header),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
     }
 }
 
@@ -580,6 +624,7 @@ struct MetricSet {
     let secondaryAttack14D: Metric
     let codeVerified14D: Metric
     let keysUploaded14D: Metric
+    let dateExposure14D: Metric?
 
     init(forIOS metrics: [String: Metric]) {
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -593,6 +638,7 @@ struct MetricSet {
         secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
         codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
         keysUploaded14D = getMetric(metrics, "com.apple.EN.KeysUploadedWithReportTypeV2D14")
+        dateExposure14D = getMetric(metrics, "com.apple.EN.DateExposureV2D14")
     }
 
     init(forAndroid metrics: [String: Metric]) {
@@ -606,7 +652,7 @@ struct MetricSet {
         secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
         codeVerified14D = getMetric(metrics, "CodeVerifiedWithReportType14d")
         keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
-
+        dateExposure14D = nil // getMetric(metrics, "DateExposure14d")
         userRisk = nil
     }
 }
@@ -766,14 +812,14 @@ struct RawMetrics {
         return tempDirURL
     }
 
-    public mutating func addMetric(names: [String]) -> [String] {
+    public mutating func addMetric(_ n: String) -> [String] {
         var errors: [String] = []
-        for n in names {
-            let json = getStat(metric: n, configuration: configuration)
+        let fetchIntervals = configuration.getFetchIntervals()
+        for fetch in fetchIntervals {
+            let json = getStat(metric: n, configuration: configuration, fetch)
             if let error = json["error"] as? String {
-                logger.log("got error fetching ENPA: \(error, privacy: .public)")
+                logger.log("got error fetching ENPA \(n, privacy: .public): \(error, privacy: .public)")
                 errors.append(error)
-                continue
             }
             if let rawData = json["rawData"] as? [NSDictionary] {
                 for m in rawData {

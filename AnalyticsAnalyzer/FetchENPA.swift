@@ -11,15 +11,12 @@ import os.log
 let urlSession = URLSession(configuration: .ephemeral)
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "fetchENPA")
 
-public func getStat(metric: String, configuration: Configuration) -> NSDictionary {
-    let sDate: String
-    if let startDate = configuration.prefetchStart {
-        sDate = dayFormatter.string(from: startDate)
-    } else {
-        sDate = "2021-01-01"
-    }
+public func getStat(metric: String, configuration: Configuration, _ fetch: FetchInterval) -> NSDictionary {
+    let sDate: String = dayFormatter.string(from: fetch.start)
+    let eDate: String = dayFormatter.string(from: fetch.end)
+
     let host = configuration.useTestServers ? "api.dev.enpa-pha.io" : "api.enpa-pha.io"
-    let s = "https://\(host)/api/public/v2/enpa-data?datasets=\(metric)&raw=True&start_date=\(sDate)&country=US&state=\(configuration.region!)"
+    let s = "https://\(host)/api/public/v2/enpa-data?datasets=\(metric)&raw=True&start_date=\(sDate)&end_date=\(eDate)&country=US&state=\(configuration.region!)"
     let url = URL(string: s)!
     // print(url)
     var request = URLRequest(url: url)
@@ -27,7 +24,9 @@ public func getStat(metric: String, configuration: Configuration) -> NSDictionar
     request.setValue("application/json", forHTTPHeaderField: "accept")
     // print("apiKey: \(configuration.enpaAPIKey)")
     request.setValue(configuration.enpaAPIKey, forHTTPHeaderField: "x-api-key")
-
+    if metric == "riskParameters" {
+        print(request)
+    }
     let data = getData(request)
     guard let data = data else {
         return [:]

@@ -72,6 +72,31 @@ func addInterpolation(minutes: Double, _ values: [DurationMeasurement]) -> [Dura
     return values
 }
 
+public func computeDateExposureCurves(_ r: DataFrame.Row, categories: Int) throws -> DataFrame {
+    var result = DataFrame()
+    let days = (0 ... 11).map { Double($0) }
+    let labels = Column(name: "days since exposure", contents: days)
+    result.append(column: labels)
+    print(r)
+    for c in 1 ... categories {
+        if let curve = computeDateExposureCurves(r, category: c) {
+            result.append(column: Column(name: "category \(c)", contents: curve))
+        }
+    }
+    return result
+}
+
+func computeDateExposureCurves(_ r: DataFrame.Row, category: Int) -> [Double]? {
+    let columns = (0 ... 10).map { "nt\(category)-de\($0)%" }
+    print(columns)
+    let values = [0.0] + columns.compactMap { r[$0] as? Double } + [1.0]
+    print(values)
+    if values.count != 13 {
+        return nil
+    }
+    return (0 ... 11).map { values[$0 + 1] - values[$0] }
+}
+
 public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight: Int) throws -> DataFrame {
     print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
     let hiWeight = Double(highInfectiousnessWeight) / 100.0
