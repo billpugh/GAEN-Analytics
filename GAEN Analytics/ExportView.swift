@@ -135,6 +135,18 @@ class CSVItem: NSObject, UIActivityItemSource {
     }
 }
 
+struct ExportItem0: View {
+    var title: String
+    var fileTitle: String
+    var dataFrame: DataFrame?
+    let analysisState = AnalysisState.shared
+
+    @Binding var showingSheet: Bool
+    var body: some View {
+        Text("placeholder \(title)")
+    }
+}
+
 struct ExportItem: View {
     var title: String
     var fileTitle: String
@@ -144,12 +156,15 @@ struct ExportItem: View {
     @Binding var showingSheet: Bool
     @State private var showingPopover = false
 
+    var showingPopoverOption = true
+
     @MainActor func exportDataframe() {
         let fileName = "\(analysisState.region)-\(fileTitle)-\(dateTimeStamp).csv"
         if let dataFrame = dataFrame {
             #if targetEnvironment(macCatalyst)
                 if let csv = AnalysisState.exportToFileDocument(name: fileName, dataframe: dataFrame) {
                     csvDocument = csv
+                    print("showing sheet for \(csv)")
                     showingSheet = true
                 }
             #else
@@ -157,6 +172,7 @@ struct ExportItem: View {
                     shareURL = url
 
                     shareTitle = fileName
+                    print("showing sheet for \(url)")
                     showingSheet = true
                 }
             #endif
@@ -173,15 +189,19 @@ struct ExportItem: View {
         if dataFrame != nil {
             VStack(alignment: .leading) {
                 HStack {
-                    Button(action: { exportDataframe() }) {
-                        Image(systemName: "square.and.arrow.up")
-                        Text(title)
-                    }.buttonStyle(BorderlessButtonStyle())
-                    Spacer()
-                    Button(action: { showingPopover.toggle() }) {
-                        Image(systemName: "info.circle")
+                    if showingPopoverOption {
+                        Button(action: { exportDataframe() }) {
+                            Label(title, systemImage: "square.and.arrow.up")
+                        }.buttonStyle(BorderlessButtonStyle())
 
-                    }.buttonStyle(BorderlessButtonStyle())
+                        Spacer()
+                        Button(action: { showingPopover.toggle() }) {
+                            Image(systemName: "info.circle")
+
+                        }.buttonStyle(BorderlessButtonStyle())
+                    } else {
+                        Text(title)
+                    }
                 }.font(.headline)
 
                 if showingPopover {
@@ -189,6 +209,8 @@ struct ExportItem: View {
                         .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
                 }
             }
+        } else {
+            Text("error: data frame not available")
         }
     }
 }
@@ -199,29 +221,35 @@ private var csvDocument: CSVFile?
 struct ExportView: View {
     @State private var showingSheet: Bool = false
     let analysisState = AnalysisState.shared
+    let showSections = true
 
     var body: some View {
         Form {
-            Section(header: Text("ENPA").font(.title).padding(.top)) {
+            if showSections {
+                Section(header: Text("ENPA").font(.title).padding(.top)) {
+                    ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, showingSheet: $showingSheet)
+
+                    ExportItem(title: "iOS ENPA", fileTitle: "iOS", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
+                    ExportItem(title: "Android ENPA", fileTitle: "Android", dataFrame: analysisState.AndroidENPA, showingSheet: $showingSheet)
+                } // Section
+            }
+            if showSections {
+                Section(header: Text("ENCV").font(.title).padding(.top)) {
+                    ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
+                    if let smsErrors = analysisState.smsErrors {
+                        ExportItem(title: "SMS errors data", fileTitle: "encv-sms-errors", dataFrame: smsErrors, showingSheet: $showingSheet)
+                    }
+                    ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
+
+                    // Text("System health")
+                } // Section
+                if analysisState.worksheet != nil {
+                    Section(header: Text("Worksheet").font(.title).textCase(.none).padding(.top)) {
+                        ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.worksheet, showingSheet: $showingSheet)
+                    }
+                }
+            } else {
                 ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, showingSheet: $showingSheet)
-
-                ExportItem(title: "iOS ENPA", fileTitle: "iOS", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
-                ExportItem(title: "Android ENPA", fileTitle: "Android", dataFrame: analysisState.AndroidENPA, showingSheet: $showingSheet)
-            } // Section
-
-            Section(header: Text("ENCV").font(.title).padding(.top)) {
-                ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
-                if let smsErrors = analysisState.smsErrors {
-                    ExportItem(title: "SMS errors data", fileTitle: "encv-sms-errors", dataFrame: smsErrors, showingSheet: $showingSheet)
-                }
-                ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
-
-                // Text("System health")
-            } // Section
-            if analysisState.worksheet != nil {
-                Section(header: Text("Worksheet").font(.title).textCase(.none).padding(.top)) {
-                    ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.worksheet, showingSheet: $showingSheet)
-                }
             }
         } // Form
 

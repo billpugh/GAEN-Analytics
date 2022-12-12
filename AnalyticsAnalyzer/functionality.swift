@@ -233,6 +233,14 @@ struct FixedLengthAccumulator {
         return "\(per100K(std)),\(total)," + per100KNoSTD(range: range)
     }
 
+    func per100KWithNotificationPercentage(range: ClosedRange<Int>) -> String {
+        let s = sums[range]
+        let total = per100K(sums[range].reduce(0.0,+))
+        let withoutNotification = per100K(s.first!)
+        let percentage = (total - withoutNotification) / total
+        return "\(per100K(std)),\(total),\(percentage)," + per100KNoSTD(range: range)
+    }
+
     func per100KNoTotal(range: ClosedRange<Int>, scale: Double = 1.0) -> String {
         // let show = sums[range].map { "\(per100K($0))"}
         "\(per100K(std * scale))," + per100KNoSTD(range: range, scale: scale)
@@ -329,9 +337,9 @@ struct Accumulators {
         excessSecondaryAttack = FixedLengthAccumulator(numDays, width: numCategories)
         durationBuckets = FixedLengthAccumulator(numDays, width: 26)
         attenuationBuckets = FixedLengthAccumulator(numDays, width: 11 + standardAttenuationConfigs.count)
-        secondaryAttack14D = FixedLengthAccumulator(1, m.secondaryAttack14D)
-        verified14DCount = FixedLengthAccumulator(1, m.codeVerified14D)
-        uploaded14Count = FixedLengthAccumulator(1, m.keysUploaded14D)
+        secondaryAttack14D = FixedLengthAccumulator(numDays, m.secondaryAttack14D)
+        verified14DCount = FixedLengthAccumulator(numDays, m.codeVerified14D)
+        uploaded14Count = FixedLengthAccumulator(numDays, m.keysUploaded14D)
         dateExposure14DCount = FixedLengthAccumulator(numDays, width: 12 * options.numCategories)
     }
 
@@ -436,10 +444,10 @@ struct Accumulators {
         }
         let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
 
-        let cvPrint = verifiedCount.per100K(range: 1 ... 1 + numCategories)
+        let cvPrint = verifiedCount.per100KWithNotificationPercentage(range: 1 ... 1 + numCategories)
         let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 1)
         let cvSTD = verifiedCount.per100K(verifiedCount.std)
-        let kuPrint = uploadedCount.per100K(range: 1 ... 1 + numCategories)
+        let kuPrint = uploadedCount.per100KWithNotificationPercentage(range: 1 ... 1 + numCategories)
         let unPrint = notifiedCount.per100K(range: 1 ... numCategories)
         let ku = uploadedCount.per100KValues(range: 1 ... 1 + numCategories).reduce(0,+)
         let unValues: [Double] = notifiedCount.per100KValues(range: 1 ... numCategories)
@@ -567,14 +575,15 @@ struct Accumulators {
         verified14DCount.advance()
         uploaded14Count.advance()
         secondaryAttack14D.advance()
+        dateExposure14DCount.advance()
         attenuationBuckets.advance()
         durationBuckets.advance()
     }
 
     func printHeader() {
         let range = 1 ... numCategories
-        let vcHeader = "vc std,vc,vc-n," + range.map { "vc+n\($0)," }.joined(separator: "") + range.map { "xsa\($0)" }.joined(separator: ",")
-        let kuHeader = "ku std,ku,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
+        let vcHeader = "vc std,vc,vc+n%,vc-n," + range.map { "vc+n\($0)," }.joined(separator: "") + range.map { "xsa\($0)" }.joined(separator: ",")
+        let kuHeader = "ku std,ku,ku+n%,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
         let esHeader = range.map { "nts\($0)%," }.joined()
         let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0)% stdev," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
@@ -613,6 +622,7 @@ func printRollingAverageKeyMetrics(_ m: MetricSet, options: Configuration, print
 }
 
 struct MetricSet {
+    let iOS: Bool
     let codeVerified: Metric
     let keysUploaded: Metric
     let userNotification: Metric
@@ -627,6 +637,7 @@ struct MetricSet {
     let dateExposure14D: Metric?
 
     init(forIOS metrics: [String: Metric]) {
+        iOS = true
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
         keysUploaded = getMetric(metrics, "com.apple.EN.KeysUploaded")
         userNotification = getMetric(metrics, "com.apple.EN.UserNotification")
@@ -642,6 +653,7 @@ struct MetricSet {
     }
 
     init(forAndroid metrics: [String: Metric]) {
+        iOS = false
         codeVerified = getMetric(metrics, "CodeVerified")
         keysUploaded = getMetric(metrics, "KeysUploaded")
         userNotification = getMetric(metrics, "PeriodicExposureNotification")
@@ -652,7 +664,11 @@ struct MetricSet {
         secondaryAttack14D = getMetric(metrics, "SecondaryAttack14d")
         codeVerified14D = getMetric(metrics, "CodeVerifiedWithReportType14d")
         keysUploaded14D = getMetric(metrics, "KeysUploadedWithReportType14d")
-        dateExposure14D = nil // getMetric(metrics, "DateExposure14d")
+        let m = getMetric(metrics, "DateExposure14d")
+        let m2 = Metric(m)
+        m2.fixAndroidDateExposure()
+        dateExposure14D = m2
+
         userRisk = nil
     }
 }
@@ -1107,6 +1123,20 @@ public class Metric: @unchecked Sendable {
         clientsByStart.merge(second.clientsByStart, uniquingKeysWith: +)
     }
 
+    init(_ first: Metric) {
+        epsilon = first.epsilon
+        aggregation_id = first.aggregation_id
+        provider = first.provider
+        genericId = first.genericId
+        sums = first.sums
+        clients = first.clients
+        lastClientCount = first.lastClientCount
+        clientsByDay = first.clientsByDay
+        clientsByStart = first.clientsByStart
+        sumByDay = first.sumByDay
+        sumByStart = first.sumByStart
+    }
+
     init(id: String, genericId: String, provider: String, epsilon: Double, sum: [Int], clients: Int, start: Date) {
         let startDay = dateAbstraction(start)
         aggregation_id = id
@@ -1120,6 +1150,28 @@ public class Metric: @unchecked Sendable {
         clientsByStart[start] = clients
         sumByStart[start] = sum
         sumByDay[startDay] = sum
+    }
+
+    func fixAndroidDateExposure(_ sums: [Int]) -> [Int] {
+        var result = sums
+        for categoryOffset in stride(from: 0, through: 36, by: 12) {
+            let m = result[categoryOffset ... (categoryOffset + 10)].max()!
+            result[categoryOffset + 11] = m
+        }
+        return result
+    }
+
+    func fixAndroidDateExposure() {
+        for start in sumByStart.keys {
+            if let sums: [Int] = sumByStart[start] {
+                sumByStart[start] = fixAndroidDateExposure(sums)
+            }
+        }
+        for start in sumByDay.keys {
+            if let sums: [Int] = sumByDay[start] {
+                sumByDay[start] = fixAndroidDateExposure(sums)
+            }
+        }
     }
 
     func update(sum: [Int], clients: Int, start: Date) {
@@ -1149,12 +1201,6 @@ public class Metric: @unchecked Sendable {
         } else {
             sumByDay[startDay] = sum
         }
-    }
-
-    func swap(_ i: Int, _ j: Int) {
-        let tmp = sums[i]
-        sums[i] = sums[j]
-        sums[j] = tmp
     }
 
     var likelyPopulation: [Double] {

@@ -408,6 +408,7 @@ class AnalysisState: NSObject, ObservableObject {
 
             enpaCharts = maybeCharts.compactMap { $0 }
             let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config),
+                                                            hadNotificationsWhenPositive(enpa: enpa, config: config),
                                                             weightedDurationGraph(enpa: enpa, config: config),
                                                             sumScoreGraph(enpa: enpa, config: config),
                                                             maxScoreGraph(enpa: enpa, config: config),
@@ -714,6 +715,7 @@ struct ChartOptions: Identifiable {
         for c in columns {
             if data.indexOfColumn(c) == nil {
                 logger.log("Column \(c, privacy: .public) doesn't exist")
+                // print(data.columns.map { $0.name})
                 return nil
             }
         }
@@ -882,7 +884,7 @@ func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, n
 func dateExposure14(enpa: DataFrame, config _: Configuration, notification: Int) -> ChartOptions {
     let columns = (1 ... 8).map { "nt\(notification)-de\($0)%" }
 
-    return ChartOptions(title: "Delay between nt\(notification) and exposure", data: enpa, columns: columns, maxBound: 1.0)
+    return ChartOptions(title: "Delay between exposure and nt\(notification)", data: enpa, columns: columns, maxBound: 1.0)
 }
 
 func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
@@ -922,6 +924,12 @@ func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOption
     let columns = Array((1 ... config.numCategories).map { "nts\($0)%" })
 
     return ChartOptions.maybe(title: "Users with notifications", data: enpa, columns: columns)
+}
+
+func hadNotificationsWhenPositive(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
+    let columns = ["vc+n%", "ku+n%"]
+
+    return ChartOptions.maybe(title: "Percentage of positive users who had received exposure notifications", data: enpa, columns: columns, maxBound: 0.5)
 }
 
 func deviceAttenuations(worksheet: DataFrame?) -> ChartOptions? {
