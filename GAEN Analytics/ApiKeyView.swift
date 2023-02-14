@@ -76,6 +76,6 @@ struct ApiKeyView_Previews: PreviewProvider {
                                                       set: {
                                                           SetupState.shared.encvKey = $0
                                                       }))
-            .previewDevice("iPhone 13 Pro")
+                                                      .previewDevice("iPhone 13 Pro")
     }
 }

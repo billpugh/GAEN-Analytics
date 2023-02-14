@@ -62,6 +62,7 @@
 		1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
 		1673F56D27B1820B0037D340 /* ApiKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56C27B1820B0037D340 /* ApiKeyView.swift */; };
 		1673F5B827B428A00037D340 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F5B727B428A00037D340 /* SummaryView.swift */; };
+		167C7022299C0F5F00E9571E /* nationalOptin.csv in Resources */ = {isa = PBXBuildFile; fileRef = 167C7021299C0F5F00E9571E /* nationalOptin.csv */; };
 		16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4127BA9F0F00F44960 /* ENXChartView.swift */; };
 		16856E4427BAA64700F44960 /* ENXLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E4327BAA64700F44960 /* ENXLineChart.swift */; };
 		16856E5927BBF34800F44960 /* DocView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16856E5827BBF34800F44960 /* DocView.swift */; };
@@ -233,6 +234,7 @@
 		1673F56C27B1820B0037D340 /* ApiKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiKeyView.swift; sourceTree = "<group>"; };
 		1673F5B627B424AC0037D340 /* GAEN Analytics.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "GAEN Analytics.entitlements"; sourceTree = "<group>"; };
 		1673F5B727B428A00037D340 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
+		167C7021299C0F5F00E9571E /* nationalOptin.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = nationalOptin.csv; sourceTree = "<group>"; };
 		16856E4127BA9F0F00F44960 /* ENXChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENXChartView.swift; sourceTree = "<group>"; };
 		16856E4327BAA64700F44960 /* ENXLineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENXLineChart.swift; sourceTree = "<group>"; };
 		16856E5727BBF31D00F44960 /* about.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = about.md; sourceTree = "<group>"; };
@@ -567,6 +569,7 @@
 			isa = PBXGroup;
 			children = (
 				16DEAB3F27D6537300069680 /* testServers.json */,
+				167C7021299C0F5F00E9571E /* nationalOptin.csv */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -801,6 +804,7 @@
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
 				16216BD72885D145008F5F36 /* Max score distribution.md in Resources */,
 				16856E6627BC021000F44960 /* ENPA opt in.md in Resources */,
+				167C7022299C0F5F00E9571E /* nationalOptin.csv in Resources */,
 				16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */,
 				16B2B5E227D40F83000F763A /* ENCV analysis.md in Resources */,
 				169205DF28ABD3CB004ADE89 /* Duration summary.md in Resources */,
@@ -1146,7 +1150,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1166,7 +1170,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.5.0;
+				MARKETING_VERSION = 0.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1185,7 +1189,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1205,7 +1209,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.5.0;
+				MARKETING_VERSION = 0.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

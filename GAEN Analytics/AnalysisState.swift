@@ -502,6 +502,7 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     }
     logger.log("added encv data to enpa data")
 
+    let date = result["date", Date.self]
     let vc = result[enpaColumn, Double.self]
     let vcstd = result[enpaColumn + " std", Double.self]
     let estUsers = zip(newEncvColumn, zip(vc, vcstd)).map { computeEstimatedDevices($0.0, $0.1) }
@@ -510,6 +511,13 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     let c = Column(name: estUsersColumnName, contents: estUsers)
     result.append(column: c)
     result.addColumnPercentage("\(enpaColumn) count", estUsersColumnName, giving: "\(platform)\(enpaColumn) ENPA %")
+
+    if !result.hasColumn("US ENPA %") {
+        let usOptin = date.map { getUSOptin(date: $0) }
+        let c2 = Column(name: "US ENPA %", contents: usOptin)
+        result.append(column: c2)
+        result.addColumnDividing("\(enpaColumn) count", "US ENPA %", giving: "est \(platform)users using US ENPA %")
+    }
     return result
 }
 
@@ -566,12 +574,13 @@ actor AnalysisTask {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
                 combinedDataFrame.addRollingMedianInt("est users from vc", giving: "est users", days: 14)
                 combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "ENPA %", days: 14)
-                combinedDataFrame.addColumnComputation("nt", "est users", giving: "est scaled notifications/day", estimatedNotifications)
+                combinedDataFrame.addColumnComputation("nt", "est users using US ENPA %", giving: "est scaled notifications/day", estimatedNotifications)
                 combinedDataFrame.addRollingSumDouble("est scaled notifications/day", giving: "est total notifications")
 
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
                 combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
+                combinedDataFrame.requireColumns("est users from ku", "ku ENPA %")
                 worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %", "est users from ku", "ku ENPA %")
 
                 worksheet.addColumn("codes issued", Int.self, from: encv)
@@ -912,7 +921,7 @@ func daysUntilNotification(dateExposureAnalysis: DataFrame?, config: Configurati
 
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users"])
+    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users", "est users using US ENPA %"])
 }
 
 // est. users
@@ -943,7 +952,7 @@ func deviceAttenuations(worksheet: DataFrame?) -> ChartOptions? {
 
 // est. users
 func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %"], maxBound: 1.0)
+    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %", "US ENPA %"], maxBound: 1.0)
 }
 
 // codes claimed/consent

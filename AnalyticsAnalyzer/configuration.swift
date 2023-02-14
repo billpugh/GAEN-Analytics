@@ -26,6 +26,7 @@ public struct Configuration: @unchecked Sendable {
     let enpaAPIKey: String?
     let encvAPIKey: String?
     let startDate: Date?
+    let endDate: Date?
     let configStart: Date?
     let useTestServers: Bool
     let durationBaselineMinutes: Double
@@ -49,13 +50,13 @@ public struct Configuration: @unchecked Sendable {
         }
         var fetchStart = startDate.advanced(by: -Double(numDays - 1) * oneDay)
         var result: [FetchInterval] = []
-        let now = Date()
-        while now.timeIntervalSince(fetchStart) > oneFetch {
+        let endDate = endDate ?? Date()
+        while endDate.timeIntervalSince(fetchStart) > oneFetch {
             let nextFetch = fetchStart.advanced(by: oneFetch)
             result.append(FetchInterval(start: fetchStart, end: nextFetch))
             fetchStart = nextFetch
         }
-        result.append(FetchInterval(start: fetchStart, end: now))
+        result.append(FetchInterval(start: fetchStart, end: endDate))
         return result
     }
 
@@ -66,6 +67,7 @@ public struct Configuration: @unchecked Sendable {
          enpaAPIKey: String? = nil,
          encvAPIKey: String? = nil,
          startDate: Date? = nil,
+         endDate: Date? = nil,
          configStart: Date? = nil,
          durationBaselineMinutes: Double = 15.0,
          highInfectiousnessWeight: Int,
@@ -79,6 +81,7 @@ public struct Configuration: @unchecked Sendable {
         self.enpaAPIKey = enpaAPIKey
         self.encvAPIKey = encvAPIKey
         self.startDate = startDate
+        self.endDate = endDate
         self.configStart = configStart
         self.useTestServers = useTestServers
         self.durationBaselineMinutes = durationBaselineMinutes

@@ -832,12 +832,18 @@ struct RawMetrics {
         var errors: [String] = []
         let fetchIntervals = configuration.getFetchIntervals()
         for fetch in fetchIntervals {
+            print(fetch)
             let json = getStat(metric: n, configuration: configuration, fetch)
             if let error = json["error"] as? String {
                 logger.log("got error fetching ENPA \(n, privacy: .public): \(error, privacy: .public)")
                 errors.append(error)
             }
             if let rawData = json["rawData"] as? [NSDictionary] {
+                if false {
+                    let output = try! JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .withoutEscapingSlashes])
+                    let outputURL = URL(fileURLWithPath: "/tmp/\(n).json")
+                    try! output.write(to: outputURL)
+                }
                 for m in rawData {
                     let provider = m["data_provider"] as? String ?? "?"
                     let clients = m["total_individual_clients"] as! Int
@@ -1298,6 +1304,26 @@ public class Metric: @unchecked Sendable {
                 .joined(separator: ",")
             let stdev = round2(getStandardDeviation(totalCount: count))
             buf.append("\(dayFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev),\(likely),\(sums)")
+        }
+        return buf.all
+    }
+
+    func sumsByStart() -> String {
+        let buf = TextBuffer()
+        let bucketString = (0 ..< buckets).map { "\($0)" }.joined(separator: ",")
+        let rawString = (0 ..< buckets).map { "r\($0)" }.joined(separator: ",")
+
+        buf.append("date,devices,epsilon,stdev,\(bucketString),\(rawString)")
+        for (day, sumBy) in sumByStart.sorted(by: { $0.0 < $1.0 }) {
+            let count = clientsByStart[day]!
+            let likelyValues = sumBy.map { getMostLikelyPopulationCount(totalCount: Double(count), sumPart: Double($0)) }
+            let likely = likelyValues.map { "\(round2($0))" }
+                .joined(separator: ",")
+
+            let sums = sumBy.map { "\($0)" }
+                .joined(separator: ",")
+            let stdev = round2(getStandardDeviation(totalCount: count))
+            buf.append("\(dayTimeFormatter.string(from: day)),\(nf6(count)),\(epsilon),\(stdev), \(likely), \(sums)")
         }
         return buf.all
     }
@@ -1804,4 +1830,39 @@ func summarize(_ heading: String, _ enpa: DataFrame, categories: Int) -> [String
     }
 
     return output
+}
+
+struct HardcodedStat {
+    let date: Date
+    let value: Double
+    init(date: String, value: Double) {
+        self.date = dayFormatter.date(from: date)!
+        self.value = value
+    }
+}
+
+let nationalOptin = [
+    HardcodedStat(date: "2021-07-01", value: 0.35),
+    HardcodedStat(date: "2022-01-01", value: 0.4),
+    HardcodedStat(date: "2022-04-01", value: 0.45),
+]
+
+func getUSOptin(date: Date?) -> Double? {
+    guard let date = date else {
+        return nil
+    }
+    var start = Date.distantPast
+    var startValue = nationalOptin[0].value
+    for d in nationalOptin {
+        if date < d.date {
+            if start == Date.distantPast {
+                return startValue
+            }
+            let range = d.value - startValue
+            return startValue + range * date.timeIntervalSince(start) / d.date.timeIntervalSince(start)
+        }
+        start = d.date
+        startValue = d.value
+    }
+    return startValue
 }

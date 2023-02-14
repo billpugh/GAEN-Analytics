@@ -35,6 +35,13 @@ extension DataFrame {
         return Double(x) / Double(y)
     }
 
+    func dividing(_ x: Int?, _ y: Double?) -> Int? {
+        guard let x = x, let y = y, y > 0 else {
+            return nil
+        }
+        return Int(Double(x) / y)
+    }
+
     func ratio(excluding x: Int?, _ y: Int?) -> Double? {
         guard let x = x, let y = y, y > 0 else {
             return nil
@@ -348,6 +355,21 @@ extension DataFrame {
         logger.info("added column \(giving, privacy: .public)")
     }
 
+    mutating func addColumnDividing(_ name1: String, _ name2: String, giving: String) {
+        logger.info("addColumnDiving(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
+        guard requireColumn(name1, Int.self), requireColumn(name2, Double.self) else {
+            return
+        }
+        let column1 = self[name1, Int.self]
+        let column2 = self[name2, Double.self]
+        let resultData = zip(column1, column2).map { dividing($0, $1) }
+        let result = Column(name: giving, contents: resultData)
+        removeIfPresent(giving)
+        // calculated.append(giving)
+        append(column: result)
+        logger.info("added column \(giving, privacy: .public)")
+    }
+
     mutating func addColumnDifferenceDouble(_ name1: String, _ name2: String, giving: String) -> Bool {
         logger.info("addColumnDifference(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
         guard requireColumn(name1, Double.self), requireColumn(name2, Double.self) else {
@@ -427,7 +449,10 @@ extension DataFrame {
 
     mutating func addColumnComputation(_ name1: String, _ name2: String, giving: String, _ function: (Double?, Int?) -> Double?) {
         logger.info("addColumComputation(\(name1, privacy: .public), \(name2, privacy: .public), giving \(giving, privacy: .public))")
-        guard requireColumn(name1, Double.self), requireColumn(name2, Int.self) else {
+        guard requireColumn(name1, Double.self) else {
+            return
+        }
+        guard requireColumn(name2, Int.self) else {
             return
         }
         let column1 = self[name1, Double.self]
@@ -632,15 +657,15 @@ class TextBuffer {
                                                "dec count": .integer],
                                        options: readingOptions)
             if let startDate = startDate {
-                let df = DateFormatter()
-                df.dateStyle = .full
-                df.timeStyle = .full
-                df.timeZone = TimeZone(identifier: "UTC")!
-                print("filtering rows to \(df.string(from: startDate))")
-                let filtered = DataFrame(result.filter { date($0) >= startDate })
-                let dates = filtered["date", Date.self]
-                print("first date: \(df.string(from: dates.first!!))")
-                return filtered
+//                let df = DateFormatter()
+//                df.dateStyle = .full
+//                df.timeStyle = .full
+//                df.timeZone = TimeZone(identifier: "UTC")!
+//                print("filtering rows to \(df.string(from: startDate))")
+//                let filtered = DataFrame(result.filter { date($0) >= startDate })
+//                let dates = filtered["date", Date.self]
+//                print("first date: \(df.string(from: dates.first!!))")
+//                return filtered
             }
             return result
         } catch {

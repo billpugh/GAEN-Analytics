@@ -20,7 +20,7 @@ extension RawMetrics {
         do {
             for (name, metric) in metrics {
                 let file = url.appendingPathComponent("\(name).csv")
-                let text = metric.sumsByDay()
+                let text = metric.sumsByStart()
                 try text.write(toFile: file.path, atomically: false, encoding: .utf8)
             }
         } catch {

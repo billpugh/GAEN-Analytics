@@ -254,15 +254,15 @@ struct ExportView: View {
         } // Form
 
         #if targetEnvironment(macCatalyst)
-            .fileExporter(isPresented: $showingSheet, document: csvDocument, contentType: UTType.commaSeparatedText, defaultFilename: csvDocument?.name ?? "") { result in
-                switch result {
-                case let .success(url):
-                    print("Saved to \(url)")
-                case let .failure(error):
-                    print(error.localizedDescription)
-                }
-                csvDocument = nil
+        .fileExporter(isPresented: $showingSheet, document: csvDocument, contentType: UTType.commaSeparatedText, defaultFilename: csvDocument?.name ?? "") { result in
+            switch result {
+            case let .success(url):
+                print("Saved to \(url)")
+            case let .failure(error):
+                print(error.localizedDescription)
             }
+            csvDocument = nil
+        }
 
         #else
                 .sheet(isPresented: self.$showingSheet, onDismiss: { print("share sheet dismissed") },
@@ -273,7 +273,7 @@ struct ExportView: View {
                            ] as [Any], applicationActivities: nil, isPresented: self.$showingSheet)
                        })
         #endif
-        .navigationBarTitle("Export analysis")
+                       .navigationBarTitle("Export analysis")
     }
 }
 

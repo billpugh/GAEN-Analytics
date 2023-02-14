@@ -24,10 +24,7 @@ public func getStat(metric: String, configuration: Configuration, _ fetch: Fetch
     request.setValue("application/json", forHTTPHeaderField: "accept")
     // print("apiKey: \(configuration.enpaAPIKey)")
     request.setValue(configuration.enpaAPIKey, forHTTPHeaderField: "x-api-key")
-    print(request)
-    if metric == "riskParameters" {
-        print(request)
-    }
+
     let data = getData(request)
     guard let data = data else {
         return [:]
