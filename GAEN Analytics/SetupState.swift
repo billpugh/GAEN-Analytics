@@ -48,6 +48,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let enpaKeyKey = "enpaKey"
     static let startKey = "startKey"
     static let notificationsKey = "notificationsKey"
+    static let alertKey = "alertKey"
     static let configStartKey = "configStartKey"
     static let testServerKey = "testServerKey"
     static let daysRollupKey = "daysRollupKey"
@@ -86,6 +87,12 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     @Published var notifications: Int = 1 {
         didSet {
             UserDefaults.standard.set(notifications, forKey: Self.notificationsKey)
+        }
+    }
+
+    @Published var alertDismissed: Bool = true {
+        didSet {
+            UserDefaults.standard.set(alertDismissed, forKey: Self.alertKey)
         }
     }
 
@@ -250,6 +257,9 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         highInfectiousnessWeight = hiw == 0 ? 100 : hiw
 
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
+
+        alertDismissed = UserDefaults.standard.bool(forKey: Self.alertKey)
+
         let dr = UserDefaults.standard.integer(forKey: Self.daysRollupKey)
         daysRollup = dr == 0 ? 7 : dr
 

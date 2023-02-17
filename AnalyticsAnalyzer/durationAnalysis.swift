@@ -135,9 +135,9 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
 
     let wdDurations = percentiles.map { interpolate(percentile: $0, measurements: wdValues) }
     let sumDurations = percentiles.map { interpolate(percentile: $0, measurements: sumValues) }
-    print(percentiles)
-    print(wdDurations)
-    print(sumDurations)
+    // print(percentiles)
+    // print(wdDurations)
+    // print(sumDurations)
 
     let ratios = zip(sumDurations, wdDurations).map { $0 / $1 }
 
@@ -173,18 +173,18 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
     df.sort(on: "minutes")
 
     var df2 = compactRows(column: "minutes", df.sorted(on: "minutes"))
-    print((try? String(data: df2.csvRepresentation(), encoding: .utf8))!)
+    // print((try? String(data: df2.csvRepresentation(), encoding: .utf8))!)
     fillIn(&df2, "wd %")
     fillIn(&df2, "scaled wd %")
     fillIn(&df2, "sum %")
     fillIn(&df2, "max %")
     fillIn(&df2, "hip sum %")
-    if let csv = try? String(data: df2.csvRepresentation(), encoding: .utf8) {
+    if false, let csv = try? String(data: df2.csvRepresentation(), encoding: .utf8) {
         print("csv")
         print(csv)
     }
     let df3 = DataFrame(df2.filter { desirableRow($0) })
-    if let csv = try? String(data: df3.csvRepresentation(), encoding: .utf8) {
+    if false, let csv = try? String(data: df3.csvRepresentation(), encoding: .utf8) {
         print("csv")
         print(csv)
     }
@@ -280,7 +280,7 @@ func fillIn(_ df: inout DataFrame, _ percentileName: String) {
         if j >= percentile.count {
             break
         }
-        print("filling in at \(i) \(j), minutes.count = \(minutes.count), percentile.count = \(percentile.count) ")
+        // print("filling in at \(i) \(j), minutes.count = \(minutes.count), percentile.count = \(percentile.count) ")
 
         let m1 = DurationMeasurement(minutes[i], percentile[i])
         let m2 = DurationMeasurement(minutes[j], percentile[j])

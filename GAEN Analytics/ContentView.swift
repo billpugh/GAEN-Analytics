@@ -84,6 +84,7 @@ struct ContentView: View {
         }
     }
 
+    @State private var showAlert = true // !SetupState.shared.alertDismissed
     var body: some View {
         NavigationView {
             if isUnlocked || !state.useFaceID {
@@ -178,6 +179,15 @@ struct ContentView: View {
         }
         // NavigationView
         .listStyle(SidebarListStyle())
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Calculation of number of active devices changed"),
+                message: Text("With newly available data on the total number of ENPA users in the United States, we have now been able to estimate the overall ENPA opt-in rate for the US. This avoids an issue with the previous calculation of opt-in rate, which was based on users who verified codes, which it not necessarily representative of the entire ENX population. Both the new calculation and the old calculation are shown in graphs for number of active users and total number of notifications"),
+                dismissButton: .default(Text("Dismiss"),
+                                        action: { // state.alertDismissed = true
+                                        })
+            )
+        }
     } // View
 }
 

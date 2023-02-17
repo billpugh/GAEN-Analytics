@@ -399,24 +399,24 @@ struct XYLineChart: GAENChart {
         if cc.wrappedElementType == Double.self {
             let c = data[column, Double.self]
             chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
-            print("got \(chartData.count) entries for \(column)")
+            // print("got \(chartData.count) entries for \(column)")
         } else {
             logger.error("Column \(column) has unexpected type \(cc.wrappedElementType)")
             chartData = []
         }
         if chartData.isEmpty {
-            print("no data")
+            // print("no data")
             return nil
         }
 
         let dataSet = LineChartDataSet(entries: chartData)
         if dataSet.yMax == 0 {
-            print("yMax is nil")
+            // print("yMax is nil")
             return nil
         }
 
         formatDataSet(dataSet: dataSet, label: column, color: colors[column]!)
-        print("Got dataset for \(column), x is \(dataSet.xMin)...\(dataSet.xMax), y is \(dataSet.yMin)...\(dataSet.yMax)")
+        // print("Got dataset for \(column), x is \(dataSet.xMin)...\(dataSet.xMax), y is \(dataSet.yMin)...\(dataSet.yMax)")
         return dataSet
     }
 

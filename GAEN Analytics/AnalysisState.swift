@@ -572,10 +572,16 @@ actor AnalysisTask {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
 
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "publish requests", enpa: combinedDataFrame, "ku")
-                combinedDataFrame.addRollingMedianInt("est users from vc", giving: "est users", days: 14)
-                combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "ENPA %", days: 14)
+
+                combinedDataFrame.addRollingMedianInt("est users from vc", giving: "median est users from regional ENPA %", days: 14)
+                combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "regional ENPA %", days: 14)
+
                 combinedDataFrame.addColumnComputation("nt", "est users using US ENPA %", giving: "est scaled notifications/day", estimatedNotifications)
                 combinedDataFrame.addRollingSumDouble("est scaled notifications/day", giving: "est total notifications")
+
+                combinedDataFrame.addColumnComputation("nt", "median est users from regional ENPA %", giving: "est scaled notifications/day from regional ENPA %", estimatedNotifications)
+
+                combinedDataFrame.addRollingSumDouble("est scaled notifications/day from regional ENPA %", giving: "est total notifications from regional ENPA %")
 
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
                 androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
@@ -610,14 +616,19 @@ actor AnalysisTask {
             worksheet.addOptionalColumn("Android ku ENPA %", Double.self, from: androidDataFrame)
             worksheet.addOptionalColumn("publish requests android", Int.self, from: encvAverage)
             worksheet.addOptionalColumn("android publish share", Double.self, from: encvAverage)
-            if false {
-                worksheet.addColumn("<= 55 dB %", Double.self, newName: "Android <= 55 dB %", from: androidDataFrame)
-                worksheet.addColumn("<= 60 dB %", Double.self, newName: "iOS <= 60 dB %", from: iOSDataFrame)
-                worksheet.addColumn("<= 65 dB %", Double.self, newName: "Android <= 65 dB %", from: androidDataFrame)
-                worksheet.addColumn("<= 70 dB %", Double.self, newName: "iOS <= 70 dB %", from: iOSDataFrame)
+            if true {
+                for db in [60, 70, 75] {
+                    worksheet.addColumn("<= \(db) dB %", Double.self, newName: "Android <= \(db) dB %", from: androidDataFrame)
+
+                    let iOS_db = db + 5
+                    worksheet.addColumn("<= \(iOS_db) dB %", Double.self, newName: "iOS <= \(iOS_db) dB %", from: iOSDataFrame)
+                }
+
+                worksheet.addColumn("<= 65 dB %", Double.self, newName: "iOS <= 65 dB %", from: iOSDataFrame)
+                worksheet.addColumn("<= 70 dB %", Double.self, newName: "Android <= 70 dB %", from: androidDataFrame)
+
                 worksheet.addColumn("<= 75 dB %", Double.self, newName: "iOS <= 75 dB %", from: iOSDataFrame)
-                worksheet.addColumn("<= 75 dB %", Double.self, newName: "Android <= 75 dB %", from: androidDataFrame)
-                worksheet.addColumn("<= 80 dB %", Double.self, newName: "iOS <= 80 dB %", from: iOSDataFrame)
+                worksheet.addColumn("<= 80 dB %", Double.self, newName: "Android <= 80 dB %", from: androidDataFrame)
             }
             await result.update(enpa: "Computing enpa duration analysis")
 
@@ -724,7 +735,7 @@ struct ChartOptions: Identifiable {
         for c in columns {
             if data.indexOfColumn(c) == nil {
                 logger.log("Column \(c, privacy: .public) doesn't exist")
-                // print(data.columns.map { $0.name})
+                print(data.columns.map(\.name))
                 return nil
             }
         }
@@ -921,12 +932,12 @@ func daysUntilNotification(dateExposureAnalysis: DataFrame?, config: Configurati
 
 // est. users
 func estimatedUsers(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["est users", "est users using US ENPA %"])
+    ChartOptions.maybe(title: "Estimated users", data: enpa, columns: ["median est users from regional ENPA %", "est users using US ENPA %"])
 }
 
 // est. users
 func scaledNotifications(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "Est. scaled notifications per day", data: enpa, columns: ["est scaled notifications/day"])
+    ChartOptions.maybe(title: "Est. scaled notifications per day", data: enpa, columns: ["est scaled notifications/day", "est scaled notifications/day from regional ENPA %"])
 }
 
 func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOptions? {
@@ -945,14 +956,23 @@ func deviceAttenuations(worksheet: DataFrame?) -> ChartOptions? {
     guard let worksheet = worksheet else {
         return nil
     }
-    let columns = ["Android <= 55 dB %", "iOS <= 60 dB %", "Android <= 65 dB %", "iOS <= 70 dB %", "iOS <= 75 dB %", "Android <= 75 dB %", "iOS <= 80 dB %"]
+    let columns = [
+        "Android <= 60 dB %",
+        "iOS <= 65 dB %",
+
+        "Android <= 70 dB %",
+        "iOS <= 75 dB %",
+
+        "Android <= 75 dB %",
+        "iOS <= 80 dB %",
+    ]
 
     return ChartOptions.maybe(title: "Comparison of device received attenuations", data: worksheet, columns: columns)
 }
 
 // est. users
 func enpaOptIn(enpa: DataFrame, config _: Configuration) -> ChartOptions? {
-    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["ENPA %", "US ENPA %"], maxBound: 1.0)
+    ChartOptions.maybe(title: "ENPA opt in", data: enpa, columns: ["regional ENPA %", "US ENPA %"], maxBound: 1.0)
 }
 
 // codes claimed/consent
