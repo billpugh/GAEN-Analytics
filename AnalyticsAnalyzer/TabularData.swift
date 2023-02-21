@@ -660,8 +660,7 @@ class TextBuffer {
                                                "vc14 count": .integer,
                                                "ku14 count": .integer,
                                                "attn count": .integer,
-                                               "dur count": .integer,
-                                              ],
+                                               "dur count": .integer],
                                        options: readingOptions)
             if let startDate = startDate {
 //                let df = DateFormatter()
