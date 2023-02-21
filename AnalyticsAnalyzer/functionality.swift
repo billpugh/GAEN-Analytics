@@ -589,7 +589,7 @@ struct Accumulators {
         let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0)% stdev," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
 
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()
-        let deHeader = "dec count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
+        let deHeader = "de count,de std," + range.map { "nt\($0) days 0-3,nt\($0) days 4-6,nt\($0) days 7-10,nt\($0) days 11+" }.joined(separator: ",") + ","
             + range.map { "nt\($0) 0-3 days %,nt\($0) 0-6 days %,nt\($0) 0-10 days %" }.joined(separator: ",")
         let de14Days = 0 ... 11
         let de14Main = range.map { cat in de14Days.map { "nt\(cat)-de\($0)" } }.joined().joined(separator: ",")

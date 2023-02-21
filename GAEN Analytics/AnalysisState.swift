@@ -746,7 +746,9 @@ struct ChartOptions: Identifiable {
         self.title = title
         // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
         logger.log("Making chart \(title, privacy: .public)")
+ 
         for c in columns {
+            //print("MakeChart,\(title),\(c)")
             if data.indexOfColumn(c) == nil {
                 logger.error("Column \(c, privacy: .public) doesn't exist")
                 data.printColumnNames()
@@ -764,6 +766,7 @@ struct ChartOptions: Identifiable {
         // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
         logger.log("Making chart \(title, privacy: .public)")
         for c in columns {
+            //print("MakeChart,\(title),\(c)")
             if data.indexOfColumn(c) == nil {
                 logger.error("Column \(c, privacy: .public) doesn't exist")
                 data.printColumnNames()
