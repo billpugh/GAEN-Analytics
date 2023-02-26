@@ -1156,6 +1156,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "GAEN-Analytics-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GAEN Analytics";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
@@ -1195,6 +1196,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "GAEN-Analytics-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GAEN Analytics";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use authentication to ensure only authorized users access your data";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow the app to export images of graphs to your photo album";
