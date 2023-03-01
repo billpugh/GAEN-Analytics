@@ -408,6 +408,7 @@ class AnalysisState: NSObject, ObservableObject {
 
             enpaCharts = maybeCharts.compactMap { $0 }
             let maybeAppendixENPACharts: [ChartOptions?] = [showingNotifications(enpa: enpa, config: config),
+                                                            relativeRisk(enpa: enpa, config: config),
                                                             hadNotificationsWhenPositive(enpa: enpa, config: config),
                                                             weightedDurationGraph(enpa: enpa, config: config),
                                                             sumScoreGraph(enpa: enpa, config: config),
@@ -724,13 +725,14 @@ struct ChartOptions: Identifiable {
     let title: String
     let data: DataFrame
     let columns: [String]
+    let minBound: Double?
     let maxBound: Double?
     let doubleDouble: Bool
     var id: String {
         title
     }
 
-    static func maybe(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil) -> ChartOptions? {
+    static func maybe(title: String, data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) -> ChartOptions? {
         logger.log("Making chart \(title, privacy: .public)")
         for c in columns {
             if data.indexOfColumn(c) == nil {
@@ -739,10 +741,10 @@ struct ChartOptions: Identifiable {
                 return nil
             }
         }
-        return ChartOptions(title: title, data: data, columns: columns, maxBound: maxBound, doubleDouble: false)
+        return ChartOptions(title: title, data: data, columns: columns, minBound: minBound, maxBound: maxBound, doubleDouble: false)
     }
 
-    init(title: String, data: DataFrame, columns: [String], maxBound: Double? = nil, doubleDouble: Bool = false) {
+    init(title: String, data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil, doubleDouble: Bool = false) {
         self.title = title
         // print("\(data.columns.count) data Columns: \(data.columns.map(\.name))")
         logger.log("Making chart \(title, privacy: .public)")
@@ -757,6 +759,7 @@ struct ChartOptions: Identifiable {
 
         self.data = data.selecting(columnNames: ["date"] + columns)
         self.columns = columns
+        self.minBound = minBound
         self.maxBound = maxBound
         self.doubleDouble = doubleDouble
     }
@@ -776,6 +779,7 @@ struct ChartOptions: Identifiable {
         self.data = data.selecting(columnNames: [xAxis] + columns)
         self.columns = columns
         maxBound = nil
+        minBound = nil
         doubleDouble = true
     }
 }
@@ -947,6 +951,12 @@ func showingNotifications(enpa: DataFrame, config: Configuration) -> ChartOption
     let columns = Array((1 ... config.numCategories).map { "nts\($0)%" })
 
     return ChartOptions.maybe(title: "Users with notifications", data: enpa, columns: columns)
+}
+
+func relativeRisk(enpa: DataFrame, config: Configuration) -> ChartOptions? {
+    let columns = ["vcr-n"] + Array((1 ... config.numCategories).map { "vcr+n\($0)" })
+
+    return ChartOptions.maybe(title: "Relative risk for notifications", data: enpa, columns: columns, minBound: 1.0, maxBound: 2000)
 }
 
 func hadNotificationsWhenPositive(enpa: DataFrame, config _: Configuration) -> ChartOptions? {

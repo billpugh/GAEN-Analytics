@@ -207,6 +207,7 @@
 		16216BD42885D129008F5F36 /* Sum score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Sum score distribution.md"; sourceTree = "<group>"; };
 		16216BD62885D145008F5F36 /* Max score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Max score distribution.md"; sourceTree = "<group>"; };
 		16216BD82885DCC2008F5F36 /* Attenuation distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Attenuation distribution.md"; sourceTree = "<group>"; };
+		1634649429AC086A00C3E242 /* Relative risk for notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Relative risk for notifications.md"; sourceTree = "<group>"; };
 		163CCB7A27DE45B000355180 /* Appendix.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Appendix.md; sourceTree = "<group>"; };
 		163EF28527C91FA800D3C19D /* TopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicView.swift; sourceTree = "<group>"; };
 		163EF28727C9216800D3C19D /* Test.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Test.md; sourceTree = "<group>"; };
@@ -533,6 +534,7 @@
 				16C36C86291C022C005B8613 /* Delay between exposure and nt3.md */,
 				16C36C87291C023A005B8613 /* Delay between exposure and.md */,
 				16D2A0A7293E408200381499 /* Percentage of positive users who had received exposure notifications.md */,
+				1634649429AC086A00C3E242 /* Relative risk for notifications.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";

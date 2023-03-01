@@ -163,6 +163,17 @@ struct LineChart: GAENChart {
         return ChartDataEntry(x: date.timeIntervalSince1970, y: y)
     }
 
+    func makeDataEntryBlanks(_ date: Date?, _ y: Double?) -> ChartDataEntry? {
+        guard let date = date else {
+            return nil
+        }
+        guard let y = y else {
+            return ChartDataEntry(x: date.timeIntervalSince1970, y: -100.0)
+        }
+
+        return ChartDataEntry(x: date.timeIntervalSince1970, y: y)
+    }
+
     func makeDataEntry(_ date: Date?, _ s: String?) -> ChartDataEntry? {
         guard let date = date else {
             return nil
@@ -191,7 +202,11 @@ struct LineChart: GAENChart {
         let cc = data[column]
         if cc.wrappedElementType == Double.self {
             let c = data[column, Double.self]
-            chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
+            if column.starts(with: "vcr") {
+                chartData = zip(days, c).compactMap { makeDataEntryBlanks($0, $1) }
+            } else {
+                chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
+            }
         } else if cc.wrappedElementType == Int.self {
             let c = data[column, Int.self]
             chartData = zip(days, c).compactMap { makeDataEntry($0, $1) }
@@ -254,7 +269,11 @@ struct LineChart: GAENChart {
         dataSet.valueColors = [color]
 
         dataSet.circleColors = [color]
-        if label.hasPrefix("sar"), label.count == 5, false {
+        if label.starts(with: "vcr") {
+            dataSet.drawCirclesEnabled = true
+            dataSet.circleRadius = 3
+            dataSet.lineWidth = 0
+        } else if label.hasPrefix("sar"), label.count == 5, false {
             dataSet.drawCirclesEnabled = true
             dataSet.circleRadius = 4
             dataSet.lineWidth = 0

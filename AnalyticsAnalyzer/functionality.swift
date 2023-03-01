@@ -195,6 +195,7 @@ struct FixedLengthAccumulator {
     var std: Double {
         sqrt(variance)
     }
+
     var stdPer100K: Double {
         per100K(std)
     }
@@ -244,9 +245,9 @@ struct FixedLengthAccumulator {
         return "\(per100K(std)),\(total),\(percentage)," + per100KNoSTD(range: range)
     }
 
-    func per100KNoTotal(range: ClosedRange<Int>, scale: Double = 1.0) -> String {
+    func per100KNoTotal(range: ClosedRange<Int>) -> String {
         // let show = sums[range].map { "\(per100K($0))"}
-        "\(per100K(std * scale))," + per100KNoSTD(range: range, scale: scale)
+        "\(per100K(std))," + per100KNoSTD(range: range)
     }
 
     func percentageOfFinal(range: ClosedRange<Int>) -> [Double] {
@@ -274,14 +275,14 @@ struct FixedLengthAccumulator {
         [Int](0 ..< categories).map { cumulativeDistribution(range: $0 * 4 ... $0 * 4 + 3) }.joined(separator: ",")
     }
 
-    func per100KNoSTD(range: ClosedRange<Int>, scale: Double = 1.0) -> String {
-        sums[range].map { "\(per100K($0 * scale))" }.joined(separator: ",")
+    func per100KNoSTD(range: ClosedRange<Int>) -> String {
+        sums[range].map { "\(per100K($0))" }.joined(separator: ",")
     }
 
-    func per100KValues(range: ClosedRange<Int>, scale: Double = 1.0) -> [Double] {
-        sums[range].map { per100K($0 * scale) }
+    func per100KValues(range: ClosedRange<Int>, scale _: Double = 1.0) -> [Double] {
+        sums[range].map { per100K($0) }
     }
-    
+
     func per100K(range1: ClosedRange<Int>, range2: ClosedRange<Int>) -> String {
         let show1 = sums[range1].map { "\(per100K($0))" }.joined(separator: ",")
         let show2 = sums[range2].map { "\(per100K($0))" }.joined(separator: ",")
@@ -441,12 +442,11 @@ struct Accumulators {
         return result
     }
 
-    mutating func printMe(date: Date, scale scaleIn: Double) {
+    mutating func printMe(date: Date, scale: Double) {
         guard verifiedCount.updated else {
             return
         }
-        
-        let scale = 2.0
+
         let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
 
         let cvPrint = verifiedCount.per100KWithNotificationPercentage(range: 1 ... 1 + numCategories)
@@ -490,21 +490,21 @@ struct Accumulators {
         let de14Print: String
         let nsPrint: String
 
-        if dateExposureCount.updated {
+        if dateExposureCount.updated, dateExposureCount.countPerDay > verifiedCount.countPerDay / 4 {
             dePrint = "\(dateExposureCount.countPerDay),\(dateExposureCount.per100KNoTotal(range: 0 ... 4 * numCategories - 1)),\(dateExposureCount.cumulativeDistribution(categories: numCategories))"
 
             let usersWithNotifications: [Double] = notificationsShown.sum
-            let percentageWithoutNotifications = (100_000.0 - usersWithNotifications.reduce(0,+))/100_000.0
-            let risks = verifiedCount.per100KValues(range: 1...numCategories+1)
+            let percentageWithoutNotifications = (100_000.0 - usersWithNotifications.reduce(0,+)) / 100_000.0
+            let risks = verifiedCount.per100KValues(range: 1 ... numCategories + 1)
             let riskSTD = verifiedCount.stdPer100K
             let noNotificationRisk = risks[0] / percentageWithoutNotifications
-            let notificatonRisk = (1...numCategories).map { risks[$0] < riskSTD ? "" : "\(risks[$0] / usersWithNotifications[$0-1] * 100_000.0)"            }
-            
-            nsPrint =  "    " + notificationsShown.percentage() + ",\(noNotificationRisk)," + notificatonRisk.joined(separator: ",") + "    "
+            let notificatonRisk = (1 ... numCategories).map { risks[$0] < riskSTD || usersWithNotifications[$0 - 1] < 200 ? "" : "\(risks[$0] / usersWithNotifications[$0 - 1] * 100_000.0)" }
+
+            nsPrint = notificationsShown.percentage() + ",\(noNotificationRisk)," + notificatonRisk.joined(separator: ",")
 
         } else {
             dePrint = String(repeating: ",", count: 1 + 7 * numCategories)
-            nsPrint = String(repeating: ",", count: 2*numCategories) // 1 = 3, 2 = 5
+            nsPrint = String(repeating: ",", count: 2 * numCategories) // 1 = 3, 2 = 5
         }
         if dateExposure14DCount.updated {
             let de14Print0 = "\(dateExposure14DCount.countPerDay),\(dateExposure14DCount.per100KNoTotal(range: 0 ... (12 * numCategories - 1)))"
@@ -597,7 +597,7 @@ struct Accumulators {
         let vcHeader = "vc std,vc,vc+n%,vc-n," + range.map { "vc+n\($0)," }.joined(separator: "") + range.map { "xsa\($0)" }.joined(separator: ",")
         let kuHeader = "ku std,ku,ku+n%,ku-n," + range.map { "ku+n\($0)" }.joined(separator: ",")
         let ntHeader = "nt std,nt," + range.map { "nt\($0)," }.joined() + range.map { "nt\($0)%," }.joined() + "nt/ku," + range.map { "nt\($0)/ku," }.joined()
-        let esHeader = range.map { "nts\($0)%," }.joined() + "rr-n," + range.map { "rr+n\($0),"}.joined()
+        let esHeader = range.map { "nts\($0)%," }.joined() + "vcr-n," + range.map { "vcr+n\($0)," }.joined()
         let sarHeader = range.map { "sar\($0)%," }.joined() + range.map { "sar\($0)% stdev," }.joined() + range.map { "xsar\($0)%" }.joined(separator: ",")
 
         let inHeader = "in std," + range.map { "in+\($0)," }.joined() + range.map { "in-\($0)," }.joined() + range.map { "in\($0)%," }.joined()

@@ -164,7 +164,7 @@ struct ExportItem: View {
             #if targetEnvironment(macCatalyst)
                 if let csv = AnalysisState.exportToFileDocument(name: fileName, dataframe: dataFrame) {
                     csvDocument = csv
-                    //print("showing sheet for \(csv)")
+                    // print("showing sheet for \(csv)")
                     showingSheet = true
                 }
             #else
@@ -172,7 +172,7 @@ struct ExportItem: View {
                     shareURL = url
 
                     shareTitle = fileName
-                    //print("showing sheet for \(url)")
+                    // print("showing sheet for \(url)")
                     showingSheet = true
                 }
             #endif
