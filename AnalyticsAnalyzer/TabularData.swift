@@ -555,6 +555,10 @@ extension DataFrame {
     }
 
     func merge<T: Hashable>(key: String, _ type: T.Type, adding: DataFrame) -> DataFrame {
+        guard adding.requireColumn(key, type) else {
+            logger.log("Can't merge dataframe, missing field \(key, privacy: .public) of type \(type, privacy: .public)")
+            return self
+        }
         let newKeys = adding[key, type]
         var newKeyValues: Set<T> = []
         for k in newKeys {
