@@ -36,4 +36,17 @@ extension RawMetrics {
         }
         return destination
     }
+
+    func archiveENPA() -> URL? {
+        guard let url = rawArchive else { return nil }
+
+        let fileManager = FileManager()
+        let destination = URL(fileURLWithPath: url.path + ".zip")
+        do {
+            try fileManager.zipItem(at: url, to: destination)
+        } catch {
+            logger.error("Creation of ZIP archive failed with error: \(error.localizedDescription)")
+        }
+        return destination
+    }
 }

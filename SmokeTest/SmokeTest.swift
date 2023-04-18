@@ -19,7 +19,7 @@ class SmokeTest: XCTestCase {
     func testExample() async throws {
         let setupState = SetupState(testConfigWithNotifications: 1)
         let config = setupState.config
-        let analysis = AnalysisState()
+        let analysis = await AnalysisState()
         let actor = AnalysisTask()
         await actor.analyze(config: config, result: analysis)
     }

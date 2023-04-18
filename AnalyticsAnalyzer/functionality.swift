@@ -811,6 +811,7 @@ struct RawMetrics {
     var metrics: [String: Metric] = [:]
     var excludedHashes: Set<String> = []
     var configuration: Configuration
+    let rawArchive: URL?
 
     let isoDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -820,29 +821,53 @@ struct RawMetrics {
 
     init(_ configuration: Configuration) {
         self.configuration = configuration
+        rawArchive = RawMetrics.createTempDirectory(dir: RawMetrics.dirName(configuration, "enpaArchive"))
     }
 
-    func createTempDirectory(_ component: String) -> URL? {
+    static func dirName(_ configuration: Configuration, _ component: String) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd-HHmm"
         let now = dateFormatter.string(from: Date())
         guard let region = configuration.region else { return nil }
-        guard let tempDirURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(region)-\(component)-\(now)") else {
+        return "\(region)-\(component)-\(now)"
+    }
+
+    func createTempDirectory(_ component: String) -> URL? {
+        guard let dir = RawMetrics.dirName(configuration, component) else {
             return nil
+        }
+        return RawMetrics.createTempDirectory(dir: dir)
+    }
+
+    static func createTempDirectory(dir: String?) -> URL? {
+        guard let dir = dir else {
+            return nil
+        }
+        let path = NSTemporaryDirectory() + "/\(dir)"
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: path) {
+            do {
+                try fileManager.removeItem(atPath: path)
+            } catch {
+                return nil
+            }
         }
 
         do {
-            try FileManager.default.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
+            try fileManager.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
         } catch {
             return nil
         }
-
-        return tempDirURL
+        print("created \(path)")
+        return URL(fileURLWithPath: path)
     }
 
     public mutating func addMetric(_ n: String) -> [String] {
         var errors: [String] = []
         let fetchIntervals = configuration.getFetchIntervals()
+        let combinedJson: NSMutableDictionary = [:]
+        var combinedRaw: [NSDictionary] = []
+        var seenIds: Set<String> = []
         for fetch in fetchIntervals {
             print(fetch)
             let json = getStat(metric: n, configuration: configuration, fetch)
@@ -851,10 +876,14 @@ struct RawMetrics {
                 errors.append(error)
             }
             if let rawData = json["rawData"] as? [NSDictionary] {
-                if false {
-                    let output = try! JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .withoutEscapingSlashes])
-                    let outputURL = URL(fileURLWithPath: "/tmp/\(n).json")
-                    try! output.write(to: outputURL)
+                if combinedJson.count == 0 {
+                    for k in json.allKeys {
+                        if let k = k as? String, k != "rawData", let v = json[k] {
+                            combinedJson[k] = v
+                        }
+                    }
+                } else {
+                    combinedJson["endDate"] = json["endDate"]
                 }
                 for m in rawData {
                     let provider = m["data_provider"] as? String ?? "?"
@@ -874,13 +903,24 @@ struct RawMetrics {
                     let aggregationEndTime: String = m["aggregation_end_time"] as! String
                     let endTime = isoDateFormatter.date(from: aggregationEndTime)!
                     let sum = m["sum"] as! [Int]
+                    if !seenIds.contains(fullId) {
+                        seenIds.insert(fullId)
+                        combinedRaw.append(m)
+                    }
                     addMetric(fullId: fullId, id: id, genericId: genericId, provider: provider, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
                 }
             } else {
                 logger.log("raw data missing for \(n)")
                 errors.append("raw data missing for \(n)")
             }
+            if let r = rawArchive {
+                combinedJson["rawData"] = combinedRaw
+                let output = try! JSONSerialization.data(withJSONObject: combinedJson, options: [.prettyPrinted, .withoutEscapingSlashes])
+                let file = r.appendingPathComponent("\(n).json")
+                try! output.write(to: file)
+            }
         }
+
         return errors
     }
 

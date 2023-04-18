@@ -73,7 +73,7 @@ public struct Configuration: @unchecked Sendable {
          highInfectiousnessWeight: Int,
          useTestServers: Bool = false)
     {
-        //print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
+        // print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
         self.daysSinceExposureThreshold = daysSinceExposureThreshold
         self.numDays = numDays
         self.numCategories = numCategories

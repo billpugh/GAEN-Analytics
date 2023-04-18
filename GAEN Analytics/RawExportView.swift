@@ -100,6 +100,27 @@ struct RawExportView: View {
         #endif
     }
 
+    func exportArchiveENPA() {
+        guard let raw = analysisState.rawENPA, let url = raw.archiveENPA() else { return }
+        let name = url.lastPathComponent
+        #if targetEnvironment(macCatalyst)
+            do {
+                let data = try Data(contentsOf: url)
+                zipDocument = ZipFile(name: name, data)
+                showingZipSheet = true
+            } catch {
+                print("Error getting raw ENPA archive: \(error.localizedDescription)")
+            }
+
+        #else
+            shareURL = url
+
+            zipName = name
+            showingZipSheet = true
+
+        #endif
+    }
+
     @State private var showingZipSheet: Bool = false
     @State private var zipDocument: ZipFile?
     @State private var zipName: String = ""
@@ -123,9 +144,12 @@ struct RawExportView: View {
 
                     AnalysisProgressView().padding(.horizontal)
                 #endif
-                Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
-                    Text("Export Raw ENPA data")
-                }.padding().font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
+
+                TopicActionView(topic: "Export Raw ENPA csv data", action: { Task(priority: .userInitiated) { exportRawENPA() }})
+                    .padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
+
+                TopicActionView(topic: "Export ENPA json archive", action: { Task(priority: .userInitiated) { exportArchiveENPA() }})
+                    .padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
             }
         }.font(.subheadline)
         #if targetEnvironment(macCatalyst)

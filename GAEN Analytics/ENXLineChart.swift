@@ -77,7 +77,7 @@ class DateAxisFormatter: NSObject, AxisValueFormatter {
     let formatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(identifier: "UTC")!
-        let dateFormatString = DateFormatter.dateFormat(fromTemplate: "M/d", options: 0, locale: Locale.current)!
+        let dateFormatString = DateFormatter.dateFormat(fromTemplate: "M/d/yy", options: 0, locale: Locale.current)!
         dateFormatter.dateFormat = dateFormatString
         return dateFormatter
     }()

@@ -478,6 +478,18 @@ func makeMap(_ encv: DataFrame, _ encvColumn: String) -> [Date: Int] {
     return map
 }
 
+func computeEstimatedUsersFromNationalRollup(platform: String, enpa: DataFrame, _ enpaColumn: String)
+    -> DataFrame
+{
+    var result = enpa
+    let date = result["date", Date.self]
+    let usOptin = date.map { getUSOptin(date: $0) }
+    let c2 = Column(name: "US ENPA %", contents: usOptin)
+    result.append(column: c2)
+    result.addColumnDividing("\(enpaColumn) count", "US ENPA %", giving: "est \(platform)users using US ENPA %")
+    return result
+}
+
 func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: String, enpa: DataFrame, _ enpaColumn: String) -> DataFrame {
     logger.log("Computing \(platform, privacy: .public) est. users from \(encvColumn, privacy: .public) and \(enpaColumn, privacy: .public)")
     encv.checkUniqueColumnNames()
@@ -513,12 +525,6 @@ func computeEstimatedUsers(platform: String, encv: DataFrame, _ encvColumn: Stri
     result.append(column: c)
     result.addColumnPercentage("\(enpaColumn) count", estUsersColumnName, giving: "\(platform)\(enpaColumn) ENPA %")
 
-    if !result.hasColumn("US ENPA %") {
-        let usOptin = date.map { getUSOptin(date: $0) }
-        let c2 = Column(name: "US ENPA %", contents: usOptin)
-        result.append(column: c2)
-        result.addColumnDividing("\(enpaColumn) count", "US ENPA %", giving: "est \(platform)users using US ENPA %")
-    }
     return result
 }
 
@@ -569,6 +575,10 @@ actor AnalysisTask {
             combinedDataFrame.removeRandomElements()
             await result.update(enpa: "Computing enpa worksheet")
             var worksheet: DataFrame
+            combinedDataFrame = computeEstimatedUsersFromNationalRollup(platform: "", enpa: combinedDataFrame, "vc")
+            combinedDataFrame.addColumnComputation("nt", "est users using US ENPA %", giving: "est scaled notifications/day", estimatedNotifications)
+            combinedDataFrame.addRollingSumDouble("est scaled notifications/day", giving: "est total notifications")
+
             if let encv = encvAverage {
                 combinedDataFrame = computeEstimatedUsers(platform: "", encv: encv, "codes claimed", enpa: combinedDataFrame, "vc")
 
@@ -576,9 +586,6 @@ actor AnalysisTask {
 
                 combinedDataFrame.addRollingMedianInt("est users from vc", giving: "median est users from regional ENPA %", days: 14)
                 combinedDataFrame.addRollingMedianDouble("vc ENPA %", giving: "regional ENPA %", days: 14)
-
-                combinedDataFrame.addColumnComputation("nt", "est users using US ENPA %", giving: "est scaled notifications/day", estimatedNotifications)
-                combinedDataFrame.addRollingSumDouble("est scaled notifications/day", giving: "est total notifications")
 
                 combinedDataFrame.addColumnComputation("nt", "median est users from regional ENPA %", giving: "est scaled notifications/day from regional ENPA %", estimatedNotifications)
 
@@ -652,7 +659,7 @@ actor AnalysisTask {
 
     func getAndAnalyzeENCV(config: Configuration, result: AnalysisState) async -> ENCVAnalysis {
         if !config.hasENCV {
-            return ENCVAnalysis(encv: nil, average: nil, log: ["Skipping ENCV"])
+            return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV API key, Skipping ENCV"])
         }
         await result.update(encv: "Fetching enpa composite")
         guard let
@@ -707,7 +714,11 @@ actor AnalysisTask {
         } else {
             encv = nil
             logger.log("skipping ENCV")
-            await result.log(encv: ["Skipping ENCV"])
+            if config.hasENCV {
+                await result.log(encv: ["no ENCV api key, Skipping ENCV"])
+            } else {
+                await result.log(encv: ["Skipping ENCV"])
+            }
         }
         if analyzeENPA, config.hasENPA {
             logger.log("Starting analyzeENPA")
@@ -734,14 +745,16 @@ struct ChartOptions: Identifiable {
 
     static func maybe(title: String, data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) -> ChartOptions? {
         logger.log("Making chart \(title, privacy: .public)")
+        var columnsFound: [String] = []
         for c in columns {
-            if data.indexOfColumn(c) == nil {
-                logger.log("Column \(c, privacy: .public) doesn't exist")
-                print(data.columns.map(\.name))
-                return nil
+            if data.indexOfColumn(c) != nil {
+                columnsFound.append(c)
             }
         }
-        return ChartOptions(title: title, data: data, columns: columns, minBound: minBound, maxBound: maxBound, doubleDouble: false)
+        if columnsFound.isEmpty {
+            return nil
+        }
+        return ChartOptions(title: title, data: data, columns: columnsFound, minBound: minBound, maxBound: maxBound, doubleDouble: false)
     }
 
     init(title: String, data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil, doubleDouble: Bool = false) {

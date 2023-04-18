@@ -15,7 +15,7 @@ struct ENXChartsView: View {
             return ENXChartView(title: c.title, data: c.data, chart: XYLineChart(data: c.data, x: "days since exposure", columns: c.columns, maxBound: c.maxBound))
         }
         if c.title == "Relative risk for notifications" {
-            //print("Found \(c.title)")
+            // print("Found \(c.title)")
         }
         return ENXChartView(title: c.title, data: c.data, chart: LineChart(data: c.data, columns: c.columns, minBound: c.minBound, maxBound: c.maxBound))
     }

@@ -22,7 +22,7 @@ func makeAlert(
 struct SetupView: View {
     @ObservedObject var state = SetupState.shared
     @State var showingReset: Bool = false
-    @State var showingResetENCV : Bool = false
+    @State var showingResetENCV: Bool = false
     @State var showingTestData: Bool = false
     func describe(key: String) -> String {
         if key.isEmpty {
@@ -30,11 +30,11 @@ struct SetupView: View {
         }
         return ", length \(key.count), \(key.prefix(8))…"
     }
-    
+
     func trim(_ s: String) -> String {
         s.trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
     var body: some View {
         Form {
             Section(header: Text("What to analyze")) {
@@ -42,10 +42,10 @@ struct SetupView: View {
                     Text("Region")
                     TextField("e.g, US-HT", text: Binding(get: { self.state.region },
                                                           set: {
-                        self.state.region = trim($0.uppercased())
-                    })).disabled(state.isUsingTestData)
+                                                              self.state.region = trim($0.uppercased())
+                                                          })).disabled(state.isUsingTestData)
                 }
-                
+
                 HStack {
                     Text("# of notification classifications")
                     Spacer()
@@ -96,58 +96,57 @@ struct SetupView: View {
             Section(header: Text("API keys")) {
                 HStack {
                     NavigationLink(destination:
-                                    ApiKeyView(title: "ENCV API key", apiKey:
-                                                Binding(get: { self.state.encvKey },
-                                                        set: {
-                        self.state.encvKey = trim($0)
-                    }))) {
+                        ApiKeyView(title: "ENCV API key", apiKey:
+                            Binding(get: { self.state.encvKey },
+                                    set: {
+                                        self.state.encvKey = trim($0)
+                                    }))) {
                         Text("ENCV\(describe(key: state.encvKey))")
                     }.disabled(self.state.isUsingTestData)
-                    
+
                 }.padding(.vertical)
                 HStack {
                     NavigationLink(destination:
-                                    ApiKeyView(title: "ENPA API key", apiKey: Binding(get: { self.state.enpaKey },
-                                                                                      set: {
-                        self.state.enpaKey = trim($0)
-                    })))
+                        ApiKeyView(title: "ENPA API key", apiKey: Binding(get: { self.state.enpaKey },
+                                                                          set: {
+                                                                              self.state.enpaKey = trim($0)
+                                                                          })))
                     { Text("ENPA\(describe(key: state.enpaKey))") }.disabled(self.state.isUsingTestData)
-                    
+
                 }.padding(.vertical)
             } // Section
-            
+
             Section {
-#if !targetEnvironment(macCatalyst)
-                Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
-#endif
- 
-            
-            if !self.state.usingTestData {
-                Toggle(self.state.disableTestServer ? "Enable debugging features" : "Enable test/debugging features", isOn: self.$state.debuggingFeatures.animation())
-            }
-            if !self.state.disableTestServer, self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
-                Toggle("Use test data", isOn: self.$state.usingTestData.animation())
-                
-            } else if !self.state.isClear {
-                Button(action: {
-                    withAnimation {
-                        showingReset = true
-                    }
-                }) {
-                    Text("Clear all")
-                }.alert(isPresented: $showingReset) {
-                    makeAlert(title: "Really clear ",
-                              message: "Are you sure you want to delete all keys and analysis?",
-                              destructiveButton: "Clear all",
-                              destructiveAction: {
-                        self.state.clear()
-                        self.showingReset = false
-                        
-                    },
-                              cancelAction: { self.showingReset = false })
-                }.padding()
-            }
-                
+                #if !targetEnvironment(macCatalyst)
+                    Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
+                #endif
+
+                if !self.state.usingTestData {
+                    Toggle(self.state.disableTestServer ? "Enable debugging features" : "Enable test/debugging features", isOn: self.$state.debuggingFeatures.animation())
+                }
+                if !self.state.disableTestServer, self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
+                    Toggle("Use test data", isOn: self.$state.usingTestData.animation())
+
+                } else if !self.state.isClear {
+                    Button(action: {
+                        withAnimation {
+                            showingReset = true
+                        }
+                    }) {
+                        Text("Clear all")
+                    }.alert(isPresented: $showingReset) {
+                        makeAlert(title: "Really clear ",
+                                  message: "Are you sure you want to delete all keys and analysis?",
+                                  destructiveButton: "Clear all",
+                                  destructiveAction: {
+                                      self.state.clear()
+                                      self.showingReset = false
+
+                                  },
+                                  cancelAction: { self.showingReset = false })
+                    }.padding()
+                }
+
                 Button(action: {
                     withAnimation {
                         showingResetENCV = true
@@ -159,18 +158,16 @@ struct SetupView: View {
                               message: "Are you sure you want to discard cached ENCV data? You should only do this if you are having problems with the app crashing when loading new ENCV data.",
                               destructiveButton: "Discard",
                               destructiveAction: {
-                        
-                             AnalysisState.shared.deleteComposite()
-                        
-                        self.showingResetENCV = false
-                        
-                    },
+                                  AnalysisState.shared.deleteComposite()
+
+                                  self.showingResetENCV = false
+
+                              },
                               cancelAction: { self.showingResetENCV = false })
                 }.padding()
-                
-        } // Section
-    }.padding().navigationBarTitle("Setup", displayMode: .inline)
-}
+            } // Section
+        }.padding().navigationBarTitle("Setup", displayMode: .inline)
+    }
 }
 
 struct SetupView_Previews: PreviewProvider {
