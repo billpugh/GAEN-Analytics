@@ -19,7 +19,7 @@ struct AnalysisProgressView: View {
             VStack(alignment: .leading) {
                 if setup.useArchivalData {
                     Text("ENPA loaded from archive")
-                }else {
+                } else {
                     Text("Fetched at \(state.availableAtMessage)")
                 }
                 if let config = state.config {

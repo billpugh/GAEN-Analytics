@@ -123,7 +123,7 @@ extension DataFrame {
         let result = hasColumn(name)
         if !result {
             logger.error("Missing column \(name, privacy: .public)")
-            print( "\(columns.map { $0.name })")
+            print("\(columns.map(\.name))")
         }
         return result
     }

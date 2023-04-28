@@ -146,20 +146,19 @@ struct RawExportView: View {
                 #endif
 
                 Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
-                                    Text("Export raw ENPA csv data")
+                    Text("Export raw ENPA csv data")
                 }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
                 Text(markdown(file: "Export raw ENPA csv data"))
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
-                
+
                 Button(action: { Task(priority: .userInitiated) { exportArchiveENPA() }}) {
-                                    Text("Export raw ENPA json archive")
+                    Text("Export raw ENPA json archive")
                 }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
-              
+
                 Text(markdown(file: "Export raw ENPA json archive"))
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
-                
             }
         }.font(.subheadline)
         #if targetEnvironment(macCatalyst)

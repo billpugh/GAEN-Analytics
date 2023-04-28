@@ -824,12 +824,11 @@ struct RawMetrics {
         self.configuration = configuration
         rawArchive = RawMetrics.createTempDirectory(dir: RawMetrics.dirName(configuration, "enpaArchive"))
     }
-    
-    init() {
-        self.configuration = nil
-        self.rawArchive = nil
-    }
 
+    init() {
+        configuration = nil
+        rawArchive = nil
+    }
 
     static func dirName(_ configuration: Configuration, _ component: String) -> String? {
         let dateFormatter = DateFormatter()
@@ -870,9 +869,9 @@ struct RawMetrics {
     }
 
     @discardableResult
-    public mutating func processRaw(_ n: String, _ m : NSDictionary) -> String? {
+    public mutating func processRaw(_ n: String, _ m: NSDictionary) -> String? {
         let fullId = m["id"] as! String
-        
+
         let provider = m["data_provider"] as? String ?? "?"
         let clients = m["total_individual_clients"] as! Int
         let maybeEpsilon = Double(truncating: m["epsilon"] as! NSNumber)
@@ -889,10 +888,11 @@ struct RawMetrics {
         let aggregationEndTime: String = m["aggregation_end_time"] as! String
         let endTime = isoDateFormatter.date(from: aggregationEndTime)!
         let sum = m["sum"] as! [Int]
-        
+
         addMetric(fullId: fullId, id: id, genericId: genericId, provider: provider, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
         return fullId
     }
+
     public mutating func addMetric(_ n: String) -> [String] {
         var errors: [String] = []
         guard let configuration = configuration else {
@@ -919,9 +919,8 @@ struct RawMetrics {
                 } else {
                     combinedJson["endDate"] = json["endDate"]
                 }
-                
+
                 for m in rawData {
-                    
                     if let fullId = processRaw(n, m), !seenIds.contains(fullId) {
                         seenIds.insert(fullId)
                         combinedRaw.append(m)
@@ -942,7 +941,7 @@ struct RawMetrics {
         return errors
     }
 
-    public mutating func addMetric(fullId: String, id: String, genericId: String, provider: String, epsilon: Double, startTime: Date, endTime : Date, clients: Int, sum: [Int]) {
+    public mutating func addMetric(fullId: String, id: String, genericId: String, provider: String, epsilon: Double, startTime: Date, endTime: Date, clients: Int, sum: [Int]) {
         if let configuration = configuration {
             if let startDate = configuration.startDate, startTime < startDate {
                 return
@@ -950,16 +949,16 @@ struct RawMetrics {
             if let endDate = configuration.endDate, endDate < endTime {
                 return
             }
-            
+
             if startTime < androidStartTime, !id.hasPrefix("com.apple") {
                 return
             } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
                 return
             }
-            
+
             if id.hasPrefix("com.apple.EN"), let configStart = configuration.configStart {
                 let hash = fullId.components(separatedBy: "-")[5]
-                
+
                 if startTime < configStart {
                     if clients > 20 {
                         excludedHashes.insert(hash)

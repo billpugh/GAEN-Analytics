@@ -36,7 +36,7 @@ class AnalysisState: NSObject, ObservableObject {
     var progressCount: Double {
         let enpaCount: Int
         if SetupState.shared.useArchivalData {
-            enpaCount = 11+5
+            enpaCount = 11 + 5
         } else {
             enpaCount = standardMetrics.count + additionalMetrics.count + 5
         }
@@ -48,7 +48,7 @@ class AnalysisState: NSObject, ObservableObject {
             print("available changed to \(available)")
         }
     }
-    
+
     @Published var availableAt: Date?
     var availableAtMessage: String {
         guard let availableAt = availableAt else {
@@ -84,7 +84,6 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var additionalMetrics: Set<String> = []
     @Published var durationSummary: String? = nil
 
-    
     func metricSelected(_ name: String) -> Bool {
         additionalMetrics.contains(name)
     }
@@ -230,7 +229,6 @@ class AnalysisState: NSObject, ObservableObject {
             logger.error("\(error.localizedDescription, privacy: .public)")
         }
     }
-    
 
     static let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
     func saveComposite() {
@@ -308,7 +306,7 @@ class AnalysisState: NSObject, ObservableObject {
     func start(config: Configuration) {
         print("starting")
         self.config = config
-      
+
         progress = 0.0
         progressSteps = 0
         available = false
@@ -445,7 +443,6 @@ class AnalysisState: NSObject, ObservableObject {
 
     func makeENCVCharts() {
         if let encv = rollingAvg, let config = config {
-         
             let hasUserReports = encv.indexOfColumn("user reports claim rate") != nil
 
             let hasSMSerrors = encv.indexOfColumn("sms error rate") != nil
@@ -454,7 +451,7 @@ class AnalysisState: NSObject, ObservableObject {
                 if hasUserReports {
                     print("has user reports")
                 }
-                if (hasSMSerrors) {
+                if hasSMSerrors {
                     print("has SMS errors")
                 }
             }
@@ -574,7 +571,7 @@ actor AnalysisTask {
 
                 return nil
             }
-            guard FileManager.default.fileExists(atPath: url.path)  else {
+            guard FileManager.default.fileExists(atPath: url.path) else {
                 url.stopAccessingSecurityScopedResource()
                 await result.update(enpa: "Could access \(url)")
                 logger.error("Could access \(url)")
@@ -582,39 +579,37 @@ actor AnalysisTask {
             }
             var rawENPA = RawMetrics(config)
 
-            guard let archive = Archive(url: url, accessMode: .read) else  {
+            guard let archive = Archive(url: url, accessMode: .read) else {
                 return nil
             }
             await result.start(config: config)
             for file in archive {
                 let url = URL(fileURLWithPath: file.path)
                 let name = url.lastPathComponent
-                if file.type != .file  || !name.hasSuffix(".json") {
+                if file.type != .file || !name.hasSuffix(".json") {
                     continue
                 }
-                try _ = archive.extract(file, bufferSize: 200_000_000) { (data) in
-                    
-                    if data.count < 200_000_000, let json = try? JSONSerialization.jsonObject(with: data, options: [])  as? NSDictionary {
-                            print("Got json for \(name), \(data.count)")
-                            Task { await result.update(enpa: "loading \(name)") }
-                            if let rawData = json["rawData"] as? [NSDictionary]  {
-                                for m in rawData {
-                                    rawENPA.processRaw(name, m)
-                                }
+                try _ = archive.extract(file, bufferSize: 200_000_000) { data in
+
+                    if data.count < 200_000_000, let json = try? JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
+                        print("Got json for \(name), \(data.count)")
+                        Task { await result.update(enpa: "loading \(name)") }
+                        if let rawData = json["rawData"] as? [NSDictionary] {
+                            for m in rawData {
+                                rawENPA.processRaw(name, m)
                             }
-                            
-                        } else {
-                            Task {
-                                await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
-                            }
-                           
                         }
-                    
+
+                    } else {
+                        Task {
+                            await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
+                        }
+                    }
                 }
             }
-            
-            //rawENPA.load(url, result: self)
-            
+
+            // rawENPA.load(url, result: self)
+
             url.stopAccessingSecurityScopedResource()
             await result.log(enpa: ["loaded ENPA archive"])
             return rawENPA
@@ -625,11 +620,10 @@ actor AnalysisTask {
             return nil
         }
     }
-    
-    func fetchENPA(config: Configuration,  result: AnalysisState) async -> RawMetrics?  {
-        
+
+    func fetchENPA(config: Configuration, result: AnalysisState) async -> RawMetrics? {
         var raw = RawMetrics(config)
-        
+
         for m in standardMetrics {
             await result.update(enpa: "fetching ENPA \(m)")
             let errors = raw.addMetric(m)
@@ -648,10 +642,9 @@ actor AnalysisTask {
         } // for m
         return raw
     }
-       
+
     func getAndAnalyzeENPA(config: Configuration, enpa: RawMetrics, encvAverage: DataFrame?, result: AnalysisState) async {
         do {
-      
             let metrics = enpa.metrics
             await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
@@ -746,8 +739,6 @@ actor AnalysisTask {
         }
     }
 
-    
-    
     func getAndAnalyzeENCV(config: Configuration, archivalData: Bool = false, existingComposite: DataFrame?, result: AnalysisState) async -> ENCVAnalysis {
         let composite: DataFrame
         let smsData: DataFrame?
@@ -771,20 +762,19 @@ actor AnalysisTask {
                 logger.log("Failed to get ENCV composite.csv")
                 return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
             }
-            
+
             if let existingComposite = existingComposite {
                 composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
             } else {
                 composite = newComposite
             }
-            
+
             logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
 
             await result.update(encv: "Fetching sms errors")
             smsData = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
-
         }
-       
+
         await result.update(encv: "Analyzing encv")
         let analysis = analyzeENCV(config: config, composite: composite, smsData: smsData)
         await result.log(encv: ["Analyzed encv"])
@@ -811,10 +801,10 @@ actor AnalysisTask {
         let appVersion = info["CFBundleShortVersionString"] as? String ?? "unknown"
 
         logger.log("Starting analysis, GAEN Analytics version \(appVersion), build \(build)")
-        
+
         let encv: ENCVAnalysis?
         let existingComposite = await result.encvComposite
-        if analyzeENCV && ( config.hasENCV || archivalData) {
+        if analyzeENCV, config.hasENCV || archivalData {
             logger.log("Starting analyzeENCV")
             encv = await getAndAnalyzeENCV(config: config, archivalData: archivalData, existingComposite: existingComposite, result: result)
             logger.log("Finished analyzeENCV")
@@ -837,7 +827,7 @@ actor AnalysisTask {
                 }
             } else if config.hasENPA {
                 logger.log("Starting analyzeENPA")
-                if let enpa = await fetchENPA(config: config,  result: result) {
+                if let enpa = await fetchENPA(config: config, result: result) {
                     await getAndAnalyzeENPA(config: config, enpa: enpa, encvAverage: encv?.average, result: result)
                 }
                 logger.log("Finished analyzeENPA")
@@ -845,7 +835,6 @@ actor AnalysisTask {
                 await result.log(enpa: ["Skipping ENPA \(analyzeENPA) \(config.hasENPA)"])
             }
         }
-            
 
         await result.finish()
     }

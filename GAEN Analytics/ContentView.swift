@@ -9,7 +9,6 @@ import LocalAuthentication
 import SwiftUI
 import UniformTypeIdentifiers
 
-
 struct WelcomeView: View {
     @ObservedObject var state = SetupState.shared
 
@@ -83,9 +82,9 @@ struct ContentView: View {
                     }
 
                     NavigationLink(destination: SummaryView(viewShown: $viewShown), tag: "summary", selection: $viewShown) {
-                        Text(state.useArchivalData  ? (analysisState.rawENPA == nil ? "Load ENPA archive data" : "View analysis")
-                             : (
-                             analysisState.available ? "View/update analysis" : "Fetch analytics")
+                        Text(state.useArchivalData ? (analysisState.rawENPA == nil ? "Load ENPA archive data" : "View analysis")
+                            : (
+                                analysisState.available ? "View/update analysis" : "Fetch analytics")
                         ).font(.headline).padding()
                     }.disabled(state.setupNeeded)
 
@@ -106,7 +105,6 @@ struct ContentView: View {
                         }
                         AnalysisProgressView().padding(.horizontal)
                     }
-                    
 
                     if false, state.debuggingFeatures, !state.setupNeeded {
                         HStack {

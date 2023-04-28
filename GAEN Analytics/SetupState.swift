@@ -70,9 +70,9 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     }
 
     var config: Configuration {
-        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate),  endDate: endDate,
+        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate), endDate: endDate,
                       configStart: configStartDate,
-                     
+
                       durationBaselineMinutes: durationBaselineMinutes,
                       highInfectiousnessWeight: highInfectiousnessWeight,
                       useTestServers: useTestServers)
@@ -141,26 +141,24 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             UserDefaults.standard.set(useArchivalData, forKey: Self.archivalDataKey)
         }
     }
-    
+
     // Note: in local time zone
     @Published var startDate: Date = defaultStart {
         didSet {
-
             UserDefaults.standard.set(startDate.timeIntervalSince1970, forKey: Self.startKey)
         }
     }
-    // Note: in local time zone
-    @Published var endDate: Date  {
-        didSet {
 
+    // Note: in local time zone
+    @Published var endDate: Date {
+        didSet {
             UserDefaults.standard.set(endDate.timeIntervalSince1970, forKey: Self.endKey)
-          
+
             endNotNow = (endDate.timeIntervalSinceNow < -SetupState.endNowInternal)
-            
         }
     }
-    
-    @Published var endNotNow: Bool  {
+
+    @Published var endNotNow: Bool {
         didSet {
             UserDefaults.standard.set(endNotNow, forKey: Self.endNotNowKey)
         }
@@ -243,7 +241,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         daysRollup = 7
         useFaceID = false
         useTestServers = false
-       
+
         AnalysisState.shared.clear()
     }
 
@@ -282,7 +280,6 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
         useArchivalData = UserDefaults.standard.bool(forKey: Self.archivalDataKey)
 
-
         let baseline = UserDefaults.standard.double(forKey: Self.baselineExposureKey)
         durationBaselineMinutes = baseline == 0.0 ? 15.0 : baseline
 
@@ -292,7 +289,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
 
         alertDismissed = UserDefaults.standard.bool(forKey: Self.alertKey)
-        
+
         let dr = UserDefaults.standard.integer(forKey: Self.daysRollupKey)
         daysRollup = dr == 0 ? 7 : dr
 
@@ -316,7 +313,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         startDate = dateFor(key: Self.startKey, defaultDate: defaultStart)
         let endNotNow = UserDefaults.standard.bool(forKey: Self.endNotNowKey)
         self.endNotNow = endNotNow
-        endDate = endNotNow ?  dateFor(key: Self.endKey, defaultDate: Date()) : Date()
+        endDate = endNotNow ? dateFor(key: Self.endKey, defaultDate: Date()) : Date()
         configStartDate = nil // dateFor(key: Self.configStartKey, defaultDate: defaultStart)
         let uTestServers = UserDefaults.standard.bool(forKey: Self.testServerKey)
         useTestServers = uTestServers

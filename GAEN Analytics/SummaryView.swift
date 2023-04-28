@@ -29,21 +29,16 @@ struct ENPAPicker: UIViewControllerRepresentable {
     class Coordinator: NSObject, UIDocumentPickerDelegate {
         func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             let config = SetupState.shared.config
-            
+
             Task(priority: .userInitiated) {
                 let task = AnalysisTask()
-             
-                
-                
+
                 if let rawENPA = await task.loadENPAArchive(config: config, urls[0], result: AnalysisState.shared)
                 {
                     AnalysisState.shared.rawENPA = rawENPA
                     await task.analyze(config: config, result: AnalysisState.shared, archivalData: true)
                 }
-                
-                
             }
- 
         }
     }
 }
@@ -64,30 +59,27 @@ struct SummaryView: View {
                         analysisState.start(config: state.config)
                         await AnalysisTask().analyze(config: state.config,
                                                      result: analysisState,
-                                                     archivalData: state.useArchivalData
-                                                    )
+                                                     archivalData: state.useArchivalData)
                     }
                     }) { Text("Update analytics").font(.headline).padding()
                     }
                 }
                 if !analysisState.available, !analysisState.inProgress, state.useArchivalData {
-                    
-                        Button(action: {
-                            showENPAArchivePicker = true
-                            
-                        }) { Text("Load ENPA archive").font(.headline) }.sheet(isPresented: self.$showENPAArchivePicker) {
-                            ENPAPicker()
-                        }.padding()
-                    
+                    Button(action: {
+                        showENPAArchivePicker = true
+
+                    }) { Text("Load ENPA archive").font(.headline) }.sheet(isPresented: self.$showENPAArchivePicker) {
+                        ENPAPicker()
+                    }.padding()
                 }
-                
+
             }.textCase(.none)
 
             Section(header: TopicView(topic: "ENCV").padding(.top)) {
                 Text(analysisState.encvSummary).fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
             }
-            
+
             ENXChartsView(charts: analysisState.encvCharts)
             Section(header: TopicView(topic: "ENPA").padding(.top)) {
                 Text(analysisState.enpaSummary)
@@ -99,8 +91,8 @@ struct SummaryView: View {
             {
                 DurationSummaryView(title: "Duration summary", df: da, summary: summary)
             }
-         
-                Section(header: TopicView(topic: "Appendix").padding(.top)) {}
+
+            Section(header: TopicView(topic: "Appendix").padding(.top)) {}
             VStack {
                 ENXChartsView(charts: analysisState.appendixCharts)
                 ENXChartsView(charts: analysisState.appendixENPACharts)
