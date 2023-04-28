@@ -17,10 +17,10 @@ import Foundation
 //    let configStartDate: Date
 // }
 
-func dateFor(key: String) -> Date {
+func dateFor(key: String, defaultDate: Date) -> Date {
     let d = UserDefaults.standard.double(forKey: key)
     if d == 0 {
-        return defaultStart
+        return defaultDate
     }
     return Date(timeIntervalSince1970: d)
 }
@@ -46,7 +46,10 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let regionKey = "region"
     static let encvKeyKey = "encv"
     static let enpaKeyKey = "enpaKey"
+    static let archivalDataKey = "archivalDataKey"
     static let startKey = "startKey"
+    static let endKey = "endKey"
+    static let endNotNowKey = "endNowKey"
     static let notificationsKey = "notificationsKey"
     static let alertKey = "alertKey"
     static let configStartKey = "configStartKey"
@@ -56,6 +59,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let highInfectiousnessWeightKey = "highInfectiousnessWeightKey"
     static let debuggingKey = "debuggingKey"
 
+    static let endNowInternal: TimeInterval = 30 * 24 * 60 * 60
     func convertToUTCDay(_ date: Date) -> Date {
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
@@ -66,7 +70,9 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     }
 
     var config: Configuration {
-        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate), configStart: configStartDate,
+        Configuration(daysSinceExposureThreshold: 10, numDays: daysRollup, numCategories: notifications, region: region, enpaAPIKey: enpaKey, encvAPIKey: encvKey, startDate: convertToUTCDay(startDate),  endDate: endDate,
+                      configStart: configStartDate,
+                     
                       durationBaselineMinutes: durationBaselineMinutes,
                       highInfectiousnessWeight: highInfectiousnessWeight,
                       useTestServers: useTestServers)
@@ -92,6 +98,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
 
     @Published var alertDismissed: Bool = true {
         didSet {
+            print("set alertDismissed to \(alertDismissed)")
             UserDefaults.standard.set(alertDismissed, forKey: Self.alertKey)
         }
     }
@@ -129,14 +136,33 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
     }
 
+    @Published var useArchivalData: Bool = false {
+        didSet {
+            UserDefaults.standard.set(useArchivalData, forKey: Self.archivalDataKey)
+        }
+    }
+    
     // Note: in local time zone
     @Published var startDate: Date = defaultStart {
         didSet {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .full
-            dateFormatter.timeStyle = .full
-            print("Setting start date to \(dateFormatter.string(from: startDate))")
+
             UserDefaults.standard.set(startDate.timeIntervalSince1970, forKey: Self.startKey)
+        }
+    }
+    // Note: in local time zone
+    @Published var endDate: Date  {
+        didSet {
+
+            UserDefaults.standard.set(endDate.timeIntervalSince1970, forKey: Self.endKey)
+          
+            endNotNow = (endDate.timeIntervalSinceNow < -SetupState.endNowInternal)
+            
+        }
+    }
+    
+    @Published var endNotNow: Bool  {
+        didSet {
+            UserDefaults.standard.set(endNotNow, forKey: Self.endNotNowKey)
         }
     }
 
@@ -211,11 +237,13 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         encvKey = ""
         enpaKey = ""
         startDate = defaultStart
+        endDate = Date()
         configStartDate = nil // defaultStart
         notifications = 1
         daysRollup = 7
         useFaceID = false
         useTestServers = false
+       
         AnalysisState.shared.clear()
     }
 
@@ -241,6 +269,8 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         encvKey = testEncvKey
         enpaKey = testEnpaKey
         startDate = defaultStart
+        endDate = Date()
+        endNotNow = false
         configStartDate = nil
     }
 
@@ -250,6 +280,9 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         if let data = UserDefaults.standard.string(forKey: Self.regionKey) {
             region = data
         }
+        useArchivalData = UserDefaults.standard.bool(forKey: Self.archivalDataKey)
+
+
         let baseline = UserDefaults.standard.double(forKey: Self.baselineExposureKey)
         durationBaselineMinutes = baseline == 0.0 ? 15.0 : baseline
 
@@ -259,7 +292,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         notifications = max(1, UserDefaults.standard.integer(forKey: Self.notificationsKey))
 
         alertDismissed = UserDefaults.standard.bool(forKey: Self.alertKey)
-
+        
         let dr = UserDefaults.standard.integer(forKey: Self.daysRollupKey)
         daysRollup = dr == 0 ? 7 : dr
 
@@ -280,8 +313,11 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
             disableTestServer = true
         }
 
-        startDate = dateFor(key: Self.startKey)
-        configStartDate = nil // dateFor(key: Self.configStartKey)
+        startDate = dateFor(key: Self.startKey, defaultDate: defaultStart)
+        let endNotNow = UserDefaults.standard.bool(forKey: Self.endNotNowKey)
+        self.endNotNow = endNotNow
+        endDate = endNotNow ?  dateFor(key: Self.endKey, defaultDate: Date()) : Date()
+        configStartDate = nil // dateFor(key: Self.configStartKey, defaultDate: defaultStart)
         let uTestServers = UserDefaults.standard.bool(forKey: Self.testServerKey)
         useTestServers = uTestServers
         if disableTestServer, uTestServers {

@@ -159,6 +159,7 @@ struct ExportItem: View {
     var showingPopoverOption = true
 
     @MainActor func exportDataframe() {
+        print("analysisState.region = \(analysisState.region)")
         let fileName = "\(analysisState.region)-\(fileTitle)-\(dateTimeStamp).csv"
         if let dataFrame = dataFrame {
             #if targetEnvironment(macCatalyst)

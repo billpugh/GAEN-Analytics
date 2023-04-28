@@ -8,6 +8,8 @@
 import Foundation
 import os.log
 import TabularData
+import ZIPFoundation
+
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "AnalyzeState")
 
 @MainActor
@@ -17,26 +19,36 @@ class AnalysisState: NSObject, ObservableObject {
         if let region = config?.region {
             return region
         }
-        return ""
+        return SetupState.shared.region
     }
 
     @Published var enpaDate: Date? = nil
     @Published var encvDate: Date? = nil
     @Published var enpaAvailable: Bool = false
     @Published var encvAvailable: Bool = false
-
     @Published var config: Configuration? = nil
     @Published var status: String = "Fetch analytics"
     @Published var nextAction: String = "Fetch analytics"
     @Published var inProgress: Bool = false
     var progressSteps: Double = 0.0
     @Published var progress: Double = 0.0
+    @Published var enpaArchiveCount: Int = 0
     var progressCount: Double {
-        let enpaCount = standardMetrics.count + additionalMetrics.count + 5
+        let enpaCount: Int
+        if SetupState.shared.useArchivalData {
+            enpaCount = 11+5
+        } else {
+            enpaCount = standardMetrics.count + additionalMetrics.count + 5
+        }
         return Double(enpaCount + 3)
     }
 
-    @Published var available: Bool = false
+    @Published var available: Bool = false {
+        didSet {
+            print("available changed to \(available)")
+        }
+    }
+    
     @Published var availableAt: Date?
     var availableAtMessage: String {
         guard let availableAt = availableAt else {
@@ -71,6 +83,8 @@ class AnalysisState: NSObject, ObservableObject {
     @Published var csvExportReady = false
     @Published var additionalMetrics: Set<String> = []
     @Published var durationSummary: String? = nil
+
+    
     func metricSelected(_ name: String) -> Bool {
         additionalMetrics.contains(name)
     }
@@ -216,6 +230,7 @@ class AnalysisState: NSObject, ObservableObject {
             logger.error("\(error.localizedDescription, privacy: .public)")
         }
     }
+    
 
     static let writingOptions = CSVWritingOptions(dateFormat: "yyyy-MM-dd")
     func saveComposite() {
@@ -291,20 +306,22 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     func start(config: Configuration) {
+        print("starting")
         self.config = config
-        inProgress = true
+      
         progress = 0.0
         progressSteps = 0
         available = false
 
         enpaSummary = "waiting for ENPA data..."
         encvSummary = "waiting for ENCV data..."
-        nextAction = "Fetching analytics"
+        nextAction = "Getting analytics"
         enpaCharts = []
         encvCharts = []
         appendixENPACharts = []
         appendixCharts = []
         durationSummary = nil
+        inProgress = true
     }
 
     func finish() {
@@ -369,7 +386,7 @@ class AnalysisState: NSObject, ObservableObject {
         progress = min(progressSteps / progressCount, 1.0)
 
         if progressSteps > progressCount {
-            print("Progress count is too small")
+            print("Progress count is too small; \(progressSteps) > \(progressCount)")
         }
         if let encv = encv {
             encvDate = Date()
@@ -428,21 +445,28 @@ class AnalysisState: NSObject, ObservableObject {
 
     func makeENCVCharts() {
         if let encv = rollingAvg, let config = config {
-            if false {
-                print("\(encv.columns.count) enpa Columns: \(encv.columns.map(\.name))")
-            }
+         
             let hasUserReports = encv.indexOfColumn("user reports claim rate") != nil
 
             let hasSMSerrors = encv.indexOfColumn("sms error rate") != nil
-
-            encvCharts = [
+            if true {
+                print("\(encv.columns.count) encv Columns: \(encv.columns.map(\.name))")
+                if hasUserReports {
+                    print("has user reports")
+                }
+                if (hasSMSerrors) {
+                    print("has SMS errors")
+                }
+            }
+            let temp = [
                 claimedConsent(encv: encv, hasUserReports: hasUserReports, config: config),
                 userReportRate(encv: encv, hasUserReports: hasUserReports, config: config),
                 tokensClaimed(encv: encv, hasUserReports: hasUserReports, config: config),
                 systemHealth(encv: encv, hasSMS: hasSMSerrors, config: config),
                 invalidCodes(encv: encv, config: config),
-
-            ].compactMap { $0 }
+            ]
+            encvCharts = temp.compactMap { $0 }
+            print("Got \(encvCharts.count) envc charts")
 
             appendixCharts = [
                 timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
@@ -542,28 +566,93 @@ let standardMetrics = ["userRisk", "riskParameters",
                        "keysUploaded",
                        "dateExposure", "dateExposure14d", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
 actor AnalysisTask {
-    func getAndAnalyzeENPA(config: Configuration, encvAverage: DataFrame?, result: AnalysisState) async {
+    func loadENPAArchive(config: Configuration, _ url: URL, result: AnalysisState) async -> RawMetrics? {
         do {
-            var raw = RawMetrics(config)
+            guard url.startAccessingSecurityScopedResource() else {
+                await result.update(enpa: "No permission to access \(url)")
+                logger.error("No permission to access \(url)")
 
-            for m in standardMetrics {
-                await result.update(enpa: "fetching ENPA \(m)")
-                let errors = raw.addMetric(m)
-                if !errors.isEmpty {
-                    await result.log(enpa: errors)
-                    return
-                }
-            } // for m
-            let additional = await result.additionalMetrics
-            for m in additional {
-                await result.update(enpa: "fetching ENPA \(m)")
-                let errors = raw.addMetric(m)
-                if !errors.isEmpty {
-                    await result.log(enpa: errors)
-                }
-            } // for m
+                return nil
+            }
+            guard FileManager.default.fileExists(atPath: url.path)  else {
+                url.stopAccessingSecurityScopedResource()
+                await result.update(enpa: "Could access \(url)")
+                logger.error("Could access \(url)")
+                return nil
+            }
+            var rawENPA = RawMetrics(config)
 
-            let metrics = raw.metrics
+            guard let archive = Archive(url: url, accessMode: .read) else  {
+                return nil
+            }
+            await result.start(config: config)
+            for file in archive {
+                let url = URL(fileURLWithPath: file.path)
+                let name = url.lastPathComponent
+                if file.type != .file  || !name.hasSuffix(".json") {
+                    continue
+                }
+                try _ = archive.extract(file, bufferSize: 200_000_000) { (data) in
+                    
+                    if data.count < 200_000_000, let json = try? JSONSerialization.jsonObject(with: data, options: [])  as? NSDictionary {
+                            print("Got json for \(name), \(data.count)")
+                            Task { await result.update(enpa: "loading \(name)") }
+                            if let rawData = json["rawData"] as? [NSDictionary]  {
+                                for m in rawData {
+                                    rawENPA.processRaw(name, m)
+                                }
+                            }
+                            
+                        } else {
+                            Task {
+                                await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
+                            }
+                           
+                        }
+                    
+                }
+            }
+            
+            //rawENPA.load(url, result: self)
+            
+            url.stopAccessingSecurityScopedResource()
+            await result.log(enpa: ["loaded ENPA archive"])
+            return rawENPA
+
+        } catch {
+            await result.log(enpa: ["error \(error.localizedDescription)"])
+            logger.error("\(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+    
+    func fetchENPA(config: Configuration,  result: AnalysisState) async -> RawMetrics?  {
+        
+        var raw = RawMetrics(config)
+        
+        for m in standardMetrics {
+            await result.update(enpa: "fetching ENPA \(m)")
+            let errors = raw.addMetric(m)
+            if !errors.isEmpty {
+                await result.log(enpa: errors)
+                return nil
+            }
+        } // for m
+        let additional = await result.additionalMetrics
+        for m in additional {
+            await result.update(enpa: "fetching ENPA \(m)")
+            let errors = raw.addMetric(m)
+            if !errors.isEmpty {
+                await result.log(enpa: errors)
+            }
+        } // for m
+        return raw
+    }
+       
+    func getAndAnalyzeENPA(config: Configuration, enpa: RawMetrics, encvAverage: DataFrame?, result: AnalysisState) async {
+        do {
+      
+            let metrics = enpa.metrics
             await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
             iOSDataFrame.removeRandomElements()
@@ -643,7 +732,7 @@ actor AnalysisTask {
             let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
             let dateExposureAnalysis = try? computeDateExposureCurves(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], categories: config.numCategories)
 
-            await result.analyzedENPA(config: config, raw: raw, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,
+            await result.analyzedENPA(config: config, raw: enpa, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,
                                       durationAnalysis: durationAnalysis, dateExposureAnalysis: dateExposureAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
@@ -657,36 +746,53 @@ actor AnalysisTask {
         }
     }
 
-    func getAndAnalyzeENCV(config: Configuration, result: AnalysisState) async -> ENCVAnalysis {
-        if !config.hasENCV {
-            return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV API key, Skipping ENCV"])
-        }
-        await result.update(encv: "Fetching enpa composite")
-        guard let
-            encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
-
-            let newComposite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
-        else {
-            logger.log("Failed to get ENCV composite.csv")
-            return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
-        }
+    
+    
+    func getAndAnalyzeENCV(config: Configuration, archivalData: Bool = false, existingComposite: DataFrame?, result: AnalysisState) async -> ENCVAnalysis {
         let composite: DataFrame
-        if let existingComposite = await result.encvComposite {
-            composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
+        let smsData: DataFrame?
+        if archivalData {
+            if let existingComposite = existingComposite {
+                composite = existingComposite
+                smsData = nil
+            } else {
+                return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get archival ENCV composite.csv"])
+            }
         } else {
-            composite = newComposite
+            if !config.hasENCV {
+                return ENCVAnalysis(encv: nil, average: nil, log: ["no ENCV API key, Skipping ENCV"])
+            }
+            await result.update(encv: "Fetching enpa composite")
+            guard let
+                encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
+
+                let newComposite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
+            else {
+                logger.log("Failed to get ENCV composite.csv")
+                return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
+            }
+            
+            if let existingComposite = existingComposite {
+                composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
+            } else {
+                composite = newComposite
+            }
+            
+            logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
+
+            await result.update(encv: "Fetching sms errors")
+            smsData = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+
         }
-
-        logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
-
-        await result.update(encv: "Fetching sms errors")
-        let smsData: DataFrame? = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+       
         await result.update(encv: "Analyzing encv")
         let analysis = analyzeENCV(config: config, composite: composite, smsData: smsData)
-
+        await result.log(encv: ["Analyzed encv"])
         await result.gotENCV(composite: composite, smsErrors: smsData)
         await result.gotRollingAvg(rollingAvg: analysis.average)
+        await result.log(encv: ["Computed encv rolling averages"])
         await result.log(encv: analysis.log)
+        print("Done with encv")
         return analysis
     }
 
@@ -696,7 +802,7 @@ actor AnalysisTask {
         print("\(foo!.count)")
     }
 
-    func analyze(config: Configuration, result: AnalysisState,
+    func analyze(config: Configuration, result: AnalysisState, archivalData: Bool = false,
                  analyzeENCV: Bool = true, analyzeENPA: Bool = true) async
     {
         let info = Bundle.main.infoDictionary!
@@ -705,11 +811,12 @@ actor AnalysisTask {
         let appVersion = info["CFBundleShortVersionString"] as? String ?? "unknown"
 
         logger.log("Starting analysis, GAEN Analytics version \(appVersion), build \(build)")
-        await result.start(config: config)
+        
         let encv: ENCVAnalysis?
-        if analyzeENCV, config.hasENCV {
+        let existingComposite = await result.encvComposite
+        if analyzeENCV && ( config.hasENCV || archivalData) {
             logger.log("Starting analyzeENCV")
-            encv = await getAndAnalyzeENCV(config: config, result: result)
+            encv = await getAndAnalyzeENCV(config: config, archivalData: archivalData, existingComposite: existingComposite, result: result)
             logger.log("Finished analyzeENCV")
         } else {
             encv = nil
@@ -720,13 +827,25 @@ actor AnalysisTask {
                 await result.log(encv: ["Skipping ENCV"])
             }
         }
-        if analyzeENPA, config.hasENPA {
-            logger.log("Starting analyzeENPA")
-            await getAndAnalyzeENPA(config: config, encvAverage: encv?.average, result: result)
-            logger.log("Finished analyzeENPA")
-        } else {
-            await result.log(enpa: ["Skipping ENPA \(analyzeENPA) \(config.hasENPA)"])
+        if analyzeENPA {
+            if archivalData {
+                if var enpa = await result.rawENPA {
+                    enpa.configuration = config
+                    await getAndAnalyzeENPA(config: config, enpa: enpa, encvAverage: encv?.average, result: result)
+                } else {
+                    await result.log(enpa: ["No archival ENPA data"])
+                }
+            } else if config.hasENPA {
+                logger.log("Starting analyzeENPA")
+                if let enpa = await fetchENPA(config: config,  result: result) {
+                    await getAndAnalyzeENPA(config: config, enpa: enpa, encvAverage: encv?.average, result: result)
+                }
+                logger.log("Finished analyzeENPA")
+            } else {
+                await result.log(enpa: ["Skipping ENPA \(analyzeENPA) \(config.hasENPA)"])
+            }
         }
+            
 
         await result.finish()
     }

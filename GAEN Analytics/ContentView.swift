@@ -9,26 +9,6 @@ import LocalAuthentication
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct DocumentPicker: UIViewControllerRepresentable {
-    func makeCoordinator() -> DocumentPicker.Coordinator {
-        DocumentPicker.Coordinator()
-    }
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<DocumentPicker>) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.commaSeparatedText], asCopy: false)
-        picker.allowsMultipleSelection = false
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_: DocumentPicker.UIViewControllerType, context _: UIViewControllerRepresentableContext<DocumentPicker>) {}
-
-    class Coordinator: NSObject, UIDocumentPickerDelegate {
-        func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            AnalysisState.shared.loadComposite(urls[0])
-        }
-    }
-}
 
 struct WelcomeView: View {
     @ObservedObject var state = SetupState.shared
@@ -84,7 +64,7 @@ struct ContentView: View {
         }
     }
 
-    @State private var showAlert = true // !SetupState.shared.alertDismissed
+    @State private var showAlert = !SetupState.shared.alertDismissed
     var body: some View {
         NavigationView {
             if isUnlocked || !state.useFaceID {
@@ -103,7 +83,9 @@ struct ContentView: View {
                     }
 
                     NavigationLink(destination: SummaryView(viewShown: $viewShown), tag: "summary", selection: $viewShown) {
-                        Text(analysisState.available ? "View/update analysis" : "Fetch analytics"
+                        Text(state.useArchivalData  ? (analysisState.rawENPA == nil ? "Load ENPA archive data" : "View analysis")
+                             : (
+                             analysisState.available ? "View/update analysis" : "Fetch analytics")
                         ).font(.headline).padding()
                     }.disabled(state.setupNeeded)
 
@@ -124,14 +106,7 @@ struct ContentView: View {
                         }
                         AnalysisProgressView().padding(.horizontal)
                     }
-                    HStack {
-                        Button(action: {
-                            showFilePicker = true
-
-                        }) { Text("Load older encv composite stats").font(.headline) }.padding().sheet(isPresented: self.$showFilePicker) {
-                            DocumentPicker()
-                        }
-                    }
+                    
 
                     if false, state.debuggingFeatures, !state.setupNeeded {
                         HStack {
@@ -184,7 +159,7 @@ struct ContentView: View {
                 title: Text("Calculation of number of active devices changed"),
                 message: Text("With newly available data on the total number of ENPA users in the United States, we have now been able to estimate the overall ENPA opt-in rate for the US. This avoids an issue with the previous calculation of opt-in rate, which was based on users who verified codes, which it not necessarily representative of the entire ENX population. Both the new calculation and the old calculation are shown in graphs for number of active users and total number of notifications"),
                 dismissButton: .default(Text("Dismiss"),
-                                        action: { // state.alertDismissed = true
+                                        action: { state.alertDismissed = true
                                         })
             )
         }

@@ -17,7 +17,11 @@ struct AnalysisProgressView: View {
             }
         } else if state.available {
             VStack(alignment: .leading) {
-                Text("Fetched at \(state.availableAtMessage)")
+                if setup.useArchivalData {
+                    Text("ENPA loaded from archive")
+                }else {
+                    Text("Fetched at \(state.availableAtMessage)")
+                }
                 if let config = state.config {
                     Text(config.numDays == 1 ? "Data for individual days" : "Rolling \(config.numDays) day averages")
                 }

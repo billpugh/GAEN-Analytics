@@ -145,11 +145,21 @@ struct RawExportView: View {
                     AnalysisProgressView().padding(.horizontal)
                 #endif
 
-                TopicActionView(topic: "Export Raw ENPA csv data", action: { Task(priority: .userInitiated) { exportRawENPA() }})
-                    .padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
-
-                TopicActionView(topic: "Export ENPA json archive", action: { Task(priority: .userInitiated) { exportArchiveENPA() }})
-                    .padding().disabled(!analysisState.available || analysisState.rawENPA == nil)
+                Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
+                                    Text("Export raw ENPA csv data")
+                }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
+                Text(markdown(file: "Export raw ENPA csv data"))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
+                
+                Button(action: { Task(priority: .userInitiated) { exportArchiveENPA() }}) {
+                                    Text("Export raw ENPA json archive")
+                }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
+              
+                Text(markdown(file: "Export raw ENPA json archive"))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
+                
             }
         }.font(.subheadline)
         #if targetEnvironment(macCatalyst)

@@ -20,8 +20,8 @@
 		16216BD32885D110008F5F36 /* Encounter detected in past 14 days.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD02885D0E9008F5F36 /* Encounter detected in past 14 days.md */; };
 		16216BD52885D12B008F5F36 /* Sum score distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD42885D129008F5F36 /* Sum score distribution.md */; };
 		16216BD72885D145008F5F36 /* Max score distribution.md in Resources */ = {isa = PBXBuildFile; fileRef = 16216BD62885D145008F5F36 /* Max score distribution.md */; };
-		1629344B29EED9CB001C2998 /* Export Raw ENPA csv data.md in Resources */ = {isa = PBXBuildFile; fileRef = 1629344A29EED9CB001C2998 /* Export Raw ENPA csv data.md */; };
-		1629344D29EEDCAC001C2998 /* Export ENPA json archive.md in Resources */ = {isa = PBXBuildFile; fileRef = 1629344C29EEDCAC001C2998 /* Export ENPA json archive.md */; };
+		1629344B29EED9CB001C2998 /* Export raw ENPA csv data.md in Resources */ = {isa = PBXBuildFile; fileRef = 1629344A29EED9CB001C2998 /* Export raw ENPA csv data.md */; };
+		1629344D29EEDCAC001C2998 /* Export raw ENPA json archive.md in Resources */ = {isa = PBXBuildFile; fileRef = 1629344C29EEDCAC001C2998 /* Export raw ENPA json archive.md */; };
 		1639ADE4286E04E200E66EC7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 1639ADE3286E04E200E66EC7 /* ZIPFoundation */; };
 		1639ADE5286E057600E66EC7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1609485A25C3632A001705A6 /* main.swift */; };
 		1639ADE7286E09A900E66EC7 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1639ADE6286E09A900E66EC7 /* CSV */; };
@@ -209,8 +209,8 @@
 		16216BD42885D129008F5F36 /* Sum score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Sum score distribution.md"; sourceTree = "<group>"; };
 		16216BD62885D145008F5F36 /* Max score distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Max score distribution.md"; sourceTree = "<group>"; };
 		16216BD82885DCC2008F5F36 /* Attenuation distribution.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Attenuation distribution.md"; sourceTree = "<group>"; };
-		1629344A29EED9CB001C2998 /* Export Raw ENPA csv data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Export Raw ENPA csv data.md"; sourceTree = "<group>"; };
-		1629344C29EEDCAC001C2998 /* Export ENPA json archive.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Export ENPA json archive.md"; sourceTree = "<group>"; };
+		1629344A29EED9CB001C2998 /* Export raw ENPA csv data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Export raw ENPA csv data.md"; sourceTree = "<group>"; };
+		1629344C29EEDCAC001C2998 /* Export raw ENPA json archive.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Export raw ENPA json archive.md"; sourceTree = "<group>"; };
 		1634649429AC086A00C3E242 /* Relative risk for notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Relative risk for notifications.md"; sourceTree = "<group>"; };
 		163CCB7A27DE45B000355180 /* Appendix.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Appendix.md; sourceTree = "<group>"; };
 		163EF28527C91FA800D3C19D /* TopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicView.swift; sourceTree = "<group>"; };
@@ -552,8 +552,8 @@
 				16B2B5DC27D40F1B000F763A /* ENCV data.md */,
 				16B2B5DD27D40F51000F763A /* ENCV analysis.md */,
 				16B2B5DE27D40F74000F763A /* combined analysis.md */,
-				1629344A29EED9CB001C2998 /* Export Raw ENPA csv data.md */,
-				1629344C29EEDCAC001C2998 /* Export ENPA json archive.md */,
+				1629344A29EED9CB001C2998 /* Export raw ENPA csv data.md */,
+				1629344C29EEDCAC001C2998 /* Export raw ENPA json archive.md */,
 			);
 			path = Exports;
 			sourceTree = "<group>";
@@ -807,7 +807,7 @@
 				16A292EB2821C4920068F29B /* privacy policy.md in Resources */,
 				168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */,
 				16C36C8B291C0266005B8613 /* Delay between exposure and.md in Resources */,
-				1629344D29EEDCAC001C2998 /* Export ENPA json archive.md in Resources */,
+				1629344D29EEDCAC001C2998 /* Export raw ENPA json archive.md in Resources */,
 				16C36C81291BFEAB005B8613 /* Average days until notification.md in Resources */,
 				161A123527DA3D650026C53D /* Secondary attack rate.md in Resources */,
 				16B2B5E127D40F80000F763A /* ENCV data.md in Resources */,
@@ -836,7 +836,7 @@
 				1673F54F27B07F730037D340 /* Assets.xcassets in Resources */,
 				16B2B5E027D40F7D000F763A /* Android ENPA.md in Resources */,
 				16856E6B27BC022200F44960 /* Notifications arriving promptly.md in Resources */,
-				1629344B29EED9CB001C2998 /* Export Raw ENPA csv data.md in Resources */,
+				1629344B29EED9CB001C2998 /* Export raw ENPA csv data.md in Resources */,
 				166E89BC2887452F009BEFF5 /* Attenuation distribution.md in Resources */,
 				16216BD52885D12B008F5F36 /* Sum score distribution.md in Resources */,
 				16C36C8A291C0263005B8613 /* Delay between exposure and nt3.md in Resources */,
@@ -1181,7 +1181,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.6.2;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1221,7 +1221,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.6.2;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ninjamonkeycoders.GAENAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

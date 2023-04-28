@@ -98,7 +98,7 @@ func computeDateExposureCurves(_ r: DataFrame.Row, category: Int) -> [Double]? {
 }
 
 public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight: Int) throws -> DataFrame {
-    print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
+    //print("highInfectiousnessWeight = \(highInfectiousnessWeight)")
     let hiWeight = Double(highInfectiousnessWeight) / 100.0
     let wdBuckets = [10, 20, 30, 50, 70, 90, 120]
     let sumBuckets = [40, 50, 60, 70, 80, 90, 120]
@@ -118,8 +118,9 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
     wdValues = addInterpolation(minutes: 15, wdValues)
     wdValues = addInterpolation(minutes: 60, wdValues)
 
-    for dm in wdValues {
+    if false {for dm in wdValues {
         print("\(dm.minutes), \(dm.percentile)")
+    }
     }
 
     let wdPercentiles = wdValues.map(\.percentile)
@@ -168,7 +169,7 @@ public func computeDurationSummary(_ r: DataFrame.Row, highInfectiousnessWeight:
     }
 
     let csv = csvRows.joined(separator: "\n")
-    print(csv)
+    //print(csv)
     var df = try DataFrame(csvData: csv.data(using: .utf8)!)
     df.sort(on: "minutes")
 

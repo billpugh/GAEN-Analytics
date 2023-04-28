@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 func makeAlert(
     title: String,
@@ -19,11 +20,40 @@ func makeAlert(
           secondaryButton: .cancel(cancelAction))
 }
 
+
+struct CompositePicker: UIViewControllerRepresentable {
+    func makeCoordinator() -> CompositePicker.Coordinator {
+        CompositePicker.Coordinator()
+    }
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<CompositePicker>) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.commaSeparatedText], asCopy: false)
+        picker.allowsMultipleSelection = false
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_: CompositePicker.UIViewControllerType, context _: UIViewControllerRepresentableContext<CompositePicker>) {}
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            AnalysisState.shared.loadComposite(urls[0])
+        }
+    }
+}
+
+
+
+
 struct SetupView: View {
     @ObservedObject var state = SetupState.shared
     @State var showingReset: Bool = false
     @State var showingResetENCV: Bool = false
     @State var showingTestData: Bool = false
+    @State var showCompositePicker = false
+
+   
+    
     func describe(key: String) -> String {
         if key.isEmpty {
             return " not provided"
@@ -37,7 +67,7 @@ struct SetupView: View {
 
     var body: some View {
         Form {
-            Section(header: Text("What to analyze")) {
+            Section(header: Text("What to analyze").font(.title)) {
                 HStack {
                     Text("Region")
                     TextField("e.g, US-HT", text: Binding(get: { self.state.region },
@@ -87,43 +117,74 @@ struct SetupView: View {
                     selection: $state.startDate,
                     displayedComponents: [.date]
                 )
+                HStack {
+                    
+                    DatePicker(
+                        "End Date",
+                        selection: $state.endDate,
+                        displayedComponents: [.date]
+                    )
+                    Text(state.endNotNow ? "" : "(now)")
+                   
+                }
                 //                DatePicker(
                 //                    "Config Start Date",
                 //                    selection: $state.configStartDate,
                 //                    displayedComponents: [.date]
                 //                )
             } // Sectikon
-            Section(header: Text("API keys")) {
+            
+            if !self.state.useArchivalData {
+                Section(header: Text("API keys").font(.title)) {
+                    HStack {
+                        NavigationLink(destination:
+                                        ApiKeyView(title: "ENCV API key", apiKey:
+                                                    Binding(get: { self.state.encvKey },
+                                                            set: {
+                            self.state.encvKey = trim($0)
+                        }))) {
+                            Text("ENCV\(describe(key: state.encvKey))")
+                        }.disabled(self.state.isUsingTestData)
+                        
+                    }.padding(.vertical)
+                    HStack {
+                        NavigationLink(destination:
+                                        ApiKeyView(title: "ENPA API key", apiKey: Binding(get: { self.state.enpaKey },
+                                                                                          set: {
+                            self.state.enpaKey = trim($0)
+                        })))
+                        { Text("ENPA\(describe(key: state.enpaKey))") }.disabled(self.state.isUsingTestData)
+                        
+                    }.padding(.vertical)
+                } // Section
+            } // if
+            
+           
+                    
+            Section(header: Text("Archival data").font(.title)) {
+                Toggle("Use only archival data, ignoring of API keys", isOn: self.$state.useArchivalData.animation()) .padding()
                 HStack {
-                    NavigationLink(destination:
-                        ApiKeyView(title: "ENCV API key", apiKey:
-                            Binding(get: { self.state.encvKey },
-                                    set: {
-                                        self.state.encvKey = trim($0)
-                                    }))) {
-                        Text("ENCV\(describe(key: state.encvKey))")
-                    }.disabled(self.state.isUsingTestData)
-
-                }.padding(.vertical)
-                HStack {
-                    NavigationLink(destination:
-                        ApiKeyView(title: "ENPA API key", apiKey: Binding(get: { self.state.enpaKey },
-                                                                          set: {
-                                                                              self.state.enpaKey = trim($0)
-                                                                          })))
-                    { Text("ENPA\(describe(key: state.enpaKey))") }.disabled(self.state.isUsingTestData)
-
-                }.padding(.vertical)
-            } // Section
-
-            Section {
+                    Button(action: {
+                        showCompositePicker = true
+                        
+                    }) { Text("Load older encv composite stats").font(.headline) }.padding().sheet(isPresented: self.$showCompositePicker) {
+                        CompositePicker()
+                    }
+                }
+               
+            }
+            
+            Section(header: Text("App features").font(.title)) {
                 #if !targetEnvironment(macCatalyst)
-                    Toggle("Protect with FaceID", isOn: self.$state.useFaceID)
+                    Toggle("Protect with FaceID", isOn: self.$state.useFaceID) .padding()
                 #endif
 
                 if !self.state.usingTestData {
                     Toggle(self.state.disableTestServer ? "Enable debugging features" : "Enable test/debugging features", isOn: self.$state.debuggingFeatures.animation())
+                        .padding()
                 }
+               
+                
                 if !self.state.disableTestServer, self.state.isClear && self.state.debuggingFeatures || self.state.isUsingTestData {
                     Toggle("Use test data", isOn: self.$state.usingTestData.animation())
 
@@ -133,7 +194,7 @@ struct SetupView: View {
                             showingReset = true
                         }
                     }) {
-                        Text("Clear all")
+                        Text("Clear all").font(.headline)
                     }.alert(isPresented: $showingReset) {
                         makeAlert(title: "Really clear ",
                                   message: "Are you sure you want to delete all keys and analysis?",
@@ -152,7 +213,7 @@ struct SetupView: View {
                         showingResetENCV = true
                     }
                 }) {
-                    Text("Discard cached ENCV data")
+                    Text("Discard cached ENCV data").font(.headline)
                 }.alert(isPresented: $showingResetENCV) {
                     makeAlert(title: "Discard ENCV data?",
                               message: "Are you sure you want to discard cached ENCV data? You should only do this if you are having problems with the app crashing when loading new ENCV data.",

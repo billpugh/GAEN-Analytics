@@ -8,6 +8,7 @@
 import Foundation
 import os.log
 import TabularData
+import ZIPFoundation
 
 public let dateFormatter: DateFormatter = {
     let df = DateFormatter()
@@ -810,7 +811,7 @@ func maximumCategory(id _: String, fullId: String, start: Date, notificationStar
 struct RawMetrics {
     var metrics: [String: Metric] = [:]
     var excludedHashes: Set<String> = []
-    var configuration: Configuration
+    var configuration: Configuration?
     let rawArchive: URL?
 
     let isoDateFormatter: DateFormatter = {
@@ -823,6 +824,12 @@ struct RawMetrics {
         self.configuration = configuration
         rawArchive = RawMetrics.createTempDirectory(dir: RawMetrics.dirName(configuration, "enpaArchive"))
     }
+    
+    init() {
+        self.configuration = nil
+        self.rawArchive = nil
+    }
+
 
     static func dirName(_ configuration: Configuration, _ component: String) -> String? {
         let dateFormatter = DateFormatter()
@@ -833,7 +840,7 @@ struct RawMetrics {
     }
 
     func createTempDirectory(_ component: String) -> URL? {
-        guard let dir = RawMetrics.dirName(configuration, component) else {
+        guard let configuration = configuration, let dir = RawMetrics.dirName(configuration, component) else {
             return nil
         }
         return RawMetrics.createTempDirectory(dir: dir)
@@ -862,8 +869,35 @@ struct RawMetrics {
         return URL(fileURLWithPath: path)
     }
 
+    @discardableResult
+    public mutating func processRaw(_ n: String, _ m : NSDictionary) -> String? {
+        let fullId = m["id"] as! String
+        
+        let provider = m["data_provider"] as? String ?? "?"
+        let clients = m["total_individual_clients"] as! Int
+        let maybeEpsilon = Double(truncating: m["epsilon"] as! NSNumber)
+        if provider == "google", maybeEpsilon != 8 {
+            return nil
+        }
+        let epsilon = maybeEpsilon == 10 ? 10.2 : maybeEpsilon
+        let id = m["aggregation_id"] as! String
+        let genericId = n
+
+        let aggregationStartTime = m["aggregation_start_time"] as! String
+        let startTime = isoDateFormatter.date(from: aggregationStartTime)!
+        // print(dateParser.string(from: startTime))
+        let aggregationEndTime: String = m["aggregation_end_time"] as! String
+        let endTime = isoDateFormatter.date(from: aggregationEndTime)!
+        let sum = m["sum"] as! [Int]
+        
+        addMetric(fullId: fullId, id: id, genericId: genericId, provider: provider, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
+        return fullId
+    }
     public mutating func addMetric(_ n: String) -> [String] {
         var errors: [String] = []
+        guard let configuration = configuration else {
+            return ["No configuration"]
+        }
         let fetchIntervals = configuration.getFetchIntervals()
         let combinedJson: NSMutableDictionary = [:]
         var combinedRaw: [NSDictionary] = []
@@ -885,29 +919,13 @@ struct RawMetrics {
                 } else {
                     combinedJson["endDate"] = json["endDate"]
                 }
+                
                 for m in rawData {
-                    let provider = m["data_provider"] as? String ?? "?"
-                    let clients = m["total_individual_clients"] as! Int
-                    let maybeEpsilon = Double(truncating: m["epsilon"] as! NSNumber)
-                    if provider == "google", maybeEpsilon != 8 {
-                        continue
-                    }
-                    let epsilon = maybeEpsilon == 10 ? 10.2 : maybeEpsilon
-                    let id = m["aggregation_id"] as! String
-                    let fullId = m["id"] as! String
-                    let genericId = n
-
-                    let aggregationStartTime = m["aggregation_start_time"] as! String
-                    let startTime = isoDateFormatter.date(from: aggregationStartTime)!
-                    // print(dateParser.string(from: startTime))
-                    let aggregationEndTime: String = m["aggregation_end_time"] as! String
-                    let endTime = isoDateFormatter.date(from: aggregationEndTime)!
-                    let sum = m["sum"] as! [Int]
-                    if !seenIds.contains(fullId) {
+                    
+                    if let fullId = processRaw(n, m), !seenIds.contains(fullId) {
                         seenIds.insert(fullId)
                         combinedRaw.append(m)
                     }
-                    addMetric(fullId: fullId, id: id, genericId: genericId, provider: provider, epsilon: epsilon, startTime: startTime, endTime: endTime, clients: clients, sum: sum)
                 }
             } else {
                 logger.log("raw data missing for \(n)")
@@ -924,27 +942,32 @@ struct RawMetrics {
         return errors
     }
 
-    public mutating func addMetric(fullId: String, id: String, genericId: String, provider: String, epsilon: Double, startTime: Date, endTime _: Date, clients: Int, sum: [Int]) {
-        if let startDate = configuration.startDate, startTime < startDate {
-            return
-        }
-
-        if startTime < androidStartTime, !id.hasPrefix("com.apple") {
-            return
-        } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
-            return
-        }
-
-        if id.hasPrefix("com.apple.EN"), let configStart = configuration.configStart {
-            let hash = fullId.components(separatedBy: "-")[5]
-
-            if startTime < configStart {
-                if clients > 20 {
-                    excludedHashes.insert(hash)
+    public mutating func addMetric(fullId: String, id: String, genericId: String, provider: String, epsilon: Double, startTime: Date, endTime : Date, clients: Int, sum: [Int]) {
+        if let configuration = configuration {
+            if let startDate = configuration.startDate, startTime < startDate {
+                return
+            }
+            if let endDate = configuration.endDate, endDate < endTime {
+                return
+            }
+            
+            if startTime < androidStartTime, !id.hasPrefix("com.apple") {
+                return
+            } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
+                return
+            }
+            
+            if id.hasPrefix("com.apple.EN"), let configStart = configuration.configStart {
+                let hash = fullId.components(separatedBy: "-")[5]
+                
+                if startTime < configStart {
+                    if clients > 20 {
+                        excludedHashes.insert(hash)
+                    }
+                    return
+                } else if excludedHashes.contains(hash) {
+                    return
                 }
-                return
-            } else if excludedHashes.contains(hash) {
-                return
             }
         }
 
