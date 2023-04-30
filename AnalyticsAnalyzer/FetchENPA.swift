@@ -25,7 +25,7 @@ public func getStat(metric: String, configuration: Configuration, _ fetch: Fetch
     // print("apiKey: \(configuration.enpaAPIKey)")
     request.setValue(configuration.enpaAPIKey, forHTTPHeaderField: "x-api-key")
 
-    let data = getData(request)
+    let (status, data) = getData(request)
     guard let data = data else {
         return [:]
     }
@@ -38,9 +38,10 @@ public func getStat(metric: String, configuration: Configuration, _ fetch: Fetch
     return [:]
 }
 
-func getData(_ request: URLRequest) -> Data? {
+func getData(_ request: URLRequest) -> (Int, Data?) {
     let semaphore = DispatchSemaphore(value: 0)
     var result: Data?
+    var status: Int = 0
     let task = urlSession.dataTask(with: request) { data, response, error in
 
         // Check if Error took place
@@ -52,19 +53,20 @@ func getData(_ request: URLRequest) -> Data? {
 
         // Read HTTP Response Status code
         if let response = response as? HTTPURLResponse {
-            if response.statusCode != 200 {
+            status = response.statusCode
+            if let data = data {
+                result = data
+            } // let data
+            if status != 200 {
                 logger.log("Response HTTP Status code: \(response.statusCode)")
+                let msg = String(data: data!, encoding: .utf8)!
+                print(msg)
             }
         }
-
-        // Convert HTTP Response Data to a simple String
-        if let data = data {
-            // completion("Response data string:\n \(dataString)")
-            result = data
-        } // let data
+       
         semaphore.signal()
     }
     task.resume()
     semaphore.wait()
-    return result
+    return (status, result)
 }

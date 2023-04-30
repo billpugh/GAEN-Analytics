@@ -21,7 +21,7 @@ let readingOptions: CSVReadingOptions = {
     return ro
 }()
 
-public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> Data? {
+public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> (Int, Data?) {
     // let host = "adminapi.verification.apollo-project.org"
     let host = useTestServers ? "adminapi.verification.apollo-project.org" : "adminapi.encv.org"
     let url = URL(string: "https://\(host)/api/stats/realm/\(stat)")!
@@ -36,12 +36,24 @@ public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> Dat
     return getData(request)
 }
 
-public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Bool) -> DataFrame? {
-    if let raw = getENCV(stat, apiKey: apiKey, useTestServers: useTestServers), raw.count > 0 {
-        return try! DataFrame(csvData: raw, options: readingOptions)
+public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Bool) -> (DataFrame?, String) {
+    let (status, raw) = getENCV(stat, apiKey: apiKey, useTestServers: useTestServers)
+    if status == 200, let raw = raw,  raw.count > 0 {
+        print("Received \(raw.count) bytes for ENCV")
+        if let df = try? DataFrame(csvData: raw, options: readingOptions) {
+            return (df, "")
+        }
+        logger.log("unable to encv \(stat, privacy: .public)")
+        return (nil, "Unable to parse \(stat)")
+        }
+       
+    
+    logger.log("failed to get encv \(stat, privacy: .public), status code \(stat, privacy: .public)")
+    if status == 401 || status == 400 {
+        return (nil, "Invalid ENCV API key")
     }
-    logger.log("failed to get encv \(stat, privacy: .public)")
-    return nil
+    return (nil, "failed to get encv \(stat), status code \(stat)")
+  
 }
 
 func getErrorsByDate(smsData: DataFrame) -> ([Date: Int], [Date: Int]) {

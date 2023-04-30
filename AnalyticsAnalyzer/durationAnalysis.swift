@@ -77,7 +77,8 @@ public func computeDateExposureCurves(_ r: DataFrame.Row, categories: Int) throw
     let days = (0 ... 11).map { Double($0) }
     let labels = Column(name: "days since exposure", contents: days)
     result.append(column: labels)
-    print(r)
+    // print(r)
+
     for c in 1 ... categories {
         if let curve = computeDateExposureCurves(r, category: c) {
             result.append(column: Column(name: "category \(c)", contents: curve))

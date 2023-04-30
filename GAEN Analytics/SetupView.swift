@@ -61,7 +61,7 @@ struct SetupView: View {
 
     var body: some View {
         Form {
-            Section(header: Text("What to analyze").font(.title)) {
+            Section(header: Text("Analysis parameters").font(.title)) {
                 HStack {
                     Text("Region")
                     TextField("e.g, US-HT", text: Binding(get: { self.state.region },

@@ -187,14 +187,17 @@ struct ExportItem: View {
     }
 
     var body: some View {
-        if dataFrame != nil {
+      
             VStack(alignment: .leading) {
                 HStack {
                     if showingPopoverOption {
+                        if dataFrame != nil {
                         Button(action: { exportDataframe() }) {
                             Label(title, systemImage: "square.and.arrow.up")
                         }.buttonStyle(BorderlessButtonStyle())
-
+                        } else {
+                            Text("\(title) not available")
+                        }
                         Spacer()
                         Button(action: { showingPopover.toggle() }) {
                             Image(systemName: "info.circle")
@@ -210,9 +213,7 @@ struct ExportItem: View {
                         .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
                 }
             }
-        } else {
-            Text("error: data frame not available")
-        }
+       
     }
 }
 

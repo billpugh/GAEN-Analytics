@@ -93,10 +93,10 @@ struct SummaryView: View {
             }
 
             Section(header: TopicView(topic: "Appendix").padding(.top)) {}
-            VStack {
+            
                 ENXChartsView(charts: analysisState.appendixCharts)
                 ENXChartsView(charts: analysisState.appendixENPACharts)
-            }
+            
         }.listStyle(GroupedListStyle())
             .onAppear {
                 if !state.setupNeeded, !analysisState.inProgress, !analysisState.available, !state.useArchivalData {

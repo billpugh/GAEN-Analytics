@@ -448,7 +448,7 @@ struct Accumulators {
             return
         }
 
-        let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay), \(notifiedCount.countPerDay)"
+        let stats = "\(Int(verifiedCount.rollupSize)),\(f4: scale),\(verifiedCount.countPerDay),\(uploadedCount.countPerDay),\(notifiedCount.countPerDay)"
 
         let cvPrint = verifiedCount.per100KWithNotificationPercentage(range: 1 ... 1 + numCategories)
         let saValues: [Double] = verifiedCount.per100KValues(range: 2 ... numCategories + 1)
@@ -619,7 +619,7 @@ struct Accumulators {
         let aBHeader = "attn count,<= 50 dB %,<= 55 dB %,<= 60 dB %,<= 65 dB %,<= 70 dB %,<= 75 dB %,<= 80 dB %,high infect %,infect %\(cwHeader)"
         let dBHeader = "dur count,dur std %,detected %,noninfectious %,wd > 10min %,wd > 20min %,wd > 30min %,wd > 50min %,wd > 70min %,wd > 90min %,wd > 120min %,max > 3min %,max > 7min %,max > 11min %,max > 15min %,max > 19min %,max > 23min %,max > 27min %,sum > 40min %,sum > 50min %,sum > 60min %,sum > 70min %,sum > 80min %,sum > 90min %,sum > 120min %,long/far %"
 
-        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(de14Header),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader), \(dBHeader)")
+        printFunction("date,days,scale,vc count,ku count,nt count,\(vcHeader),\(sarHeader),\(kuHeader),\(ntHeader)\(esHeader)\(inHeader)\(deHeader),\(de14Header),\(sa14Header),\(cv14Header),\(ku14Header),\(aBHeader),\(dBHeader)")
     }
 }
 
@@ -649,6 +649,12 @@ struct MetricSet {
     let keysUploaded14D: Metric
     let dateExposure14D: Metric?
 
+    static func hasIOS(_ metrics: [String: Metric]) -> Bool {
+        return metrics["com.apple.EN.CodeVerified"] != nil
+    }
+    static func hasAndroid(_ metrics: [String: Metric]) -> Bool {
+        return metrics["CodeVerified"] != nil
+    }
     init(forIOS metrics: [String: Metric]) {
         iOS = true
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -954,6 +960,14 @@ struct RawMetrics {
                 return
             } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
                 return
+            }
+            
+            if false {
+                let lastMonth = Date(timeIntervalSinceNow: -30*24*60*60)
+                
+                if (startTime < lastMonth) {
+                    return
+                }
             }
 
             if id.hasPrefix("com.apple.EN"), let configStart = configuration.configStart {

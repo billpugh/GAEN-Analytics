@@ -12,6 +12,8 @@ import ZIPFoundation
 
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "AnalyzeState")
 
+private let logExports = false
+
 @MainActor
 class AnalysisState: NSObject, ObservableObject {
     static let shared = AnalysisState()
@@ -99,13 +101,17 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     func export(csvFile: CSVFile) {
-        logger.log("exporting \(csvFile.name, privacy: .public)")
+        if logExports {
+            logger.log("exporting \(csvFile.name, privacy: .public)")
+        }
         csvExport = csvFile
         csvExportReady = true
     }
 
     static func exportToURL(csvFile: CSVFile) -> URL? {
-        logger.log("exporting \(csvFile.name, privacy: .public)")
+        if logExports {
+            logger.log("exporting \(csvFile.name, privacy: .public)")
+        }
         do {
             let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                             isDirectory: true)
@@ -123,7 +129,9 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     static func exportToURL(name: String, dataframe: DataFrame) -> URL? {
-        logger.log("Exporting \(name, privacy: .public) to URL")
+        if logExports {
+            logger.log("Exporting \(name, privacy: .public) to URL")
+        }
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
             let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
@@ -134,6 +142,7 @@ class AnalysisState: NSObject, ObservableObject {
             let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
+            //logger.log("Exported \(name, privacy: .public) to URL")
             return path
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -142,7 +151,9 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     static func exportToURL(name: String, dataframe: DataFrame.Slice) -> URL? {
-        logger.log("Exporting \(name, privacy: .public) to URL")
+        if logExports {
+            logger.log("Exporting \(name, privacy: .public) to URL")
+        }
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
@@ -154,6 +165,7 @@ class AnalysisState: NSObject, ObservableObject {
             let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
+            //logger.log("Exported \(name, privacy: .public) to URL")
             return path
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -253,7 +265,9 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     static func exportToFileDocument(name: String, dataframe: DataFrame) -> CSVFile? {
-        logger.log("Exporting \(name, privacy: .public) to File")
+        if logExports {
+            logger.log("Exporting \(name, privacy: .public) to File")
+        }
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
@@ -266,7 +280,9 @@ class AnalysisState: NSObject, ObservableObject {
     }
 
     static func exportToFileDocument(name: String, dataframe: DataFrame.Slice) -> CSVFile? {
-        logger.log("Exporting \(name, privacy: .public) to File")
+        if logExports {
+            logger.log("Exporting \(name, privacy: .public) to File")
+        }
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
@@ -340,6 +356,7 @@ class AnalysisState: NSObject, ObservableObject {
     func gotRollingAvg(rollingAvg: DataFrame?) {
         self.rollingAvg = rollingAvg
         makeENCVCharts()
+        print("made encv charts")
         encvAvailable = true
         encvDate = Date()
     }
@@ -362,7 +379,7 @@ class AnalysisState: NSObject, ObservableObject {
         encvSummary.append(joined)
     }
 
-    func analyzedENPA(config: Configuration, raw: RawMetrics, ios: DataFrame, android: DataFrame, combined: DataFrame, worksheet: DataFrame?, durationAnalysis: DataFrame?, dateExposureAnalysis: DataFrame?) {
+    func analyzedENPA(config: Configuration, raw: RawMetrics, ios: DataFrame, android: DataFrame?, combined: DataFrame, worksheet: DataFrame?, durationAnalysis: DataFrame?, dateExposureAnalysis: DataFrame?) {
         rawENPA = raw
         iOSENPA = ios
         AndroidENPA = android
@@ -446,7 +463,7 @@ class AnalysisState: NSObject, ObservableObject {
             let hasUserReports = encv.indexOfColumn("user reports claim rate") != nil
 
             let hasSMSerrors = encv.indexOfColumn("sms error rate") != nil
-            if true {
+            if false {
                 print("\(encv.columns.count) encv Columns: \(encv.columns.map(\.name))")
                 if hasUserReports {
                     print("has user reports")
@@ -465,13 +482,15 @@ class AnalysisState: NSObject, ObservableObject {
             encvCharts = temp.compactMap { $0 }
             print("Got \(encvCharts.count) envc charts")
 
-            appendixCharts = [
+           let tmp = [
                 timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
                 tekUploads(encv: encv, config: config),
                 onsetToUpload(encv: encv, hasUserReports: hasUserReports, config: config),
                 publishRequests(encv: encv, config: config),
-            ].compactMap { $0 }
-
+            ]
+            print("Got \(tmp.count) maybe envc appendix charts")
+            appendixCharts = tmp.compactMap { $0 }
+            print("Got \(appendixCharts.count) envc appendix charts")
         } else {
             encvCharts = []
             appendixCharts = []
@@ -648,13 +667,17 @@ actor AnalysisTask {
             let metrics = enpa.metrics
             await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
-            iOSDataFrame.removeRandomElements()
-            await result.update(enpa: "Analyzing Android enpa")
-            var androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
-            androidDataFrame.removeRandomElements()
-            await result.update(enpa: "Analyzing Combined enpa")
-            var combinedDataFrame = try getRollingAverageKeyMetrics(metrics, options: config)
-            combinedDataFrame.removeRandomElements()
+            var androidDataFrame: DataFrame? = nil
+            var combinedDataFrame: DataFrame
+            if MetricSet.hasAndroid(metrics) {
+                await result.update(enpa: "Analyzing Android enpa")
+                androidDataFrame = try getRollingAverageAndroidMetrics(metrics, options: config)
+                await result.update(enpa: "Analyzing Combined enpa")
+                combinedDataFrame = try getRollingAverageKeyMetrics(metrics, options: config)
+            } else {
+                await result.update(enpa: "Analyzing Combined enpa")
+                combinedDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
+            }
             await result.update(enpa: "Computing enpa worksheet")
             var worksheet: DataFrame
             combinedDataFrame = computeEstimatedUsersFromNationalRollup(platform: "", enpa: combinedDataFrame, "vc")
@@ -674,8 +697,10 @@ actor AnalysisTask {
                 combinedDataFrame.addRollingSumDouble("est scaled notifications/day from regional ENPA %", giving: "est total notifications from regional ENPA %")
 
                 iOSDataFrame = computeEstimatedUsers(platform: "iOS ", encv: encv, "publish requests ios", enpa: iOSDataFrame, "ku")
-                androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: androidDataFrame, "ku")
-                combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "codes issued", "est users from vc", "vc ENPA %")
+                if let tmp = androidDataFrame {
+                    androidDataFrame = computeEstimatedUsers(platform: "Android ", encv: encv, "publish requests android", enpa: tmp, "ku")
+                }
+                combinedDataFrame.requireColumns("date", "vc count", "vc", "ku", "nt", "est users from vc", "vc ENPA %")
                 combinedDataFrame.requireColumns("est users from ku", "ku ENPA %")
                 worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt", "codes claimed", "est users from vc", "vc ENPA %", "est users from ku", "ku ENPA %")
 
@@ -697,28 +722,35 @@ actor AnalysisTask {
             worksheet.addOptionalColumn("iOS ku ENPA %", Double.self, from: iOSDataFrame)
             worksheet.addOptionalColumn("publish requests ios", Int.self, from: encvAverage)
 
-            worksheet.addColumn("vc count", Int.self, newName: "android enpa users", from: androidDataFrame)
-            worksheet.addColumn("vc", Double.self, newName: "android vc", from: androidDataFrame)
-            worksheet.addColumn("ku", Double.self, newName: "android ku", from: androidDataFrame)
-            worksheet.addColumn("nt", Double.self, newName: "android nt", from: androidDataFrame)
-            worksheet.addOptionalColumn("publish requests android", Int.self, from: androidDataFrame)
-            worksheet.addOptionalColumn("est Android users from ku", Int.self, from: androidDataFrame)
-            worksheet.addOptionalColumn("Android ku ENPA %", Double.self, from: androidDataFrame)
+            if let androidDataFrame = androidDataFrame {
+                worksheet.addColumn("vc count", Int.self, newName: "android enpa users", from: androidDataFrame)
+                worksheet.addColumn("vc", Double.self, newName: "android vc", from: androidDataFrame)
+                worksheet.addColumn("ku", Double.self, newName: "android ku", from: androidDataFrame)
+                worksheet.addColumn("nt", Double.self, newName: "android nt", from: androidDataFrame)
+                worksheet.addOptionalColumn("publish requests android", Int.self, from: androidDataFrame)
+                worksheet.addOptionalColumn("est Android users from ku", Int.self, from: androidDataFrame)
+                worksheet.addOptionalColumn("Android ku ENPA %", Double.self, from: androidDataFrame)
+            }
+
             worksheet.addOptionalColumn("publish requests android", Int.self, from: encvAverage)
             worksheet.addOptionalColumn("android publish share", Double.self, from: encvAverage)
             if true {
                 for db in [60, 70, 75] {
-                    worksheet.addColumn("<= \(db) dB %", Double.self, newName: "Android <= \(db) dB %", from: androidDataFrame)
-
+                    if let androidDataFrame = androidDataFrame {
+                        worksheet.addColumn("<= \(db) dB %", Double.self, newName: "Android <= \(db) dB %", from: androidDataFrame)
+                    }
                     let iOS_db = db + 5
                     worksheet.addColumn("<= \(iOS_db) dB %", Double.self, newName: "iOS <= \(iOS_db) dB %", from: iOSDataFrame)
                 }
 
                 worksheet.addColumn("<= 65 dB %", Double.self, newName: "iOS <= 65 dB %", from: iOSDataFrame)
-                worksheet.addColumn("<= 70 dB %", Double.self, newName: "Android <= 70 dB %", from: androidDataFrame)
-
+               
                 worksheet.addColumn("<= 75 dB %", Double.self, newName: "iOS <= 75 dB %", from: iOSDataFrame)
-                worksheet.addColumn("<= 80 dB %", Double.self, newName: "Android <= 80 dB %", from: androidDataFrame)
+                if let androidDataFrame = androidDataFrame {
+                    worksheet.addColumn("<= 70 dB %", Double.self, newName: "Android <= 70 dB %", from: androidDataFrame)
+                    
+                    worksheet.addColumn("<= 80 dB %", Double.self, newName: "Android <= 80 dB %", from: androidDataFrame)
+                }
             }
             await result.update(enpa: "Computing enpa duration analysis")
 
@@ -729,7 +761,12 @@ actor AnalysisTask {
                                       durationAnalysis: durationAnalysis, dateExposureAnalysis: dateExposureAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
-            let android = summarize("Android", androidDataFrame, categories: config.numCategories)
+            let android : [String]
+            if let androidDataFrame = androidDataFrame {
+                android = summarize("Android", androidDataFrame, categories: config.numCategories)
+            } else {
+                android = ["No Android ENPA data"]
+            }
             let all = combined + iOS + android
             await result.log(enpa: all)
 
@@ -755,12 +792,19 @@ actor AnalysisTask {
             }
             await result.update(encv: "Fetching enpa composite")
             guard let
-                encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty,
+                    encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty else {
+                await result.log(encv: ["No ENCV API key"])
+                logger.log("No ENCV API key")
+                return ENCVAnalysis(encv: nil, average: nil, log: ["No ENCV API key"])
+                
+            }
 
-                let newComposite = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
+            let (newComposite, message) = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
+            guard let newComposite = newComposite
             else {
-                logger.log("Failed to get ENCV composite.csv")
-                return ENCVAnalysis(encv: nil, average: nil, log: ["Failed to get ENCV composite.csv"])
+                logger.log("\(message, privacy: .public)")
+                await result.log(encv: [message])
+                return ENCVAnalysis(encv: nil, average: nil, log: [message])
             }
 
             if let existingComposite = existingComposite {
@@ -772,13 +816,16 @@ actor AnalysisTask {
             logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
 
             await result.update(encv: "Fetching sms errors")
-            smsData = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+            
+            let (df, status) = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+            smsData = df
         }
 
         await result.update(encv: "Analyzing encv")
         let analysis = analyzeENCV(config: config, composite: composite, smsData: smsData)
         await result.log(encv: ["Analyzed encv"])
         await result.gotENCV(composite: composite, smsErrors: smsData)
+        await result.log(encv: ["Computing encv rolling averages"])
         await result.gotRollingAvg(rollingAvg: analysis.average)
         await result.log(encv: ["Computed encv rolling averages"])
         await result.log(encv: analysis.log)

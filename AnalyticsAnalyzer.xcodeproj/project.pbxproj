@@ -31,6 +31,7 @@
 		163EF28B27C921FE00D3C19D /* ENCV.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28827C9218A00D3C19D /* ENCV.md */; };
 		163EF28C27C9220200D3C19D /* ENPA.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28927C9219E00D3C19D /* ENPA.md */; };
 		163EF28F27C933C600D3C19D /* User report %.md in Resources */ = {isa = PBXBuildFile; fileRef = 163EF28E27C9330100D3C19D /* User report %.md */; };
+		16444A3229FEBC0600140D3C /* Relative risk for notifications.md in Resources */ = {isa = PBXBuildFile; fileRef = 1634649429AC086A00C3E242 /* Relative risk for notifications.md */; };
 		164945A827B6AE5600C0F5F0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164945A727B6AE5600C0F5F0 /* main.swift */; };
 		164945AC27B6B05300C0F5F0 /* encvAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56827B0C0860037D340 /* encvAnalysis.swift */; };
 		164945AD27B6B05800C0F5F0 /* configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F54027B002B80037D340 /* configuration.swift */; };
@@ -820,6 +821,7 @@
 				163CCB7B27DE462000355180 /* Appendix.md in Resources */,
 				16AF2DB427E6167B000B1529 /* Notification share.md in Resources */,
 				16DEAB4127D65A4600069680 /* testServers.json in Resources */,
+				16444A3229FEBC0600140D3C /* Relative risk for notifications.md in Resources */,
 				16C36C83291C0019005B8613 /* Days until notification.md in Resources */,
 				163EF28C27C9220200D3C19D /* ENPA.md in Resources */,
 				16B2B5DF27D40F7B000F763A /* iOS ENPA.md in Resources */,
@@ -1160,7 +1162,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1200,7 +1202,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;

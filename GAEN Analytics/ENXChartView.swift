@@ -7,6 +7,9 @@
 
 import SwiftUI
 import TabularData
+import os.log
+
+private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "ENXChartsView")
 
 struct ENXChartsView: View {
     let charts: [ChartOptions]
@@ -66,6 +69,7 @@ struct ENXChartView: View {
         } else {
             csvItem = CSVItem(url: nil, title: "tmp.csv")
         }
+        //logger.log("initialized \(title, privacy: .public)")
     }
 
     @State var showingShare: Bool = false
