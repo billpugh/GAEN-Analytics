@@ -187,33 +187,31 @@ struct ExportItem: View {
     }
 
     var body: some View {
-      
-            VStack(alignment: .leading) {
-                HStack {
-                    if showingPopoverOption {
-                        if dataFrame != nil {
+        VStack(alignment: .leading) {
+            HStack {
+                if showingPopoverOption {
+                    if dataFrame != nil {
                         Button(action: { exportDataframe() }) {
                             Label(title, systemImage: "square.and.arrow.up")
                         }.buttonStyle(BorderlessButtonStyle())
-                        } else {
-                            Text("\(title) not available")
-                        }
-                        Spacer()
-                        Button(action: { showingPopover.toggle() }) {
-                            Image(systemName: "info.circle")
-
-                        }.buttonStyle(BorderlessButtonStyle())
                     } else {
-                        Text(title)
+                        Text("\(title) not available")
                     }
-                }.font(.headline)
+                    Spacer()
+                    Button(action: { showingPopover.toggle() }) {
+                        Image(systemName: "info.circle")
 
-                if showingPopover {
-                    Text(markdown(file: title)).fixedSize(horizontal: false, vertical: true)
-                        .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
+                    }.buttonStyle(BorderlessButtonStyle())
+                } else {
+                    Text(title)
                 }
+            }.font(.headline)
+
+            if showingPopover {
+                Text(markdown(file: title)).fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled).transition(.scale(scale: 0.0, anchor: UnitPoint(x: 0, y: 0))).font(.body).padding(.horizontal)
             }
-       
+        }
     }
 }
 

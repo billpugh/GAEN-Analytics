@@ -38,22 +38,20 @@ public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> (In
 
 public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Bool) -> (DataFrame?, String) {
     let (status, raw) = getENCV(stat, apiKey: apiKey, useTestServers: useTestServers)
-    if status == 200, let raw = raw,  raw.count > 0 {
+    if status == 200, let raw = raw, raw.count > 0 {
         print("Received \(raw.count) bytes for ENCV")
         if let df = try? DataFrame(csvData: raw, options: readingOptions) {
             return (df, "")
         }
         logger.log("unable to encv \(stat, privacy: .public)")
         return (nil, "Unable to parse \(stat)")
-        }
-       
-    
+    }
+
     logger.log("failed to get encv \(stat, privacy: .public), status code \(stat, privacy: .public)")
     if status == 401 || status == 400 {
         return (nil, "Invalid ENCV API key")
     }
     return (nil, "failed to get encv \(stat), status code \(stat)")
-  
 }
 
 func getErrorsByDate(smsData: DataFrame) -> ([Date: Int], [Date: Int]) {

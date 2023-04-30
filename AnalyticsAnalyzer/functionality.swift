@@ -650,11 +650,13 @@ struct MetricSet {
     let dateExposure14D: Metric?
 
     static func hasIOS(_ metrics: [String: Metric]) -> Bool {
-        return metrics["com.apple.EN.CodeVerified"] != nil
+        metrics["com.apple.EN.CodeVerified"] != nil
     }
+
     static func hasAndroid(_ metrics: [String: Metric]) -> Bool {
-        return metrics["CodeVerified"] != nil
+        metrics["CodeVerified"] != nil
     }
+
     init(forIOS metrics: [String: Metric]) {
         iOS = true
         codeVerified = getMetric(metrics, "com.apple.EN.CodeVerified")
@@ -961,11 +963,11 @@ struct RawMetrics {
             } else if startTime < iOSStartTime, id.hasPrefix("com.apple") {
                 return
             }
-            
+
             if false {
-                let lastMonth = Date(timeIntervalSinceNow: -30*24*60*60)
-                
-                if (startTime < lastMonth) {
+                let lastMonth = Date(timeIntervalSinceNow: -30 * 24 * 60 * 60)
+
+                if startTime < lastMonth {
                     return
                 }
             }

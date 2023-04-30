@@ -139,11 +139,10 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     @Published var useArchivalData: Bool = false {
         didSet {
             UserDefaults.standard.set(useArchivalData, forKey: Self.archivalDataKey)
-            
+
             Task {
                 await AnalysisState.shared.clear()
             }
-            
         }
     }
 

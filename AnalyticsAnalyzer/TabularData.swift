@@ -202,7 +202,7 @@ extension DataFrame {
     }
 
     func checkUniqueColumnNames() {
-        //logger.info("Checking for unique column names")
+        // logger.info("Checking for unique column names")
         var seen: Set<String> = []
         for c in columns {
             let name = c.name
@@ -629,15 +629,15 @@ class TextBuffer {
     func append(_ s: String) {
         text.append(s)
     }
-    
+
     var all: String {
         text.joined(separator: "\n")
     }
-    
+
     func clear() {
         text = []
     }
-    
+
     func isEmpty(_ c: Column<Any>) -> Bool {
         for x in c {
             if x != nil {
@@ -645,8 +645,8 @@ class TextBuffer {
             }
         }
         return true
-        
     }
+
     func asENPAData(startDate: Date? = nil) throws -> DataFrame {
         logger.info("converting ENPA TextBuffer to DataFrame")
         if false {
@@ -654,23 +654,23 @@ class TextBuffer {
                 print(s)
             }
         }
-        var columnTypes: [String : CSVType] = ["date": .date,
-                          "days": .integer,
-                          "vc count": .integer,
-                          "kc count": .integer,
-                          "nc count": .integer,
-                          "de count": .integer,
-                          "de14 count": .integer,
-                          "sa14 count": .integer,
-                          "vc14 count": .integer,
-                          "ku14 count": .integer,
-                          "attn count": .integer,
-                          "dur count": .integer]
+        var columnTypes: [String: CSVType] = ["date": .date,
+                                              "days": .integer,
+                                              "vc count": .integer,
+                                              "kc count": .integer,
+                                              "nc count": .integer,
+                                              "de count": .integer,
+                                              "de14 count": .integer,
+                                              "sa14 count": .integer,
+                                              "vc14 count": .integer,
+                                              "ku14 count": .integer,
+                                              "attn count": .integer,
+                                              "dur count": .integer]
         let header = text.first!
         let columnNames = header.split(separator: ",")
         for n in columnNames {
             let name = String(n)
-            if  columnTypes[name] == nil {
+            if columnTypes[name] == nil {
                 if name.hasSuffix("count") {
                     columnTypes[name] = .integer
                 } else {
@@ -689,9 +689,7 @@ class TextBuffer {
             var result = try DataFrame(csvData: all.data(using: .utf8)!,
                                        types: columnTypes,
                                        options: readingOptions)
-            
-            
-            
+
             if let startDate = startDate {
                 //                let df = DateFormatter()
                 //                df.dateStyle = .full
@@ -704,29 +702,28 @@ class TextBuffer {
                 //                return filtered
             }
             return result
-        } catch  CSVReadingError.badEncoding(let row, let column, let cellContents) {
+        } catch let CSVReadingError.badEncoding(row, column, cellContents) {
             print("badEncoding(\(row),\(column),\(String(decoding: cellContents, as: UTF8.self)))")
             throw MyCVSError.oops
-        }catch CSVReadingError.failedToParse(let row, let column, let type, let cellContents){
+        } catch let CSVReadingError.failedToParse(row, column, type, cellContents) {
             print("failedToParse(\(row),\(column),\(type),\(String(decoding: cellContents, as: UTF8.self))")
             throw MyCVSError.oops
-        }catch CSVReadingError.misplacedQuote(let row, let column) {
+        } catch let CSVReadingError.misplacedQuote(row, column) {
             print("misplacedQuote(\(row),\(column)")
             throw MyCVSError.oops
-        }catch CSVReadingError.missingColumn(let missingColumn){
+        } catch let CSVReadingError.missingColumn(missingColumn) {
             print("missingColumn(\(missingColumn)")
             throw MyCVSError.oops
-        }catch CSVReadingError.outOfBounds(let requested, let actual){
+        } catch let CSVReadingError.outOfBounds(requested, actual) {
             print("outOfBounds(\(requested),\(actual)")
             throw MyCVSError.oops
-        }catch CSVReadingError.unsupportedEncoding(let encoding){
+        } catch let CSVReadingError.unsupportedEncoding(encoding) {
             print("unsupportedEncoding(\(encoding)")
             throw MyCVSError.oops
-        }catch CSVReadingError.wrongNumberOfColumns(let row, let columns, let expected){
+        } catch let CSVReadingError.wrongNumberOfColumns(row, columns, expected) {
             print("wrongNumberOfColumns(\(row),\(columns),\(expected)")
             throw MyCVSError.oops
         } catch {
-            
             print("Error: \(error.localizedDescription)")
             print(all)
             throw error
@@ -735,5 +732,5 @@ class TextBuffer {
 }
 
 enum MyCVSError: Error {
-             case  oops
-            }
+    case oops
+}

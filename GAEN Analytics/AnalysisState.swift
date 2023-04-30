@@ -142,7 +142,7 @@ class AnalysisState: NSObject, ObservableObject {
             let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
-            //logger.log("Exported \(name, privacy: .public) to URL")
+            // logger.log("Exported \(name, privacy: .public) to URL")
             return path
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -165,7 +165,7 @@ class AnalysisState: NSObject, ObservableObject {
             let path = temporaryDirectoryURL.appendingPathComponent(n)
 
             try csv.write(to: path, options: .atomicWrite)
-            //logger.log("Exported \(name, privacy: .public) to URL")
+            // logger.log("Exported \(name, privacy: .public) to URL")
             return path
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -482,7 +482,7 @@ class AnalysisState: NSObject, ObservableObject {
             encvCharts = temp.compactMap { $0 }
             print("Got \(encvCharts.count) envc charts")
 
-           let tmp = [
+            let tmp = [
                 timeToClaimCodes(encv: encv, hasUserReports: hasUserReports, config: config),
                 tekUploads(encv: encv, config: config),
                 onsetToUpload(encv: encv, hasUserReports: hasUserReports, config: config),
@@ -667,7 +667,7 @@ actor AnalysisTask {
             let metrics = enpa.metrics
             await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
-            var androidDataFrame: DataFrame? = nil
+            var androidDataFrame: DataFrame?
             var combinedDataFrame: DataFrame
             if MetricSet.hasAndroid(metrics) {
                 await result.update(enpa: "Analyzing Android enpa")
@@ -744,11 +744,11 @@ actor AnalysisTask {
                 }
 
                 worksheet.addColumn("<= 65 dB %", Double.self, newName: "iOS <= 65 dB %", from: iOSDataFrame)
-               
+
                 worksheet.addColumn("<= 75 dB %", Double.self, newName: "iOS <= 75 dB %", from: iOSDataFrame)
                 if let androidDataFrame = androidDataFrame {
                     worksheet.addColumn("<= 70 dB %", Double.self, newName: "Android <= 70 dB %", from: androidDataFrame)
-                    
+
                     worksheet.addColumn("<= 80 dB %", Double.self, newName: "Android <= 80 dB %", from: androidDataFrame)
                 }
             }
@@ -761,7 +761,7 @@ actor AnalysisTask {
                                       durationAnalysis: durationAnalysis, dateExposureAnalysis: dateExposureAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
             let iOS = summarize("iOS", iOSDataFrame, categories: config.numCategories)
-            let android : [String]
+            let android: [String]
             if let androidDataFrame = androidDataFrame {
                 android = summarize("Android", androidDataFrame, categories: config.numCategories)
             } else {
@@ -792,11 +792,11 @@ actor AnalysisTask {
             }
             await result.update(encv: "Fetching enpa composite")
             guard let
-                    encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty else {
+                encvAPIKey = config.encvAPIKey, !encvAPIKey.isEmpty
+            else {
                 await result.log(encv: ["No ENCV API key"])
                 logger.log("No ENCV API key")
                 return ENCVAnalysis(encv: nil, average: nil, log: ["No ENCV API key"])
-                
             }
 
             let (newComposite, message) = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
@@ -816,7 +816,7 @@ actor AnalysisTask {
             logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
 
             await result.update(encv: "Fetching sms errors")
-            
+
             let (df, status) = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
             smsData = df
         }

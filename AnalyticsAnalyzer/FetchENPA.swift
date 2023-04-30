@@ -41,7 +41,7 @@ public func getStat(metric: String, configuration: Configuration, _ fetch: Fetch
 func getData(_ request: URLRequest) -> (Int, Data?) {
     let semaphore = DispatchSemaphore(value: 0)
     var result: Data?
-    var status: Int = 0
+    var status = 0
     let task = urlSession.dataTask(with: request) { data, response, error in
 
         // Check if Error took place
@@ -63,7 +63,7 @@ func getData(_ request: URLRequest) -> (Int, Data?) {
                 print(msg)
             }
         }
-       
+
         semaphore.signal()
     }
     task.resume()
