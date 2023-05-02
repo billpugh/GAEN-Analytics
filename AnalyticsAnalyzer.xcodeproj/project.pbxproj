@@ -95,6 +95,9 @@
 		16856EB227C2F70100F44960 /* TabularData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1673F56427B0A7C80037D340 /* TabularData.swift */; };
 		168933ED282952E600A3FDC2 /* Est. scaled notifications per day.md in Resources */ = {isa = PBXBuildFile; fileRef = 168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */; };
 		169205DF28ABD3CB004ADE89 /* Duration summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 169205DE28ABD3CB004ADE89 /* Duration summary.md */; };
+		169A41C12A01D68700B6251B /* Beacon counts high.md in Resources */ = {isa = PBXBuildFile; fileRef = 169A41C02A01D68700B6251B /* Beacon counts high.md */; };
+		169A41C42A01D8A400B6251B /* Beacon counts low.md in Resources */ = {isa = PBXBuildFile; fileRef = 169A41C32A01D6AF00B6251B /* Beacon counts low.md */; };
+		169A41C52A01D8A800B6251B /* Beacon counts median.md in Resources */ = {isa = PBXBuildFile; fileRef = 169A41C22A01D69C00B6251B /* Beacon counts median.md */; };
 		169AAED9286E243B0039CB4E /* unusual tek uploads.md in Resources */ = {isa = PBXBuildFile; fileRef = 169AAED8286E235A0039CB4E /* unusual tek uploads.md */; };
 		169FB8592642F0C10082DDD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169FB8582642F0C10082DDD2 /* main.swift */; };
 		169FB85E2642F1300082DDD2 /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 169FB85D2642F1300082DDD2 /* CSV */; };
@@ -124,7 +127,6 @@
 		16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D727E221A50008863F /* Secondary attack rate 2.md */; };
 		16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D827E221B60008863F /* Secondary attack rate 3.md */; };
 		16C381DC27E221CE0008863F /* Secondary attack rate 4.md in Resources */ = {isa = PBXBuildFile; fileRef = 16C381D927E221C20008863F /* Secondary attack rate 4.md */; };
-		16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4D827C689CD007527FC /* RawExportView.swift */; };
 		16C5E4DD27C7C5FA007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C5E4DC27C7C5FA007527FC /* ZipFunctionality.swift */; };
 		16C8995D288E1FF100DA69AC /* durationAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C8995C288E1FF100DA69AC /* durationAnalysis.swift */; };
@@ -260,6 +262,9 @@
 		16856EA227C04EBE00F44960 /* SmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTest.swift; sourceTree = "<group>"; };
 		168933EC282952D900A3FDC2 /* Est. scaled notifications per day.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Est. scaled notifications per day.md"; sourceTree = "<group>"; };
 		169205DE28ABD3CB004ADE89 /* Duration summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Duration summary.md"; sourceTree = "<group>"; };
+		169A41C02A01D68700B6251B /* Beacon counts high.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Beacon counts high.md"; sourceTree = "<group>"; };
+		169A41C22A01D69C00B6251B /* Beacon counts median.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Beacon counts median.md"; sourceTree = "<group>"; };
+		169A41C32A01D6AF00B6251B /* Beacon counts low.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Beacon counts low.md"; sourceTree = "<group>"; };
 		169AAED8286E235A0039CB4E /* unusual tek uploads.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "unusual tek uploads.md"; sourceTree = "<group>"; };
 		169FB8562642F0C10082DDD2 /* AnalyticsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnalyticsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		169FB8582642F0C10082DDD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -540,6 +545,9 @@
 				16C36C87291C023A005B8613 /* Delay between exposure and.md */,
 				16D2A0A7293E408200381499 /* Percentage of positive users who had received exposure notifications.md */,
 				1634649429AC086A00C3E242 /* Relative risk for notifications.md */,
+				169A41C02A01D68700B6251B /* Beacon counts high.md */,
+				169A41C22A01D69C00B6251B /* Beacon counts median.md */,
+				169A41C32A01D6AF00B6251B /* Beacon counts low.md */,
 			);
 			path = "ENPA charts";
 			sourceTree = "<group>";
@@ -793,11 +801,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				1673F55227B07F730037D340 /* Preview Assets.xcassets in Resources */,
+				169A41C42A01D8A400B6251B /* Beacon counts low.md in Resources */,
 				16C36C88291C0259005B8613 /* Delay between exposure and nt1.md in Resources */,
 				16B2B5D327D3C66F000F763A /* avg days onset to upload.md in Resources */,
 				16216BD32885D110008F5F36 /* Encounter detected in past 14 days.md in Resources */,
 				16856E5E27BC00F800F44960 /* Notifications per 100K.md in Resources */,
 				16C381DA27E221C80008863F /* Secondary attack rate 2.md in Resources */,
+				169A41C12A01D68700B6251B /* Beacon counts high.md in Resources */,
 				16856E6927BC021C00F44960 /* System health.md in Resources */,
 				16A292E8282063000068F29B /* ENCV API key.md in Resources */,
 				1615FA5A27EE09D20089F0B6 /* Excess secondary attack rate 2.md in Resources */,
@@ -830,6 +840,7 @@
 				166E89BB28874498009BEFF5 /* Comparison of device received attenuations.md in Resources */,
 				16C381DB27E221CB0008863F /* Secondary attack rate 3.md in Resources */,
 				16C381D627E2216F0008863F /* Secondary attack rate 1.md in Resources */,
+				169A41C52A01D8A800B6251B /* Beacon counts median.md in Resources */,
 				16856E6C27BC022500F44960 /* Estimated users.md in Resources */,
 				163EF28A27C921FA00D3C19D /* Test.md in Resources */,
 				1615FA5127EE092F0089F0B6 /* Publish requests.md in Resources */,
@@ -910,7 +921,6 @@
 				16856E4227BA9F0F00F44960 /* ENXChartView.swift in Sources */,
 				16C5E4DF27C7C62D007527FC /* ZipFunctionality.swift in Sources */,
 				16856E6E27BC62EC00F44960 /* TestView.swift in Sources */,
-				16C5E4D927C689CD007527FC /* RawExportView.swift in Sources */,
 				1673F56A27B0C0860037D340 /* encvAnalysis.swift in Sources */,
 				1673F56027B0A5800037D340 /* functionality.swift in Sources */,
 				1673F55A27B0A4D70037D340 /* AnalysisState.swift in Sources */,
@@ -1162,7 +1172,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;
@@ -1202,7 +1212,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = "GAEN Analytics/GAEN Analytics.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"GAEN Analytics/Preview Content\"";
 				DEVELOPMENT_TEAM = H2Z73245NN;
 				ENABLE_PREVIEWS = YES;

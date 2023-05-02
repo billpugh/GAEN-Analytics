@@ -39,7 +39,6 @@ public func getENCV(_ stat: String, apiKey: String, useTestServers: Bool) -> (In
 public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Bool) -> (DataFrame?, String) {
     let (status, raw) = getENCV(stat, apiKey: apiKey, useTestServers: useTestServers)
     if status == 200, let raw = raw, raw.count > 0 {
-        print("Received \(raw.count) bytes for ENCV")
         if let df = try? DataFrame(csvData: raw, options: readingOptions) {
             return (df, "")
         }
@@ -105,6 +104,9 @@ func weightedSum(_ v: [Int]?) -> Double? {
     for i in 0 ..< v.count {
         total += v[i]
         weightedSum += v[i] * i
+    }
+    if total == 0 {
+        return nil
     }
     return Double(weightedSum) / Double(total)
 }

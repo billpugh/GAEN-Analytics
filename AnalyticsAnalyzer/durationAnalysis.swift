@@ -89,9 +89,9 @@ public func computeDateExposureCurves(_ r: DataFrame.Row, categories: Int) throw
 
 func computeDateExposureCurves(_ r: DataFrame.Row, category: Int) -> [Double]? {
     let columns = (0 ... 10).map { "nt\(category)-de\($0)%" }
-    print(columns)
+    // print(columns)
     let values = [0.0] + columns.compactMap { r[$0] as? Double } + [1.0]
-    print(values)
+    // print(values)
     if values.count != 13 {
         return nil
     }

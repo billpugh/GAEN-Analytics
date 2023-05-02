@@ -230,6 +230,16 @@ extension DataFrame {
         print("\(columns.count) Columns: \(columns.map(\.name))")
     }
 
+    mutating func addAllColumns<T1>(type: T1.Type,
+                                    from: DataFrame)
+    {
+        for column in from.columns {
+            if column.wrappedElementType == type {
+                addColumn(column.name, type, newName: column.name, from: from, join: "date", Date.self)
+            }
+        }
+    }
+
     @discardableResult mutating func addColumn<T1>(_ column: String, _ type1: T1.Type, newName: String? = nil,
                                                    from: DataFrame) -> Column<T1>
     {
@@ -573,7 +583,17 @@ extension DataFrame {
         logger.log("Reused \(reused.rows.count) of \(rows.count), added \(adding.rows.count)")
         return result
     }
-}
+
+    func isEmpty(column: String) -> Bool {
+        let c: AnyColumn = self[column]
+        for x in c {
+            if x != nil {
+                return false
+            }
+        }
+        return true
+    }
+} // extension DataFrame
 
 func makeColumn<T>(_ name: String, _ value: T) -> AnyColumn {
     logger.info("makeColumn(\(name, privacy: .public))")
@@ -721,7 +741,7 @@ class TextBuffer {
             print("unsupportedEncoding(\(encoding)")
             throw MyCVSError.oops
         } catch let CSVReadingError.wrongNumberOfColumns(row, columns, expected) {
-            print("wrongNumberOfColumns(\(row),\(columns),\(expected)")
+            print("wrongNumberOfColumns(\(row),\(columns),\(expected))")
             throw MyCVSError.oops
         } catch {
             print("Error: \(error.localizedDescription)")

@@ -16,7 +16,11 @@ private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", ca
 extension RawMetrics {
     func writeMetrics() -> URL? {
         guard let url = createTempDirectory("rawENPA") else { return nil }
-
+        let destination = URL(fileURLWithPath: url.path + ".zip")
+        let fileManager = FileManager()
+        if fileManager.fileExists(atPath: destination.path) {
+            return destination
+        }
         do {
             for (name, metric) in metrics {
                 let file = url.appendingPathComponent("\(name).csv")
@@ -27,8 +31,7 @@ extension RawMetrics {
             logger.error("Unable to write raw metrics: \(error.localizedDescription)")
             return nil
         }
-        let fileManager = FileManager()
-        let destination = URL(fileURLWithPath: url.path + ".zip")
+
         do {
             try fileManager.zipItem(at: url, to: destination)
         } catch {

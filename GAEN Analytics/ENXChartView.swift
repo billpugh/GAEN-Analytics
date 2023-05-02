@@ -59,7 +59,7 @@ struct ENXChartView: View {
         if let csv = AnalysisState.exportToFileDocument(name: exportTitle, dataframe: data) {
             csvDocument = csv
         } else {
-            csvDocument = CSVFile(name: "none", Data())
+            csvDocument = CSVFile(name: "none", csv: Data())
             print("set empty csvDocument")
         }
 
@@ -101,8 +101,7 @@ struct ENXChartView: View {
                     #else
                         print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
 
-                        shareURL = AnalysisState.exportToURL(csvFile: csvDocument)
-                        shareTitle = csvDocument.name
+                        // csvItem = CSVItem(url: AnalysisState.exportToURL(csvFile: csvDocument), title: csvDocument.name)
                         showingShare = true
                     #endif
                 }) {
@@ -121,8 +120,7 @@ struct ENXChartView: View {
             .sheet(isPresented: self.$showingShare, onDismiss: { print("share sheet dismissed") },
                    content: {
                        ActivityView(activityItems: [
-                           CSVItem(url: shareURL,
-                                   title: shareTitle),
+                           csvItem,
                        ] as [Any], applicationActivities: nil, isPresented: self.$showingShare)
                    })
     }
@@ -142,7 +140,7 @@ struct DurationSummaryView: View {
         if let csv = AnalysisState.exportToFileDocument(name: exportTitle, dataframe: df) {
             csvDocument = csv
         } else {
-            csvDocument = CSVFile(name: "none", Data())
+            csvDocument = CSVFile(name: "none", csv: Data())
             print("set empty csvDocument")
         }
 
@@ -183,8 +181,8 @@ struct DurationSummaryView: View {
                     #else
                         print("csv document \(csvDocument.name) has \(csvDocument.data.count) bytes")
 
-                        shareURL = AnalysisState.exportToURL(csvFile: csvDocument)
-                        shareTitle = csvDocument.name
+                        // csvItem = CSVItem(url: AnalysisState.exportToURL(csvFile: csvDocument), title: csvDocument.name)
+
                         showingShare = true
                     #endif
                 }) {
@@ -211,8 +209,7 @@ struct DurationSummaryView: View {
             .sheet(isPresented: self.$showingShare, onDismiss: { print("share sheet dismissed") },
                    content: {
                        ActivityView(activityItems: [
-                           CSVItem(url: shareURL,
-                                   title: shareTitle),
+                           csvItem,
                        ] as [Any], applicationActivities: nil, isPresented: self.$showingShare)
                    })
     }

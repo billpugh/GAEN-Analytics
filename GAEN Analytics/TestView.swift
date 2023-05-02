@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TestView: View {
-    @State var csv = CSVFile(name: "test", "a,b,c\n1,2,3".data(using: .utf8)!)
+    @State var csv = CSVFile(name: "test", csv: "a,b,c\n1,2,3".data(using: .utf8)!)
     @State private var showingSheet: Bool = false
     var body: some View {
         VStack {

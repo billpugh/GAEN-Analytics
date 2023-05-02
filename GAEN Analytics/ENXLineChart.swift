@@ -14,6 +14,9 @@ import TabularData
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "Charts")
 
 func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
+    if v <= 0 {
+        return 0
+    }
     var value = v
     var multiplier = 1.0
     while value < 10 {
@@ -28,6 +31,9 @@ func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
 }
 
 func oneDigitsPrecisionCeiling(_ v: Double) -> Double {
+    if v <= 0 {
+        return 0
+    }
     var value = v
     var multiplier = 1.0
     while value > 10 {
@@ -327,11 +333,15 @@ struct LineChart: GAENChart {
         leftAxis.labelTextColor = .darkGray
         leftAxis.axisMinimum = 0
 
-        if let maxBound = maxBound {
-            leftAxis.axisMaximum = min(maxBound, yMax)
-        } else {
-            leftAxis.axisMaximum = yMax
+        var max = yMax
+
+        if let maxBound = maxBound, maxBound < max {
+            max = maxBound
         }
+        if let minBound = minBound, minBound > max {
+            max = minBound
+        }
+        leftAxis.axisMaximum = max
 
         leftAxis.labelFont = UIFont.boldSystemFont(ofSize: 12)
 

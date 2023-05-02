@@ -22,6 +22,7 @@ let defaultStart = dateFormatter.date(from: "2021-12-01")!
 // import ZIPFoundation
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "functionality")
 
+let beaconCountMin = [1, 3, 7, 15, 30, 50, 80, 120, 250]
 let beaconCountLimits = [3, 7, 15, 30, 50, 80, 120, 250, 999]
 let beaconCountEstimates = [2.0, 5.0, 10.0, 20.0, 35.0, 60.0, 91.0, 130.0, 251.0]
 
@@ -307,6 +308,47 @@ struct DelayedNotificationCounts {
         }
         return nil
     }
+}
+
+func beaconCountHeader(bin: Int) -> String {
+    let min = beaconCountMin[bin]
+    return "≥ \(min) beacons % low,≥ \(min) beacons % median,≥ \(min) beacons % high"
+}
+
+func analyzeBeaconCounts(config: Configuration, _ metrics: [String: Metric]) -> DataFrame? {
+    let m = MetricSet(forIOS: metrics)
+    guard let beaconCounts = m.beaconCounts else {
+        return nil
+    }
+    let buffer = TextBuffer()
+    var accumulator = FixedLengthAccumulator(config.numDays, beaconCounts)
+    let header = (0 ... 4).map { beaconCountHeader(bin: $0) }.joined(separator: ",")
+    buffer.append("date,\(header)")
+    for d in beaconCounts.clientsByDay.keys.sorted() {
+        let scale = iOSScale(day: d, userRisk: m.userRisk)
+        accumulator.addLikely(beaconCounts, day: d, scale: scale)
+        let sums = accumulator.sums
+        let devices = Double(accumulator.count)
+        var percentages: [[Double]] = Array(repeating: [], count: 9)
+
+        for base in stride(from: 0, to: 864, by: 9) {
+            var sum = 0.0
+            for index in stride(from: 8, to: -1, by: -1) {
+                sum += sums[base + index]
+                let percent = sum / devices
+                percentages[index].append(percent)
+            }
+        }
+        var out = "\(dayFormatter.string(from: d))"
+        for index in 0 ... 4 {
+            percentages[index].sort()
+            for pos in [4, 96 / 2, 96 - 5] {
+                out += ",\(percentages[index][pos])"
+            }
+        }
+        buffer.append(out)
+    }
+    return try? buffer.asENPAData(startDate: config.startDate)
 }
 
 let computeConfigWeights = false
@@ -648,6 +690,7 @@ struct MetricSet {
     let codeVerified14D: Metric
     let keysUploaded14D: Metric
     let dateExposure14D: Metric?
+    let beaconCounts: Metric?
 
     static func hasIOS(_ metrics: [String: Metric]) -> Bool {
         metrics["com.apple.EN.CodeVerified"] != nil
@@ -666,6 +709,7 @@ struct MetricSet {
         userRisk = getMetric(metrics, "com.apple.EN.UserRisk")
         userRiskParameters = getMetric(metrics, "com.apple.EN.UserRiskParameters")
         interactions = getMetric(metrics, "com.apple.EN.UserNotificationInteraction")
+        beaconCounts = getMetric(metrics, "com.apple.EN.BeaconCount")
 
         secondaryAttack14D = getMetric(metrics, "com.apple.EN.SecondaryAttackV2D14")
         codeVerified14D = getMetric(metrics, "com.apple.EN.CodeVerifiedWithReportTypeV2D14")
@@ -691,6 +735,7 @@ struct MetricSet {
         dateExposure14D = m2
 
         userRisk = nil
+        beaconCounts = nil
     }
 }
 
@@ -906,18 +951,23 @@ struct RawMetrics {
         guard let configuration = configuration else {
             return ["No configuration"]
         }
+
         let fetchIntervals = configuration.getFetchIntervals()
         let combinedJson: NSMutableDictionary = [:]
         var combinedRaw: [NSDictionary] = []
         var seenIds: Set<String> = []
+        if n == "periodicExposureNotification14d" {
+            print("Found \(n)")
+        }
         for fetch in fetchIntervals {
-            print(fetch)
+            // print(fetch)
             let json = getStat(metric: n, configuration: configuration, fetch)
             if let error = json["error"] as? String {
                 logger.log("got error fetching ENPA \(n, privacy: .public): \(error, privacy: .public)")
                 errors.append(error)
             }
             if let rawData = json["rawData"] as? [NSDictionary] {
+                print("Got \(rawData.count) raw entries for \(n)")
                 if combinedJson.count == 0 {
                     for k in json.allKeys {
                         if let k = k as? String, k != "rawData", let v = json[k] {

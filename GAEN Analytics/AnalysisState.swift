@@ -8,6 +8,7 @@
 import Foundation
 import os.log
 import TabularData
+import UniformTypeIdentifiers
 import ZIPFoundation
 
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "AnalyzeState")
@@ -271,7 +272,7 @@ class AnalysisState: NSObject, ObservableObject {
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
-            return CSVFile(name: name, csv)
+            return CSVFile(name: name, csv: csv)
 
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -286,7 +287,7 @@ class AnalysisState: NSObject, ObservableObject {
         do {
             let csv = try dataframe.csvRepresentation(options: AnalysisState.writingOptions)
 
-            return CSVFile(name: name, csv)
+            return CSVFile(name: name, csv: csv)
 
         } catch {
             logger.error("\(error.localizedDescription, privacy: .public)")
@@ -446,7 +447,10 @@ class AnalysisState: NSObject, ObservableObject {
                                                             sumScoreGraph(enpa: enpa, config: config),
                                                             maxScoreGraph(enpa: enpa, config: config),
                                                             attenuationsGraph(enpa: enpa, config: config),
-                                                            deviceAttenuations(worksheet: worksheet)]
+                                                            deviceAttenuations(worksheet: worksheet),
+                                                            beaconsGraph(worksheet: worksheet, suffix: "median", config: config),
+                                                            beaconsGraph(worksheet: worksheet, suffix: "low", config: config),
+                                                            beaconsGraph(worksheet: worksheet, suffix: "high", config: config)]
                 + ((1 ... config.numCategories).map { dateExposure14(enpa: enpa, config: config, notification: $0) })
                 + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
 
@@ -580,7 +584,10 @@ let standardMetrics = ["userRisk", "riskParameters",
                        "notificationInteractions",
                        "codeVerified",
                        "keysUploaded",
-                       "dateExposure", "dateExposure14d", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d"]
+                       "beaconCount",
+                       "dateExposure", "dateExposure14d", "codeVerifiedWithReportType14d", "keysUploadedWithReportType14d", "secondaryAttack14d",
+                       // "periodicExposureNotification14d"
+]
 actor AnalysisTask {
     func loadENPAArchive(config: Configuration, _ url: URL, result: AnalysisState) async -> RawMetrics? {
         do {
@@ -651,14 +658,16 @@ actor AnalysisTask {
                 return nil
             }
         } // for m
-        let additional = await result.additionalMetrics
-        for m in additional {
-            await result.update(enpa: "fetching ENPA \(m)")
-            let errors = raw.addMetric(m)
-            if !errors.isEmpty {
-                await result.log(enpa: errors)
-            }
-        } // for m
+        if false {
+            let additional = await result.additionalMetrics
+            for m in additional {
+                await result.update(enpa: "fetching ENPA \(m)")
+                let errors = raw.addMetric(m)
+                if !errors.isEmpty {
+                    await result.log(enpa: errors)
+                }
+            } // for m
+        }
         return raw
     }
 
@@ -667,6 +676,7 @@ actor AnalysisTask {
             let metrics = enpa.metrics
             await result.update(enpa: "Analyzing iOS enpa")
             var iOSDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
+
             var androidDataFrame: DataFrame?
             var combinedDataFrame: DataFrame
             if MetricSet.hasAndroid(metrics) {
@@ -679,6 +689,7 @@ actor AnalysisTask {
                 combinedDataFrame = try getRollingAverageIOSMetrics(metrics, options: config)
             }
             await result.update(enpa: "Computing enpa worksheet")
+
             var worksheet: DataFrame
             combinedDataFrame = computeEstimatedUsersFromNationalRollup(platform: "", enpa: combinedDataFrame, "vc")
             combinedDataFrame.addColumnComputation("nt", "est users using US ENPA %", giving: "est scaled notifications/day", estimatedNotifications)
@@ -712,6 +723,7 @@ actor AnalysisTask {
             } else {
                 worksheet = combinedDataFrame.selecting(columnNames: "date", "vc count", "vc", "ku", "nt")
             }
+
             worksheet.renameColumn("vc count", to: "enpa users")
             worksheet.addColumn("vc count", Int.self, newName: "iOS enpa users", from: iOSDataFrame)
             worksheet.addColumn("vc", Double.self, newName: "iOS vc", from: iOSDataFrame)
@@ -752,11 +764,16 @@ actor AnalysisTask {
                     worksheet.addColumn("<= 80 dB %", Double.self, newName: "Android <= 80 dB %", from: androidDataFrame)
                 }
             }
+            if let beaconCountAnalysis = analyzeBeaconCounts(config: config, metrics) {
+                worksheet.addAllColumns(type: Double.self, from: beaconCountAnalysis)
+                worksheet.printColumnNames()
+            }
             await result.update(enpa: "Computing enpa duration analysis")
 
             let durationAnalysis = try? computeDurationSummary(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], highInfectiousnessWeight: config.highInfectiousnessWeight)
+            logger.log("completed computeDurationSummary")
             let dateExposureAnalysis = try? computeDateExposureCurves(combinedDataFrame.rows[combinedDataFrame.rows.count - 2], categories: config.numCategories)
-
+            logger.log("completed computeDateExposureCurves")
             await result.analyzedENPA(config: config, raw: enpa, ios: iOSDataFrame, android: androidDataFrame, combined: combinedDataFrame, worksheet: worksheet,
                                       durationAnalysis: durationAnalysis, dateExposureAnalysis: dateExposureAnalysis)
             let combined = summarize("combined", combinedDataFrame, categories: config.numCategories)
@@ -899,14 +916,14 @@ struct ChartOptions: Identifiable {
     }
 
     static func maybe(title: String, data: DataFrame, columns: [String], minBound: Double? = nil, maxBound: Double? = nil) -> ChartOptions? {
-        logger.log("Making chart \(title, privacy: .public)")
         var columnsFound: [String] = []
         for c in columns {
-            if data.indexOfColumn(c) != nil {
+            if data.indexOfColumn(c) != nil, !data.isEmpty(column: c) {
                 columnsFound.append(c)
             }
         }
         if columnsFound.isEmpty {
+            logger.log("No columns for chart \(title, privacy: .public)")
             return nil
         }
         return ChartOptions(title: title, data: data, columns: columnsFound, minBound: minBound, maxBound: maxBound, doubleDouble: false)
@@ -989,6 +1006,18 @@ func attenuationsGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions
                         maxBound: 1)
 }
 
+func beaconsGraph(worksheet: DataFrame?, suffix: String, config _: Configuration) -> ChartOptions? {
+    guard let worksheet = worksheet else {
+        return nil
+    }
+    let columns = (0 ... 4).map { "≥ \(beaconCountMin[$0]) beacons % \(suffix)" }
+
+    return ChartOptions.maybe(title: "Beacon counts \(suffix)", data: worksheet,
+                              columns: columns,
+                              minBound: 1,
+                              maxBound: 1)
+}
+
 func weightedDurationGraph(enpa: DataFrame, config _: Configuration) -> ChartOptions {
     let columns = ["wd > 10min %", "wd > 20min %", "wd > 30min %", "wd > 50min %", "wd > 70min %", "wd > 90min %", "wd > 120min %"]
 
@@ -1051,6 +1080,10 @@ func secondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, notific
     let stdev = "sar\(notification)% stdev"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
+
+    if enpa.isEmpty(column: sar) {
+        return nil
+    }
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
     guard data.addColumnSumDouble(sar, stdev, giving: sarplus),
           data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
@@ -1066,6 +1099,9 @@ func excessSecondaryAttackRateSpread(enpa: DataFrame, config _: Configuration, n
     let stdev = "sar\(notification)% stdev"
     let sarplus = "+1 stdev"
     let sarminus = "-1 stdev"
+    if enpa.isEmpty(column: sar) {
+        return nil
+    }
     var data = enpa.selecting(columnNames: ["date", sar, stdev])
     guard data.addColumnSumDouble(sar, stdev, giving: sarplus),
           data.addColumnDifferenceDouble(sar, stdev, giving: sarminus)
@@ -1202,23 +1238,21 @@ func publishRequests(encv: DataFrame, config _: Configuration) -> ChartOptions {
 }
 
 struct CSVFile {
-    // by default our document is empty
     let data: Data
     let name: String
 
-    init(name: String, _ data: Data) {
-        self.data = data
+    init(name: String, csv: Data) {
+        data = csv
         self.name = name
     }
 }
 
 struct ZipFile {
-    // by default our document is empty
     let data: Data
     let name: String
 
-    init(name: String, _ data: Data) {
-        self.data = data
+    init(name: String, zip: Data) {
+        data = zip
         self.name = name
     }
 }

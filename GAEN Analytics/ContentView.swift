@@ -89,11 +89,8 @@ struct ContentView: View {
                     }.disabled(state.setupNeeded)
 
                     NavigationLink(destination: ExportView(), tag: "export", selection: $viewShown) {
-                        Text("Export analysis").font(.headline).padding()
+                        Text("Export analysis and data").font(.headline).padding()
                     }.disabled(!analysisState.available)
-                    NavigationLink(destination: RawExportView(), tag: "raw_export", selection: $viewShown) {
-                        Text(analysisState.available && analysisState.rawENPA != nil ? "Export raw ENPA" : "Configure raw ENPA export").font(.headline).padding()
-                    }.disabled(state.setupNeeded)
 
                     if false {
                         HStack {

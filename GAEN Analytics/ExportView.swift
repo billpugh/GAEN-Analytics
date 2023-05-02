@@ -135,6 +135,50 @@ class CSVItem: NSObject, UIActivityItemSource {
     }
 }
 
+class ZipItem: NSObject, UIActivityItemSource {
+    let url: URL?
+    let title: String
+    init(url: URL?, title: String) {
+        self.url = url
+        self.title = title
+    }
+
+    func itemsToShare() -> [Any] {
+        [title, self]
+    }
+
+    func activityViewControllerPlaceholderItem(_: UIActivityViewController) -> Any {
+        title
+    }
+
+    func activityViewController(_: UIActivityViewController, itemForActivityType _: UIActivity.ActivityType?) -> Any? {
+        url
+    }
+
+    func activityViewController(_: UIActivityViewController,
+                                dataTypeIdentifierForActivityType _: UIActivity.ActivityType?) -> String
+    {
+        "public.zip-archive"
+    }
+
+    func activityViewController(_: UIActivityViewController,
+                                subjectForActivityType _: UIActivity.ActivityType?) -> String
+    {
+        title
+    }
+
+    func activityViewControllerLinkMetadata(_: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.originalURL = url
+        metadata.url = url
+        // let iconURL = Bundle.main.url(forResource: "keys_64", withExtension: "png")
+        // metadata.iconProvider = NSItemProvider(contentsOf: iconURL)
+
+        metadata.title = title
+        return metadata
+    }
+}
+
 struct ExportItem0: View {
     var title: String
     var fileTitle: String
@@ -152,29 +196,29 @@ struct ExportItem: View {
     var fileTitle: String
     var dataFrame: DataFrame?
     let analysisState = AnalysisState.shared
-
-    @Binding var showingSheet: Bool
+    let action: () -> Void
+    // @Binding var showingSheet: Bool
     @State private var showingPopover = false
 
     var showingPopoverOption = true
 
     @MainActor func exportDataframe() {
-        print("analysisState.region = \(analysisState.region)")
+        // print("analysisState.region = \(analysisState.region)")
         let fileName = "\(analysisState.region)-\(fileTitle)-\(dateTimeStamp).csv"
         if let dataFrame = dataFrame {
             #if targetEnvironment(macCatalyst)
                 if let csv = AnalysisState.exportToFileDocument(name: fileName, dataframe: dataFrame) {
                     csvDocument = csv
                     // print("showing sheet for \(csv)")
-                    showingSheet = true
+                    action()
+                    // showingSheet = true
                 }
             #else
                 if let url = AnalysisState.exportToURL(name: fileName, dataframe: dataFrame) {
-                    shareURL = url
-
-                    shareTitle = fileName
-                    // print("showing sheet for \(url)")
-                    showingSheet = true
+                    csvItem = CSVItem(url: url, title: fileName)
+                    print("showing sheet for \(url)")
+                    action()
+                    // showingSheet = true
                 }
             #endif
         }
@@ -215,65 +259,157 @@ struct ExportItem: View {
     }
 }
 
-var shareURL: URL?
-var shareTitle: String = ""
-private var csvDocument: CSVFile?
+var csvDocument: CSVFile?
+var zipDocument: ZipFile?
+
+var csvItem: CSVItem = .init(url: nil, title: "")
+var zipItem: ZipItem = .init(url: nil, title: "")
+
 struct ExportView: View {
-    @State private var showingSheet: Bool = false
-    let analysisState = AnalysisState.shared
-    let showSections = true
+    @State private var showingCVSSheet: Bool = false
+    @State private var showingZipSheet: Bool = false
+    @ObservedObject var analysisState = AnalysisState.shared
+
+    func exportRawENPA() {
+        guard let raw = analysisState.rawENPA, let url = raw.writeMetrics() else { return }
+        let name = url.lastPathComponent
+        #if targetEnvironment(macCatalyst)
+            do {
+                let data = try Data(contentsOf: url)
+                print("creating ZipDocument")
+                zipDocument = ZipFile(name: name, zip: data)
+                showingZipSheet = true
+            } catch {
+                print("Error getting raw ENPA archive: \(error.localizedDescription)")
+            }
+
+        #else
+            zipItem = ZipItem(url: url, title: name)
+
+            showingZipSheet = true
+
+        #endif
+    }
+
+    func exportArchiveENPA() {
+        guard let raw = analysisState.rawENPA, let url = raw.archiveENPA() else { return }
+        let name = url.lastPathComponent
+        #if targetEnvironment(macCatalyst)
+            do {
+                let data = try Data(contentsOf: url)
+                zipDocument = ZipFile(name: name, zip: data)
+                showingZipSheet = true
+            } catch {
+                print("Error getting raw ENPA archive: \(error.localizedDescription)")
+            }
+
+        #else
+            zipItem = ZipItem(url: url, title: name)
+
+            showingZipSheet = true
+
+        #endif
+    }
 
     var body: some View {
         Form {
-            if showSections {
-                Section(header: Text("ENPA").font(.title).padding(.top)) {
-                    ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, showingSheet: $showingSheet)
+            Section(header: Text("Analysis").font(.title).padding(.top)) {
+                Text("ENPA").font(.title).padding(.top)
+                ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, action: {
+                    showingCVSSheet = true
+                })
 
-                    ExportItem(title: "iOS ENPA", fileTitle: "iOS", dataFrame: analysisState.iOSENPA, showingSheet: $showingSheet)
-                    ExportItem(title: "Android ENPA", fileTitle: "Android", dataFrame: analysisState.AndroidENPA, showingSheet: $showingSheet)
-                } // Section
-            }
-            if showSections {
-                Section(header: Text("ENCV").font(.title).padding(.top)) {
-                    ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, showingSheet: $showingSheet)
-                    if let smsErrors = analysisState.smsErrors {
-                        ExportItem(title: "SMS errors data", fileTitle: "encv-sms-errors", dataFrame: smsErrors, showingSheet: $showingSheet)
-                    }
-                    ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, showingSheet: $showingSheet)
+                ExportItem(title: "iOS ENPA", fileTitle: "iOS", dataFrame: analysisState.iOSENPA, action: {
+                    showingCVSSheet = true
+                })
+                ExportItem(title: "Android ENPA", fileTitle: "Android", dataFrame: analysisState.AndroidENPA, action: {
+                    showingCVSSheet = true
+                })
 
-                    // Text("System health")
-                } // Section
-                if analysisState.worksheet != nil {
-                    Section(header: Text("Worksheet").font(.title).textCase(.none).padding(.top)) {
-                        ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.worksheet, showingSheet: $showingSheet)
-                    }
+                Text("ENCV").font(.title).padding(.top)
+                ExportItem(title: "ENCV composite data", fileTitle: "encv-composite", dataFrame: analysisState.encvComposite, action: {
+                    showingCVSSheet = true
+                })
+                if let smsErrors = analysisState.smsErrors {
+                    ExportItem(title: "SMS errors data", fileTitle: "encv-sms-errors", dataFrame: smsErrors, action: {
+                        showingCVSSheet = true
+                    })
                 }
-            } else {
-                ExportItem(title: "Combined ENPA", fileTitle: "ENPA", dataFrame: analysisState.combinedENPA, showingSheet: $showingSheet)
+                ExportItem(title: "ENCV analysis", fileTitle: "encv-analysis", dataFrame: analysisState.rollingAvg, action: {
+                    showingCVSSheet = true
+                })
+
+                // Text("System health")
+
+                if analysisState.worksheet != nil {
+                    Text("Worksheet").font(.title).padding(.top)
+                    ExportItem(title: "combined analysis", fileTitle: "worksheet", dataFrame: analysisState.worksheet, action: {
+                        showingCVSSheet = true
+                    }).padding(.bottom)
+                }
             }
+            #if targetEnvironment(macCatalyst)
+            .fileExporter(isPresented: $showingCVSSheet, document: csvDocument, contentType:
+                UTType.commaSeparatedText, defaultFilename: csvDocument?.name ?? "") { result in
+                    switch result {
+                    case let .success(url):
+                        print("Saved to \(url)")
+                    case let .failure(error):
+                        print(error.localizedDescription)
+                    }
+                    csvDocument = nil
+            }
+
+            #else
+                    .sheet(isPresented: self.$showingCVSSheet, onDismiss: { print("share sheet dismissed") },
+                           content: {
+                               ActivityView(activityItems: [
+                                   csvItem,
+                               ] as [Any], applicationActivities: nil, isPresented: self.$showingCVSSheet)
+                           })
+            #endif
+
+            Section(header:
+                Text("Raw ENPA data").font(.title).textCase(.none).padding(.top)) {
+                    Button(action: { Task(priority: .userInitiated) { exportRawENPA() }}) {
+                        Label("Raw ENPA csv data", systemImage: "square.and.arrow.up")
+                    }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
+                    Text(markdown(file: "Export raw ENPA csv data"))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
+
+                    Button(action: { Task(priority: .userInitiated) { exportArchiveENPA() }}) {
+                        Label("Raw ENPA json archive", systemImage: "square.and.arrow.up")
+                    }.padding(.top).font(.headline).disabled(!analysisState.available || analysisState.rawENPA == nil)
+
+                    Text(markdown(file: "Export raw ENPA json archive"))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled).transition(.scale).font(.body).padding(.horizontal)
+                }
+            #if targetEnvironment(macCatalyst)
+                .fileExporter(isPresented: $showingZipSheet, document: zipDocument, contentType: UTType.zip,
+                              defaultFilename: zipDocument?.name ?? "archive.zip") { result in
+                    print(zipDocument!.contentType)
+                    switch result {
+                    case let .success(url):
+                        print("Saved to \(url)")
+                    case let .failure(error):
+                        print(error.localizedDescription)
+                    }
+                    csvDocument = nil
+                }
+
+            #else
+                    .sheet(isPresented: self.$showingZipSheet, onDismiss: { print("share sheet dismissed") },
+                           content: {
+                               ActivityView(activityItems: [
+                                   zipItem,
+                               ] as [Any], applicationActivities: nil, isPresented: self.$showingZipSheet)
+                           })
+            #endif
         } // Form
 
-        #if targetEnvironment(macCatalyst)
-        .fileExporter(isPresented: $showingSheet, document: csvDocument, contentType: UTType.commaSeparatedText, defaultFilename: csvDocument?.name ?? "") { result in
-            switch result {
-            case let .success(url):
-                print("Saved to \(url)")
-            case let .failure(error):
-                print(error.localizedDescription)
-            }
-            csvDocument = nil
-        }
-
-        #else
-                .sheet(isPresented: self.$showingSheet, onDismiss: { print("share sheet dismissed") },
-                       content: {
-                           ActivityView(activityItems: [
-                               CSVItem(url: shareURL,
-                                       title: shareTitle),
-                           ] as [Any], applicationActivities: nil, isPresented: self.$showingSheet)
-                       })
-        #endif
-                       .navigationBarTitle("Export analysis")
+        .navigationBarTitle("Export analysis and data")
     }
 }
 

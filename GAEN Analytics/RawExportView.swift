@@ -85,15 +85,15 @@ struct RawExportView: View {
         #if targetEnvironment(macCatalyst)
             do {
                 let data = try Data(contentsOf: url)
-                zipDocument = ZipFile(name: name, data)
+                zipDocument = ZipFile(name: name, zip: data)
                 showingZipSheet = true
+                print("showingZipSheet = \(showingZipSheet)")
             } catch {
                 print("Error getting raw ENPA archive: \(error.localizedDescription)")
             }
 
         #else
             shareURL = url
-
             zipName = name
             showingZipSheet = true
 
@@ -106,7 +106,7 @@ struct RawExportView: View {
         #if targetEnvironment(macCatalyst)
             do {
                 let data = try Data(contentsOf: url)
-                zipDocument = ZipFile(name: name, data)
+                zipDocument = ZipFile(name: name, zip: data)
                 showingZipSheet = true
             } catch {
                 print("Error getting raw ENPA archive: \(error.localizedDescription)")
@@ -127,9 +127,6 @@ struct RawExportView: View {
 
     var body: some View {
         List {
-            Section(header: Text("Additional interaction metrics").font(.headline).textCase(nil)) {
-                CheckView(id: "beaconCount")
-            }
             Section(header: Text("Additional low noise 14 day metrics").font(.headline).textCase(nil)) {
                 CheckView(id: "periodicExposureNotification14d")
                 // CheckView(id: "dateExposure14d")
