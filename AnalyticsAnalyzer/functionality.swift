@@ -312,7 +312,7 @@ struct DelayedNotificationCounts {
 
 func beaconCountHeader(bin: Int) -> String {
     let min = beaconCountMin[bin]
-    return "≥ \(min) beacons % low,≥ \(min) beacons % median,≥ \(min) beacons % high"
+    return "≥ \(min) beacons % unbusy,≥ \(min) beacons % typical,≥ \(min) beacons % busy"
 }
 
 func analyzeBeaconCounts(config: Configuration, _ metrics: [String: Metric]) -> DataFrame? {

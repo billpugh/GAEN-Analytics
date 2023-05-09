@@ -448,9 +448,9 @@ class AnalysisState: NSObject, ObservableObject {
                                                             maxScoreGraph(enpa: enpa, config: config),
                                                             attenuationsGraph(enpa: enpa, config: config),
                                                             deviceAttenuations(worksheet: worksheet),
-                                                            beaconsGraph(worksheet: worksheet, suffix: "median", config: config),
-                                                            beaconsGraph(worksheet: worksheet, suffix: "low", config: config),
-                                                            beaconsGraph(worksheet: worksheet, suffix: "high", config: config)]
+                                                            beaconsGraph(worksheet: worksheet, suffix: "typical", config: config),
+                                                            beaconsGraph(worksheet: worksheet, suffix: "unbusy", config: config),
+                                                            beaconsGraph(worksheet: worksheet, suffix: "busy", config: config)]
                 + ((1 ... config.numCategories).map { dateExposure14(enpa: enpa, config: config, notification: $0) })
                 + ((1 ... config.numCategories).map { excessSecondaryAttackRateSpread(enpa: enpa, config: config, notification: $0) })
 
@@ -1118,10 +1118,10 @@ func dateExposure14(enpa: DataFrame, config _: Configuration, notification: Int)
     return ChartOptions(title: "Delay between exposure and nt\(notification)", data: enpa, columns: columns, maxBound: 1.0)
 }
 
-func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions {
+func arrivingPromptly(enpa: DataFrame, config: Configuration) -> ChartOptions? {
     let columns = Array((1 ... config.numCategories).map { ["nt\($0) 0-3 days %", "nt\($0) 0-6 days %"] }.joined())
 
-    return ChartOptions(title: "Notifications arriving promptly", data: enpa, columns: columns,
+    return ChartOptions.maybe(title: "Notifications arriving promptly", data: enpa, columns: columns,
                         maxBound: 1.0)
 }
 
