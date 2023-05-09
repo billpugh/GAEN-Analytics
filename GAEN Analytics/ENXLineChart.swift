@@ -14,8 +14,8 @@ import TabularData
 private let logger = Logger(subsystem: "com.ninjamonkeycoders.GAENAnalytics", category: "Charts")
 
 func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
-    if v <= 0 {
-        return 0
+    guard v > 0 else{
+        return v
     }
     var value = v
     var multiplier = 1.0
@@ -31,8 +31,8 @@ func twoDigitsPrecisionCeiling(_ v: Double) -> Double {
 }
 
 func oneDigitsPrecisionCeiling(_ v: Double) -> Double {
-    if v <= 0 {
-        return 0
+    guard v > 0 else {
+        return v
     }
     var value = v
     var multiplier = 1.0
