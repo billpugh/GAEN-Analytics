@@ -50,7 +50,7 @@ public func getENCVDataFrame(_ stat: String, apiKey: String, useTestServers: Boo
     if status == 401 || status == 400 {
         return (nil, "Invalid ENCV API key")
     }
-    return (nil, "failed to get encv \(stat), status code \(stat)")
+    return (nil, "failed to get encv \(stat), status code \(status)")
 }
 
 func getErrorsByDate(smsData: DataFrame) -> ([Date: Int], [Date: Int]) {

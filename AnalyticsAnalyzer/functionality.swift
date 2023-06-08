@@ -1603,7 +1603,12 @@ func iOSScale(day: Date, userRisk: Metric?) -> Double {
     let c = Double(clients)
     let likely = sum.map { userRisk.getMostLikelyPopulationCount(totalCount: c, sumPart: Double($0)) }
     let successful = likely.reduce(0,+)
-    return c / successful
+    if successful <= 0 {
+        return 1
+    }
+    let result =  min(c / successful,2)
+    return result
+    
 }
 
 struct UserRiskAttribute {

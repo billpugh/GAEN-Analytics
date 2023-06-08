@@ -589,6 +589,29 @@ let standardMetrics = ["userRisk", "riskParameters",
                        // "periodicExposureNotification14d"
 ]
 actor AnalysisTask {
+    
+    func getNestedJson(zipData: Data) -> (String, NSDictionary)? {
+        guard let nestedArchive = Archive(data: zipData, accessMode: .read) else {
+            return nil
+        }
+        do {
+            for entry in nestedArchive {
+                let url = URL(fileURLWithPath: entry.path)
+                let name = url.lastPathComponent
+                var nestedData = Data()
+                try nestedArchive.extract(entry, bufferSize: 200_000_000, consumer: { (dataChunk) in
+                    nestedData.append(dataChunk)
+                })
+                if let json = try? JSONSerialization.jsonObject(with: nestedData, options: []) as? NSDictionary {
+                    return (name, json)
+                }
+            }
+            return nil
+        } catch {
+            return nil
+        }
+    }
+    
     func loadENPAArchive(config: Configuration, _ url: URL, result: AnalysisState) async -> RawMetrics? {
         do {
             guard url.startAccessingSecurityScopedResource() else {
@@ -612,27 +635,35 @@ actor AnalysisTask {
             for file in archive {
                 let url = URL(fileURLWithPath: file.path)
                 let name = url.lastPathComponent
-                if file.type != .file || !name.hasSuffix(".json") {
+                if file.type != .file{
                     continue
                 }
+                
                 try _ = archive.extract(file, bufferSize: 200_000_000) { data in
-
-                    if data.count < 200_000_000, let json = try? JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                        print("Got json for \(name), \(data.count)")
-                        Task { await result.update(enpa: "loading \(name)") }
+                    if name.hasSuffix(".json") {
+                        if data.count < 200_000_000, let json = try? JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
+                            print("Got json for \(name), \(data.count)")
+                            Task { await result.update(enpa: "loading \(name)") }
+                            if let rawData = json["rawData"] as? [NSDictionary] {
+                                for m in rawData {
+                                    rawENPA.processRaw(name, m)
+                                }
+                            }
+                            
+                        } else {
+                            Task {
+                                await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
+                            }
+                        }
+                    } else if name.hasSuffix("-raw-json.zip"), let (name, json) = getNestedJson(zipData: data) {
                         if let rawData = json["rawData"] as? [NSDictionary] {
                             for m in rawData {
                                 rawENPA.processRaw(name, m)
                             }
                         }
-
-                    } else {
-                        Task {
-                            await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
-                        }
-                    }
-                }
-            }
+                    } // -raw-json.zip
+                } //extract
+            } //for file in archive
 
             // rawENPA.load(url, result: self)
 
@@ -817,25 +848,33 @@ actor AnalysisTask {
             }
 
             let (newComposite, message) = getENCVDataFrame("composite.csv", apiKey: encvAPIKey, useTestServers: config.useTestServers)
-            guard let newComposite = newComposite
-            else {
+            if let newComposite = newComposite {
+                if let existingComposite = existingComposite {
+                    composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
+                } else {
+                    composite = newComposite
+                }
+                logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
+
+                await result.update(encv: "Fetching sms errors")
+
+                let (df, status) = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
+                smsData = df
+            } else {
+                // no new composite
                 logger.log("\(message, privacy: .public)")
                 await result.log(encv: [message])
-                return ENCVAnalysis(encv: nil, average: nil, log: [message])
+                if let existingComposite = existingComposite {
+                    await result.log(encv: ["Using just archived ENCV data"])
+                    composite = existingComposite
+                } else {
+                    return ENCVAnalysis(encv: nil, average: nil, log: [message])
+                }
+                smsData = nil
             }
+            
 
-            if let existingComposite = existingComposite {
-                composite = existingComposite.merge(key: "date", Date.self, adding: newComposite)
-            } else {
-                composite = newComposite
-            }
-
-            logger.log("Got ENCV composite.csv, requesting sms-errors.csv")
-
-            await result.update(encv: "Fetching sms errors")
-
-            let (df, status) = getENCVDataFrame("sms-errors.csv", apiKey: config.encvAPIKey!, useTestServers: config.useTestServers)
-            smsData = df
+           
         }
 
         await result.update(encv: "Analyzing encv")
@@ -1184,7 +1223,7 @@ func deviceAttenuations(worksheet: DataFrame?) -> ChartOptions? {
         "iOS <= 80 dB %",
     ]
 
-    return ChartOptions.maybe(title: "Comparison of device received attenuations", data: worksheet, columns: columns)
+    return ChartOptions.maybe(title: "Comparison of device received attenuations", data: worksheet, columns: columns, maxBound: 1.0)
 }
 
 // est. users

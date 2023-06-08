@@ -59,7 +59,7 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
     static let highInfectiousnessWeightKey = "highInfectiousnessWeightKey"
     static let debuggingKey = "debuggingKey"
 
-    static let endNowInternal: TimeInterval = 30 * 24 * 60 * 60
+    static let endNowInterval: TimeInterval = 30 * 24 * 60 * 60
     func convertToUTCDay(_ date: Date) -> Date {
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
@@ -153,12 +153,15 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
     }
 
+    static func isNotNow(_ endDate: Date) -> Bool {
+        (endDate.timeIntervalSinceNow < -SetupState.endNowInterval)
+    }
     // Note: in local time zone
     @Published var endDate: Date {
         didSet {
             UserDefaults.standard.set(endDate.timeIntervalSince1970, forKey: Self.endKey)
 
-            endNotNow = (endDate.timeIntervalSinceNow < -SetupState.endNowInternal)
+            endNotNow = SetupState.isNotNow(endDate)
         }
     }
 
@@ -315,9 +318,16 @@ class SetupState: NSObject, ObservableObject { // }, UNUserNotificationCenterDel
         }
 
         startDate = dateFor(key: Self.startKey, defaultDate: defaultStart)
-        let endNotNow = UserDefaults.standard.bool(forKey: Self.endNotNowKey)
-        self.endNotNow = endNotNow
-        endDate = endNotNow ? dateFor(key: Self.endKey, defaultDate: Date()) : Date()
+        var storedEndNotNow = UserDefaults.standard.bool(forKey: Self.endNotNowKey)
+      
+        var storedEndDate = dateFor(key: Self.endKey, defaultDate: Date())
+        
+        if !SetupState.isNotNow(storedEndDate) {
+            storedEndNotNow = false
+        }
+        endDate = storedEndNotNow ? storedEndDate : Date()
+        self.endNotNow = storedEndNotNow
+        print("storedEndDate = \(storedEndDate), endNotNow = \(storedEndNotNow)")
         configStartDate = nil // dateFor(key: Self.configStartKey, defaultDate: defaultStart)
         let uTestServers = UserDefaults.standard.bool(forKey: Self.testServerKey)
         useTestServers = uTestServers
