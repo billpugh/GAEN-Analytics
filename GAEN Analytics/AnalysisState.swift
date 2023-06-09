@@ -605,6 +605,8 @@ actor AnalysisTask {
                 if let json = try? JSONSerialization.jsonObject(with: nestedData, options: []) as? NSDictionary {
                     return (name, json)
                 }
+                print("Unable to parse json")
+                
             }
             return nil
         } catch {
@@ -635,7 +637,7 @@ actor AnalysisTask {
             for file in archive {
                 let url = URL(fileURLWithPath: file.path)
                 let name = url.lastPathComponent
-                if file.type != .file{
+                if file.type != .file {
                     continue
                 }
                 
@@ -651,6 +653,7 @@ actor AnalysisTask {
                             }
                             
                         } else {
+                            
                             Task {
                                 await result.log(enpa: ["Couldn't get json for \(name), \(data.count) bytes"])
                             }
